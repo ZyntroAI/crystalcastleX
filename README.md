@@ -749,10 +749,13 @@ No credentials were added to the repository.
 
 None.
 
+![Build](https://img.shields.io/github/actions/workflow/status/ZyntroAI/crystalcastleX/ci.yml?branch=main&style=flat-square&label=build)
+![Coverage](https://img.shields.io/badge/coverage-75%25-8957e5?style=flat-square)
+)
 
 ---
 
-🧪 Test Strategy
+![Tests](https://img.shields.io/badge/tests-passing-3fb950?style=flat-square)
 
 Tests should exist at the appropriate level:
 
@@ -899,7 +902,7 @@ Roadmap items should only be considered implemented when corresponding code, tes
 
 ---
 
-🤝 Contributing
+![Contributors](https://img.shields.io/github/contributors/ZyntroAI/crystalcastleX?style=flat-square&color=1f6feb
 
 Contributions are welcome.
 
@@ -933,6 +936,7 @@ Before contributing:
 See:
 
 CONTRIBUTING.md
+![Contributors](https://img.shields.io/github/contributors/ZyntroAI/crystalcastleX?style=flat-square&color=1f6feb
 
 CODE_OF_CONDUCT.md
 
@@ -940,7 +944,7 @@ CODE_OF_CONDUCT.md
 
 ---
 
-📜 License
+![License](https://img.shields.io/badge/license-MIT-1f6feb?style=flat-square)
 
 See LICENSE for the license applicable to this repository.
 

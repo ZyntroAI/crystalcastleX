@@ -1,0 +1,241 @@
+ด้านล่างเป็น Feature Request ที่ปรับให้เหมาะกับ OpenClaw models.json โดยอิงโครงสร้างปัจจุบันของ OpenClaw ซึ่ง models.json ใช้เก็บ custom provider/model registry และถูก merge กับ configuration หลักตามค่าเริ่มต้น 
+
+Feature Request: OpenClaw "models.json" Provider & Model Registry
+
+Description
+
+เพิ่มความสามารถในการจัดการ "models.json" ของ OpenClaw สำหรับ custom providers, OpenAI-compatible APIs, model metadata, authentication references และ model fallback อย่างเป็นระบบ
+
+ปัญหาที่ฟีเจอร์นี้จะแก้ไข
+
+- การกำหนด custom providers และ models ต้องกระจายอยู่ระหว่าง "openclaw.json" และ agent-level "models.json"
+- การจัดการ "baseUrl", "api", "apiKey", model IDs และ context limits ด้วยมือมีโอกาสเกิด configuration drift
+- API credentials ไม่ควรถูกเก็บเป็น plaintext ใน repository
+- Model catalog, custom provider และ runtime configuration ต้องมี merge behavior ที่ชัดเจน
+- การเปลี่ยน provider หรือ model ต้องสามารถตรวจสอบได้ก่อนใช้งานจริง
+- ระบบต้องรองรับ OpenAI-compatible proxy และ local/self-hosted models
+
+OpenClaw ปัจจุบันเขียน custom providers จาก "models.providers" ลงใน "~/.openclaw/agents/<agentId>/agent/models.json" และใช้ "models.mode" เพื่อกำหนด "merge" หรือ "replace" behavior.
+
+ประโยชน์ที่ผู้ใช้จะได้รับ
+
+- จัดการ provider และ model ได้จากจุดเดียว
+- ลด configuration errors
+- รองรับหลาย AI providers และ fallback models
+- ปลอดภัยขึ้นด้วย environment variables หรือ SecretRef แทน plaintext API keys
+- รองรับ local LLM, LiteLLM, vLLM และ OpenAI-compatible gateways
+- สามารถ validate model configuration ก่อน deploy
+- เหมาะกับ development, CI/CD และ production environments
+
+---
+
+Proposed Solution
+
+เพิ่ม model registry management layer สำหรับ OpenClaw โดยมีโครงสร้าง:
+
+~/.openclaw/
+├── openclaw.json
+└── agents/
+    └── <agentId>/
+        └── agent/
+            ├── models.json
+            └── auth-profiles.json
+
+ตัวอย่าง "models.json"
+
+{
+  "providers": {
+    "custom-proxy": {
+      "baseUrl": "http://localhost:4000/v1",
+      "api": "openai-completions",
+      "apiKey": "${CUSTOM_PROXY_API_KEY}",
+      "models": [
+        {
+          "id": "llama-3.1-8b",
+          "name": "Llama 3.1 8B",
+          "reasoning": false,
+          "input": ["text"],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 128000,
+          "contextTokens": 96000,
+          "maxTokens": 32000
+        }
+      ]
+    }
+  }
+}
+
+OpenClaw รองรับ provider adapter เช่น "openai-completions", "openai-responses", "anthropic-messages", "google-generative-ai" และ provider-specific adapters อื่น ๆ.
+
+Model selection
+
+ให้ model reference ใช้รูปแบบ:
+
+provider/model
+
+ตัวอย่าง:
+
+{
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "openai/gpt-5.5",
+        "fallbacks": [
+          "anthropic/claude-sonnet-4-6",
+          "custom-proxy/llama-3.1-8b"
+        ]
+      }
+    }
+  }
+}
+
+OpenClaw ใช้ primary model ก่อน แล้วจึงเรียก fallback ตามลำดับเมื่อเกิด model failure.
+
+Authentication
+
+ไม่ควร commit credential จริงลง Git:
+
+{
+  "apiKey": "${OPENAI_API_KEY}"
+}
+
+หรือใช้ OpenClaw SecretRef mechanism ตาม environment/configuration source
+
+Environment
+    │
+    ▼
+SecretRef
+    │
+    ▼
+OpenClaw Provider
+    │
+    ▼
+models.json
+
+OpenClaw สามารถเก็บ marker สำหรับ SecretRef แทน resolved secret value เพื่อไม่ให้ credential จริงถูกเขียนลง "models.json".
+
+CLI integration
+
+Feature นี้ควรรองรับ workflow:
+
+openclaw models list
+openclaw models status
+openclaw models refresh
+
+openclaw models set openai/gpt-5.5
+
+openclaw config validate
+openclaw config schema
+
+คำสั่ง "models list", "status", "refresh" และ "set" เป็นส่วนหนึ่งของ current OpenClaw CLI model workflow.
+
+Validation
+
+เพิ่ม validation สำหรับ:
+
+Provider ID
+    ↓
+baseUrl
+    ↓
+API adapter
+    ↓
+Authentication
+    ↓
+Model ID
+    ↓
+Input modality
+    ↓
+Context window
+    ↓
+Token limits
+    ↓
+Cost metadata
+
+ตัวอย่าง validation failure:
+
+ERROR: provider/custom-proxy/model/llama-3.1-8b
+
+- baseUrl is missing
+- model id is duplicated
+- contextTokens exceeds contextWindow
+- authentication reference is unresolved
+
+---
+
+Alternatives Considered
+
+1. เก็บทุกอย่างใน "openclaw.json"
+
+ข้อดี:
+
+- Configuration อยู่ในไฟล์เดียว
+- ง่ายต่อการ backup
+
+ข้อเสีย:
+
+- ไฟล์ใหญ่ขึ้นเมื่อมีหลาย providers/models
+- Agent-specific model registry จัดการยาก
+- ไม่แยก generated/provider catalog ออกจาก global configuration
+
+จึงไม่เลือกเป็นแนวทางหลัก
+
+2. ใช้ "models.json" เป็น configuration หลักทั้งหมด
+
+ข้อดี:
+
+- Provider/model configuration แยกชัดเจน
+- เหมาะกับ multi-agent environment
+
+ข้อเสีย:
+
+- ขัดกับ architecture ปัจจุบันที่ "openclaw.json" ยังเป็น global configuration
+- authentication และ agent behavior มี configuration surface อื่นอยู่แล้ว
+
+จึงเลือกให้ "models.json" เป็น model/provider registry และให้ "openclaw.json" เป็น global configuration
+
+3. ใช้ external model registry
+
+ตัวอย่าง:
+
+OpenClaw
+   │
+   ▼
+Model Registry API
+   │
+   ├── Provider metadata
+   ├── Model metadata
+   ├── Pricing
+   └── Availability
+
+ข้อดี:
+
+- Centralized management
+- เหมาะกับองค์กรขนาดใหญ่
+- สามารถทำ model governance ได้
+
+ข้อเสีย:
+
+- เพิ่ม infrastructure
+- เพิ่ม network dependency
+- เพิ่ม failure points
+
+จึงเหมาะเป็น phase ถัดไปมากกว่าการแทนที่ "models.json"
+
+---
+
+Related PR/Issue
+
+- OpenClaw Models documentation
+- OpenClaw Model Providers
+- OpenClaw CLI Models
+- OpenClaw Configuration
+- Custom Provider / OpenAI-compatible API support
+- Model fallback / failover
+- Authentication profiles
+
+References:

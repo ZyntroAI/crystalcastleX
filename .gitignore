@@ -1,105 +1,112 @@
-# 📦 Dependencies
+# Dependencies
 node_modules/
-.pnp
-.pnp.js
 
-# 🔐 Environment & Secrets (สำคัญที่สุด)
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-*.pem
-*.key
-*.cert
-
-# 🔧 Next.js
-.next/
-out/
-build/
-dist/
-.vercel
-
-# 🧪 Playwright Testing
-test-results/
-playwright-report/
-blob-report/
-playwright/.cache/
-playwright/.auth/
-
-# 🤖 AI Context
-.ai-context.local.md
-
-# 🛠️ System Files
-.DS_Store
-.AppleDouble
-.LSOverride
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-*.swp
-*.swo
-*~
-root.sh
-
-# 📊 Logs & Debugging
+# npm
+.npm/
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-*.log
+npm-error.log*
+.npmrc.local
 
-# 🧹 Coverage & Misc Artifacts
-coverage/
-.nyc_output
-.eslintcache
-*.tsbuildinfo
-next-env.d.ts
-
-# 💾 Misc
-*.tmp
-.cache/# Environment / Secrets
-# =========================
+# Environment / secrets
 .env
 .env.*
 !.env.example
 
-# =========================
-# Vercel
-# =========================
-.vercel/
+# Logs
+logs/
+*.log
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# =========================
-# Turbo / Next.js
-# =========================
-.next/
-out/
+# Test / coverage
+coverage/
+.nyc_output/
+.junit/
+test-results/
+
+# Build / generated output
 dist/
+build/
+out/
+.tmp/
+temp/
+.tmp-*/
+
+# GitHub Actions local files
+.act/
+.github/.cache/
+
+# Runtime / local data
+.cache/
+*.pid
+*.pid.lock
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.DS_Store
+
+# macOS
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+
+# IDEs / editors
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+.idea/
+*.iml
+
+# TypeScript / JavaScript tooling
+.eslintcache
+.parcel-cache/
 .turbo/
 
-# =========================
-# Cache
-# =========================
-.cache/
-.tmp/
-.temp/
+# Local npm tooling
+.npmrc
 
-# =========================
-# OS Files
-# =========================
-.DS_Store
-Thumbs.db
+# Generated reports
+reports/
+*.lcov
 
-# =========================
-# Coverage
-# =========================
-coverage/
+# Local scripts / test artifacts
+sandbox/
+artifacts/
+tmp/
 
-# =========================
-# AI Generated / Captures
-# =========================
-generated/
-outputs/
-screenshots/
+# Secrets and credentials
+*.pem
+*.key
+*.crt
+credentials.json
+service-account.json
+secrets.json
+
+# OS-specific executable artifacts
+*.exe
+*.dmg
+*.pkg
+*.deb
+*.rpm
+
+# Keep repository metadata and lockfiles tracked
+!.gitignore
+!package.json
+!package-lock.json

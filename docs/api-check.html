@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Diagnostic - Crystal Castle (Improved)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-950 text-gray-100 p-4 md:p-8 min-h-screen font-sans">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
+                    🔮 API Diagnostic Tool
+                </h1>
+                <p class="text-gray-400 text-sm">ตรวจสอบสถานะ API ทุกตัวแบบ Real-time พร้อมรายงานข้อผิดพลาดโดยละเอียด</p>
+            </div>
+            <div class="flex gap-2">
+                <button id="copyBtn" class="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-700 transition flex items-center gap-2">
+                    📋 Copy Logs
+                </button>
+                <button id="refreshBtn" class="bg-purple-600 px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition shadow-lg shadow-purple-900/20 flex items-center gap-2">
+                    🔄 Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 rounded-xl p-5 mb-6 border border-gray-800 shadow-xl">
+            <div class="flex items-center gap-3 mb-4 border-b border-gray-800 pb-3">
+                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" id="liveIndicator"></div>
+                <span class="text-sm text-gray-400 font-medium">ตรวจสอบแบบ Real-time</span>
+                <div class="ml-auto text-xs text-gray-500" id="progressCounter">0/0</div>
+            </div>
+            <div id="results" class="space-y-3 min-h-[100px]">
+                <div class="flex justify-center items-center py-8">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500 mr-3"></div>
+                    <span class="text-gray-400">กำลังตรวจสอบ API ทั้งหมด...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800 shadow-xl">
+            <h2 class="font-semibold mb-3 text-purple-400 flex items-center gap-2">
+                🔑 Environment Variables Status
+            </h2>
+            <div id="envStatus" class="space-y-2 text-sm bg-gray-950/50 p-4 rounded-lg border border-gray-800/50">
+                <!-- Environment status will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // รายการ API ทั้งหมดที่ตรวจสอบ
+        const endpoints = [
+            {
+                name: '📤 Upload',
+                path: '/api/upload',
+                method: 'POST',
+                needBody: false
+            },
+            {
+                name: '🎞 FAL Kling (Video)',
+                path: '/api/video',
+                method: 'POST',
+                testBody: { image_url: 'https://example.com/test.jpg', prompt: 'test video' },
+                needBody: true
+            },
+            {
+                name: '✨ Magic Hour',
+                path: '/api/magichour',
+                method: 'POST',
+                testBody: { image_url: 'https://example.com/test.jpg', prompt: 'test' },
+                needBody: true
+            },
+            {
+                name: '📸 Gen Prompt',
+                path: '/api/prompt',
+                method: 'POST',
+                testBody: { user_prompt: 'test product video', category: 'Menswear' },
+                needBody: true
+            },
+            {
+                name: '📝 Generate Post',
+                path: '/api/post',
+                method: 'POST',
+                testBody: { prompt: 'test', brand: 'Nike', category: 'Shoes' },
+                needBody: true
+            },
+            {
+                name: '🤖 GROQ',
+                path: '/api/groq',
+                method: 'POST',
+                testBody: { prompt: 'test', model: 'llama3-8b-8192' },
+                needBody: true
+            }
+        ];
+
+        const TIMEOUT_MS = 8000;
+
+        // ฟังก์ชันตรวจสอบ API
+        async function checkAPI(ep) {
+            const startTime = Date.now();
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+            try {
+                const options = {
+                    method: ep.method,
+                    headers: { 'Content-Type': 'application/json' },
+                    signal: controller.signal
+                };
+
+                if (ep.needBody && ep.testBody) {
+                    options.body = JSON.stringify(ep.testBody);
+                } else {
+                    // ใช้ HEAD request สำหรับ endpoints ที่ไม่ต้องการ body
+                    options.method = 'HEAD';
+                    options.body = undefined;
+                }
+
+                const response = await fetch(ep.path, options);
+                clearTimeout(timeoutId);
+
+                const duration = Date.now() - startTime;
+                let errorDetail = '';
+                let responseData = null;
+
+                if (!response.ok) {
+                    try {
+                        // พยายามอ่าน JSON
+                        responseData = await response.clone().json();
+                        errorDetail = responseData.error || responseData.details || responseData.message || `HTTP Error ${response.status}`;
+                    } catch (jsonErr) {
+                        // ถ้าไม่ใช่ JSON ให้ลองอ่าน Text
+                        try {
+                            const text = await response.clone().text();
+                            errorDetail = text.substring(0, 150) || `HTTP Error ${response.status}`;
+                        } catch (e) {
+                            errorDetail = `HTTP Error ${response.status} (Unknown)`;
+                        }
+                    }
+                }
+
+                return {
+                    name: ep.name,
+                    path: ep.path,
+                    status: response.ok,
+                    statusCode: response.status,
+                    duration: duration,
+                    error: errorDetail,
+                    data: responseData
+                };
+
+            } catch (err) {
+                clearTimeout(timeoutId);
+                const duration = Date.now() - startTime;
+                let errorType = 'Unknown';
+                let errorMsg = err.message;
+
+                if (err.name === 'AbortError') {
+                    errorType = 'Timeout';
+                    errorMsg = `การเชื่อมต่อหมดเวลา (เกิน ${TIMEOUT_MS/1000} วินาที)`;
+                } else if (err.name === 'TypeError' && err.message.includes('fetch')) {
+                    errorType = 'Network Error';
+                    errorMsg = 'ไม่สามารถเชื่อมต่อ API (อาจไม่มีไฟล์, CORS error, หรือ Server ปิด)';
+                } else if (err.name === 'SyntaxError') {
+                    errorType = 'Parse Error';
+                    errorMsg = 'Server ส่งข้อมูลกลับมาไม่ถูกต้อง (Invalid JSON)';
+                }
+
+                return {
+                    name: ep.name,
+                    path: ep.path,
+                    status: false,
+                    statusCode: '❌',
+                    duration: duration,
+                    error: `${errorType}: ${errorMsg}`,
+                    isException: true
+                };
+            }
+        }
+
+        // ตรวจสอบ Environment Variables (ฝั่ง client)
+        async function checkEnv() {
+            const envList = [
+                'GROQ_API_KEY',
+                'FAL_API_KEY',
+                'MAGIC_HOUR_API_KEY',
+                'NEXT_PUBLIC_SUPABASE_URL',
+                'NEXT_PUBLIC_SUPABASE_ANON_KEY'
+            ];
+            const envStatusDiv = document.getElementById('envStatus');
+            
+            envStatusDiv.innerHTML = `
+                <div class="text-yellow-500 mb-2">⚠️ ไม่สามารถตรวจสอบ Environment Variables โดยตรงได้ (ต้องทำผ่าน API)</div>
+                <div class="text-gray-400 text-xs mb-2">👉 ตรวจสอบที่ Vercel → Project → Settings → Environment Variables</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    ${envList.map(key => `
+                        <div class="flex items-center gap-2 bg-gray-900 p-2 rounded border border-gray-800">
+                            <div class="w-2 h-2 bg-gray-600 rounded-full"></div>
+                            <span class="font-mono text-xs text-gray-300">${key}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // ป้องกัน XSS ให้ครอบคลุมมากขึ้น
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // แสดงผลลัพธ์
+        async function runDiagnostic() {
+            const resultsDiv = document.getElementById('results');
+            const progressCounter = document.getElementById('progressCounter');
+            resultsDiv.innerHTML = ''; // เคลียร์ผลเก่า
+            
+            const results = [];
+            let completed = 0;
+            const total = endpoints.length;
+
+            progressCounter.textContent = `${completed}/${total}`;
+
+            for (const ep of endpoints) {
+                const result = await checkAPI(ep);
+                results.push(result);
+                completed++;
+                progressCounter.textContent = `${completed}/${total}`;
+
+                // สร้าง card แสดงผล
+                const card = document.createElement('div');
+                card.className = 'bg-gray-800 rounded-lg p-4 border-l-4 fade-in ' +
+                    (result.status ? 'border-green-500' : 'border-red-500');
+
+                const statusIcon = result.status ? '✅' : '❌';
+                const statusText = result.status ? 'สำเร็จ' : `ล้มเหลว (${result.statusCode})`;
+                const statusColor = result.status ? 'text-green-400' : 'text-red-400';
+
+                let errorHtml = '';
+                if (!result.status && result.error) {
+                    errorHtml = `
+                    <div class="mt-3 text-sm bg-red-950/30 p-3 rounded border border-red-900/50">
+                        <div class="text-red-400 font-bold text-xs mb-1 uppercase tracking-wider">Error Details</div>
+                        <div class="text-red-300 font-mono text-xs break-all whitespace-pre-wrap">${escapeHtml(result.error)}</div>
+                    </div>`;
+                }
+
+                let warningHtml = '';
+                if (result.status && result.data?.warning) {
+                    warningHtml = `
+                    <div class="mt-3 text-sm bg-yellow-950/30 p-3 rounded border border-yellow-900/50">
+                        <div class="text-yellow-400 font-bold text-xs mb-1 uppercase tracking-wider">Warning</div>
+                        <div class="text-yellow-300 text-xs">${escapeHtml(result.data.warning)}</div>
+                    </div>`;
+                }
+
+                card.innerHTML = `
+                    

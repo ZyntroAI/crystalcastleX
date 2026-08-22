@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClientHub MVP - CRM & Quote Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Tailwind config for custom colors if needed
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563eb',
+            secondary: '#16a34a',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen">
+
+  <!-- Navigation -->
+  <nav class="bg-primary text-white p-4 shadow-md flex justify-between items-center sticky top-0 z-50">
+    <h1 class="text-xl font-bold flex items-center gap-2">
+      <span>🚀</span> ClientHub MVP
+    </h1>
+    <span class="text-xs bg-blue-700 px-3 py-1 rounded-full flex items-center gap-1">
+      <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+      Offline Ready
+    </span>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="max-w-6xl mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+    
+    <!-- Left Column: Client Management -->
+    <div class="lg:col-span-2 space-y-6">
+      
+      <!-- Add Client Form -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-primary">
+          👤 Add New Client
+          <span class="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded">(Saves to Browser)</span>
+        </h2>
+        <form id="clientForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="clientName" class="block text-sm font-medium text-gray-600 mb-1">Client Name / ชื่อลูกค้า</label>
+            <input type="text" id="clientName" placeholder="John Doe / จอห์น โด" class="p-2 border rounded w-full focus:ring-2 focus:ring-primary focus:outline-none" required>
+          </div>
+          <div>
+            <label for="clientCompany" class="block text-sm font-medium text-gray-600 mb-1">Company / บริษัท</label>
+            <input type="text" id="clientCompany" placeholder="ABC Corp / บริษัท เอ บี ซี" class="p-2 border rounded w-full focus:ring-2 focus:ring-primary focus:outline-none">
+          </div>
+          <div>
+            <label for="clientEmail" class="block text-sm font-medium text-gray-600 mb-1">Email / อีเมล</label>
+            <input type="email" id="clientEmail" placeholder="john@example.com" class="p-2 border rounded w-full focus:ring-2 focus:ring-primary focus:outline-none">
+          </div>
+          <div class="sm:col-span-2 flex justify-end">
+            <button type="submit" class="bg-primary hover:bg-blue-700 text-white font-medium py-2 px-6 rounded transition shadow-sm">
+              Save Client
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Client Directory Table -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h2 class="text-lg font-bold mb-4 text-gray-700">📋 Client Directory</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b bg-gray-50 text-sm text-gray-600">
+                <th class="p-3 font-semibold">Name</th>
+                <th class="p-3 font-semibold">Company</th>
+                <th class="p-3 font-semibold">Email</th>
+                <th class="p-3 font-semibold text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="clientTableBody" class="text-sm">
+              <!-- Rows injected via JS -->
+            </tbody>
+          </table>
+          <div id="emptyState" class="text-center py-8 text-gray-400 hidden">
+            No clients found. Add one above!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Quote Builder -->
+    <div class="lg:col-span-1">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-fit sticky top-24">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-bold text-gray-800">💰 Quote Builder</h2>
+          <select id="langToggle" class="bg-gray-100 p-1.5 rounded text-xs font-semibold border border-gray-300 focus:outline-none">
+            <option value="en">English (EN)</option>
+            <option value="th">ไทย (TH)</option>
+          </select>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1" id="lblTarget">Target Client</label>
+            <select id="quoteClientSelect" class="w-full p-2 border rounded bg-white focus:ring-2 focus:ring-primary focus:outline-none">
+              <option value="">Select a client...</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1" id="lblService">Service Scope</label>
+            <select id="serviceSelect" class="w-full p-2 border rounded bg-white focus:ring-2 focus:ring-primary focus:outline-none">
+              <option value="web" data-en="Web Development" data-th="พัฒนาเว็บไซต์">Web Development / พัฒนาเว็บไซต์</option>
+              <option value="design" data-en="UI/UX Design" data-th="ออกแบบ UI/UX">UI/UX Design / ออกแบบ UI/UX</option>
+              <option value="consulting" data-en="IT Consulting" data-th="ที่ปรึกษาด้านไอที">IT Consulting / ที่ปรึกษาด้านไอที</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1" id="lblCost">Estimated Cost (THB)</label>
+            <input type="number" id="quoteCost" value="50000" class="w-full p-2 border rounded focus:ring-2 focus:ring-primary focus:outline-none">
+          </div>
+
+          <button id="generateQuoteBtn" class="w-full bg-secondary hover:bg-green-700 text-white font-medium py-2 rounded transition shadow-sm">
+            Generate Output
+          </button>
+        </div>
+
+        <!-- Output Area -->
+        <div class="mt-6 p-4 bg-gray-50 border rounded-lg hidden" id="quoteOutputBox">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Generated Text</span>
+            <button id="copyBtn" class="text-xs text-primary hover:underline font-semibold">Copy Text</button>
+          </div>
+          <p id="quoteText" class="text-sm text-gray-700 whitespace-pre-line bg-white p-3 border rounded shadow-inner font-mono text-xs leading-relaxed"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification (Hidden by default) -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    Copied to clipboard!
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // --- State Management ---
+    let clients = JSON.parse(localStorage.getItem('clientHubClients')) || [];
+    let currentLang = 'en';
+
+    // --- DOM Elements ---
+    const clientForm = document.getElementById('clientForm');
+    const clientTableBody = document.getElementById('clientTableBody');
+    const emptyState = document.getElementById('emptyState');
+    const quoteClientSelect = document.getElementById('quoteClientSelect');
+    const langToggle = document.getElementById('langToggle');
+    const quoteOutputBox = document.getElementById('quoteOutputBox');
+    const quoteText = document.getElementById('quoteText');
+    const copyBtn = document.getElementById('copyBtn');
+    const toast = document.getElementById('toast');
+
+    // --- Translations ---
+    const translations = {
+      en: {
+        lblTarget: "Target Client",
+        lblService: "Service Scope",
+        lblCost: "Estimated Cost (THB)",
+        generate: "Generate Output",
+        copy: "Copy Text",
+        emptyClient: "No clients found. Add one above!",
+        quoteTemplate: (name, company, service, cost) => 
+          `Dear ${name} ${company ? '(' + company + ')' : ''},\n\n` +
+          `Thank you for your interest in our ${service} services.\n` +
+          `Based on our discussion, we estimate the cost to be approximately ${cost.toLocaleString()} THB.\n\n` +
+          `Please let us know if you would like to proceed.\n\n` +
+          `Best regards,\nClientHub Team`
+      },
+      th: {
+        lblTarget: "ลูกค้าเป้าหมาย",
+        lblService: "ขอบเขตบริการ",
+        lblCost: "ค่าใช้จ่ายโดยประมาณ (บาท)",
+        generate: "สร้างข้อความ",
+        copy: "คัดลอก",
+        emptyClient: "ไม่พบรายชื่อลูกค้า กรุณาเพิ่มด้านบน",
+        quoteTemplate: (name, company, service, cost) => 
+          `เรียน ${name} ${company ? '(' + company + ')' : ''},\n\n` +
+          `ขอบคุณที่สนใจบริการ ${service} ของเรา\n` +
+          `จากการพูดคุย เราประมาณการค่าใช้จ่ายไว้ที่ ${cost.toLocaleString()} บาท\n\n` +
+          `กรุณาแจ้งให้เราทราบหากท่านต้องการดำเนินการต่อ\n\n` +
+          `ขอแสดงความนับถือ\nทีม ClientHub`
+      }
+    };
+
+    // --- Functions ---
+
+    function saveClients() {
+      localStorage.setItem('clientHubClients', JSON.stringify(clients));
+      renderTable();
+      updateClientDropdown();
+    }
+
+    function renderTable() {
+      clientTableBody.innerHTML = '';
+      if (clients.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      emptyState.classList.add('hidden');
+
+      clients.forEach((client, index) => {
+        const row = document.createElement('tr');
+        row.className = "border-b hover:bg-gray-50 transition";
+        row.innerHTML = `
+          <td class="p-3 font-medium text-gray-800">${client.name}</td>
+          <td class="p-3 text-gray-600">${client.company || '-'}</td>
+          <td class="p-3 text-gray-600">${client.email || '-'}</td>
+          <td class="p-3 text-right">
+            <button onclick="deleteClient(${index})" class="text-red-500 hover:text-red-700 text-xs font-semibold">Delete</button>
+          </td>
+        `;
+        clientTableBody.appendChild(row);
+      });
+    }
+
+    function updateClientDropdown() {
+      quoteClientSelect.innerHTML = '<option value="">Select a client...</option>';
+      clients.forEach((client, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${client.name} ${client.company ? `- ${client.company}` : ''}`;
+        quoteClientSelect.appendChild(option);
+      });
+    }
+
+    function deleteClient(index) {
+      if(confirm('Are you sure you want to delete this client?')) {
+        clients.splice(index, 1);
+        saveClients();
+      }
+    }
+
+    function generateQuote() {
+      const clientIndex = quoteClientSelect.value;
+      if (clientIndex === "") {
+        alert(currentLang === 'en' ? "Please select a client first." : "กรุณาเลือกลูกค้าก่อน");
+        return;
+      }
+
+      const client = clients[clientIndex];
+      const serviceSelect = document.getElementById('serviceSelect');
+      const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+      const serviceName = selectedOption.getAttribute(`data-${currentLang}`);
+      const cost = parseInt(document.getElementById('quoteCost').value) || 0;
+
+      const template = translations[currentLang].quoteTemplate;
+      quoteText.textContent = template(client.name, client.company, serviceName, cost);
+      
+      quoteOutputBox.classList.remove('hidden');
+    }
+
+    function showToast() {
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2000);
+    }
+
+    function toggleLanguage() {
+      currentLang = langToggle.value;
+      const t = translations[currentLang];
+
+      // Update Labels
+      document.getElementById('lblTarget').textContent = t.lblTarget;
+      document.getElementById('lblService').textContent = t.lblService;
+      document.getElementById('lblCost').textContent = t.lblCost;
+      document.getElementById('generateQuoteBtn').textContent = t.generate;
+      copyBtn.textContent = t.copy;
+      emptyState.textContent = t.emptyClient;
+
+      // Re-render dropdowns to show translated service names
+      const serviceSelect = document.getElementById('serviceSelect');
+      Array.from(serviceSelect.options).forEach(opt => {
+        opt.textContent = `${opt.getAttribute(`data-${currentLang}`)} / ${opt.getAttribute(`data-${currentLang === 'en' ? 'th' : 'en'}`)}`;
+      });
+
+      // Re-render table if needed (for language specific formatting if any)
+      renderTable();
+      
+      // Regenerate quote if box is open
+      if (!quoteOutputBox.classList.contains('hidden')) {
+        generateQuote();
+      }
+    }
+
+    // --- Event Listeners ---
+    clientForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newClient = {
+        name: document.getElementById('clientName').value,
+        company: document.getElementById('clientCompany').value,
+        email: document.getElementById('clientEmail').value
+      };
+      clients.push(newClient);
+      saveClients();
+      clientForm.reset();
+      alert(currentLang === 'en' ? "Client saved!" : "บันทึกลูกค้าเรียบร้อยแล้ว");
+    });
+
+    generateQuoteBtn.addEventListener('click', generateQuote);
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText

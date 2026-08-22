@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Crystal Castle AI Diagnostic</title>
+
+  <meta
+    name="description"
+    content="Crystal Castle AI Diagnostic architecture and repository implementation"
+  />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            crystal: {
+              400: "#a78bfa",
+              500: "#8b5cf6",
+              600: "#7c3aed"
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    code {
+      font-family:
+        "JetBrains Mono",
+        "Fira Code",
+        Consolas,
+        monospace;
+    }
+
+    .glass {
+      background: rgba(17, 24, 39, 0.72);
+      backdrop-filter: blur(14px);
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #a78bfa, #ec4899);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .fade-in {
+      animation: fadeIn .35s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tree-line {
+      border-left: 1px solid #374151;
+      padding-left: 1rem;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-950 text-gray-100">
+
+<!-- ========================================================= -->
+<!-- HEADER -->
+<!-- ========================================================= -->
+
+<header class="sticky top-0 z-50 border-b border-gray-800 glass">
+
+  <div
+    class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between"
+  >
+
+    <a href="#top" class="font-bold text-lg">
+      🔮 <span class="gradient-text">Crystal Castle</span>
+    </a>
+
+    <nav class="hidden md:flex gap-5 text-sm text-gray-400">
+
+      <a href="#architecture" class="hover:text-white">
+        Architecture
+      </a>
+
+      <a href="#repository" class="hover:text-white">
+        Repository
+      </a>
+
+      <a href="#backend" class="hover:text-white">
+        FastAPI
+      </a>
+
+      <a href="#openclaw" class="hover:text-white">
+        OpenClaw
+      </a>
+
+      <a href="#redis" class="hover:text-white">
+        Redis
+      </a>
+
+      <a href="#monitoring" class="hover:text-white">
+        Monitoring
+      </a>
+
+      <a href="#testing" class="hover:text-white">
+        Tests
+      </a>
+
+      <a href="#docker" class="hover:text-white">
+        Docker
+      </a>
+
+    </nav>
+
+  </div>
+
+</header>
+
+
+<main id="top" class="max-w-7xl mx-auto px-4 py-10">
+
+
+<!-- ========================================================= -->
+<!-- HERO -->
+<!-- ========================================================= -->
+
+<section class="text-center py-12 fade-in">
+
+  <div class="text-6xl mb-5">
+    🔮
+  </div>
+
+  <h1 class="text-4xl md:text-6xl font-black mb-5 gradient-text">
+    Crystal Castle AI Diagnostic
+  </h1>
+
+  <p class="text-gray-400 max-w-3xl mx-auto text-lg">
+    Production-oriented API diagnostics platform with
+    Next.js, FastAPI, OpenClaw model routing, Redis circuit breakers,
+    Prometheus metrics and automated testing.
+  </p>
+
+  <div class="flex flex-wrap justify-center gap-3 mt-7">
+
+    <span class="px-3 py-1 rounded-full bg-black border border-gray-700 text-sm">
+      Next.js
+    </span>
+
+    <span class="px-3 py-1 rounded-full bg-black border border-gray-700 text-sm">
+      FastAPI
+    </span>
+
+    <span class="px-3 py-1 rounded-full bg-black border border-gray-700 text-sm">
+      OpenClaw
+    </span>
+
+    <span class="px-3 py-1 rounded-full bg-black border border-gray-700 text-sm">
+      Redis
+    </span>
+
+    <span class="px-3 py-1 rounded-full bg-black border border-gray-700 text-sm">
+      Prometheus
+    </span>
+
+    <span class="px-3 py-1 rounded-full bg-black border border-gray-700 text-sm">
+      pytest
+    </span>
+
+    <span class="px-3 py-1 rounded-full bg-black border border-gray-700 text-sm">
+      Docker
+    </span>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- QUICK START -->
+<!-- ========================================================= -->
+
+<section class="mb-12">
+
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+    <h2 class="text-2xl font-bold mb-4">
+      🚀 Quick Start
+    </h2>
+
+    <pre class="bg-black rounded-xl p-5 text-green-400 overflow-auto"><code>cp .env.example .env
+
+docker compose up --build</code></pre>
+
+    <div class="grid md:grid-cols-3 gap-4 mt-5">
+
+      <a
+        href="http://localhost:3000"
+        class="bg-gray-800 rounded-xl p-4 hover:bg-gray-700"
+      >
+        <strong>Web</strong>
+        <div class="text-gray-400 text-sm">
+          localhost:3000
+        </div>
+      </a>
+
+      <a
+        href="http://localhost:8000/docs"
+        class="bg-gray-800 rounded-xl p-4 hover:bg-gray-700"
+      >
+        <strong>FastAPI</strong>
+        <div class="text-gray-400 text-sm">
+          localhost:8000/docs
+        </div>
+      </a>
+
+      <a
+        href="http://localhost:9090"
+        class="bg-gray-800 rounded-xl p-4 hover:bg-gray-700"
+      >
+        <strong>Prometheus</strong>
+        <div class="text-gray-400 text-sm">
+          localhost:9090
+        </div>
+      </a>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- ARCHITECTURE -->
+<!-- ========================================================= -->
+
+<section id="architecture" class="mb-14">
+
+  <h2 class="text-3xl font-bold mb-6">
+    🏗 Architecture
+  </h2>
+
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+<pre class="text-sm text-gray-300"><code>
+                         ┌──────────────────────┐
+                         │       Browser        │
+                         │   API Diagnostic UI  │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │       Next.js        │
+                         │   API Proxy / UI     │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │       FastAPI        │
+                         │ Diagnostic + AI API  │
+                         └──────┬───────┬───────┘
+                                │       │
+                 ┌──────────────┘       └───────────────┐
+                 ▼                                      ▼
+        ┌────────────────┐                    ┌─────────────────┐
+        │     Redis      │                    │    OpenClaw     │
+        │                │                    │ Model Router    │
+        │ Cache          │                    └────────┬────────┘
+        │ Circuit Breaker│                             │
+        │ State          │               ┌─────────────┼────────────┐
+        └────────────────┘               │             │            │
+                                         ▼             ▼            ▼
+                                      OpenAI       Anthropic      Gemini
+                                         │
+                                         ├──────── Groq
+                                         │
+                                         └──────── Ollama
+
+                         ┌──────────────────────┐
+                         │     Prometheus       │
+                         │      Metrics         │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │       Grafana        │
+                         │      Dashboard       │
+                         └──────────────────────┘
+</code></pre>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- REPOSITORY -->
+<!-- ========================================================= -->
+
+<section id="repository" class="mb-14">
+
+  <h2 class="text-3xl font-bold mb-6">
+    📁 Repository Structure
+  </h2>
+
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+<pre class="text-sm text-gray-300"><code>crystal-castle-ai-diagnostic/
+│
+├── apps/
+│   └── web/
+│       ├── app/
+│       │   ├── api/
+│       │   │   ├── ai/
+│       │   │   │   └── diagnose/
+│       │   │   │       └── route.ts
+│       │   │   ├── diagnostics/
+│       │   │   │   └── route.ts
+│       │   │
+│       │   ├── globals.css
+│       │   ├── layout.tsx
+│       │   └── page.tsx
+│       │
+│       ├── components/
+│       │   └── ApiDiagnostic.tsx
+│       │
+│       ├── Dockerfile
+│       ├── next.config.ts
+│       ├── package.json
+│       └── tsconfig.json
+│
+├── services/
+│   └── api/
+│       ├── app/
+│       │   ├── api/
+│       │   │   ├── ai.py
+│       │   │   ├── diagnostics.py
+│       │   │   └── health.py
+│       │   │
+│       │   ├── core/
+│       │   │   ├── cache.py
+│       │   │   ├── circuit_breaker.py
+│       │   │   ├── metrics.py
+│       │   │   └── redis.py
+│       │   │
+│       │   ├── services/
+│       │   │   ├── diagnostic.py
+│       │   │   ├── model_router.py
+│       │   │   └── openclaw.py
+│       │   │
+│       │   ├── config.py
+│       │   ├── main.py
+│       │   └── schemas.py
+│       │
+│       ├── tests/
+│       │   ├── test_api.py
+│       │   ├── test_circuit_breaker.py
+│       │   ├── test_diagnostics.py
+│       │   └── test_router.py
+│       │
+│       ├── Dockerfile
+│       └── requirements.txt
+│
+├── openclaw/
+│   └── models.json
+│
+├── monitoring/
+│   ├── prometheus.yml
+│   └── grafana/
+│       ├── dashboards/
+│       └── provisioning/
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+│
+├── .env.example
+├── docker-compose.yml
+├── Makefile
+└── README.md</code></pre>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- BACKEND -->
+<!-- ========================================================= -->
+
+<section id="backend" class="mb-14">
+
+  <h2 class="text-3xl font-bold mb-6">
+    ⚡ FastAPI Backend
+  </h2>
+
+  <div class="grid md:grid-cols-2 gap-5">
+
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+      <h3 class="text-xl font-bold mb-3">
+        Diagnostic API
+      </h3>
+
+<pre class="bg-black rounded-xl p-4 text-sm"><code>POST /api/diagnostics
+
+{
+  "endpoint": "https://example.com/health",
+  "method": "GET",
+  "body": null
+}</code></pre>
+
+    </div>
+
+
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+      <h3 class="text-xl font-bold mb-3">
+        AI Diagnosis
+      </h3>
+
+<pre class="bg-black rounded-xl p-4 text-sm"><code>POST /api/ai/diagnose
+
+{
+  "endpoint": "...",
+  "status": "FAILED",
+  "status_code": 500,
+  "duration_ms": 812,
+  "error": "HTTP 500"
+}</code></pre>
+
+    </div>
+
+  </div>
+
+
+  <div class="mt-5 bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+    <h3 class="text-xl font-bold mb-3">
+      Health APIs
+    </h3>
+
+<pre class="bg-black rounded-xl p-4 text-sm text-green-300"><code>GET /health
+
+GET /health/circuits
+
+GET /metrics
+
+GET /docs
+
+GET /openapi.json</code></pre>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- OPENCLAW -->
+<!-- ========================================================= -->
+
+<section id="openclaw" class="mb-14">
+
+  <h2 class="text-3xl font-bold mb-6">
+    🤖 OpenClaw Model Routing
+  </h2>
+
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+    <p class="text-gray-400 mb-5">
+      OpenClaw is isolated behind the FastAPI model router.
+      The browser never receives provider credentials.
+    </p>
+
+<pre class="bg-black rounded-xl p-5 text-sm"><code>Primary
+   │
+   ▼
+OpenAI / GPT
+   │
+   ├── failure
+   ▼
+Anthropic / Claude
+   │
+   ├── failure
+   ▼
+Google / Gemini
+   │
+   ├── failure
+   ▼
+Groq / Llama
+   │
+   ├── failure
+   ▼
+Ollama / Local</code></pre>
+
+  </div>
+
+
+  <div class="mt-5 bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+    <h3 class="text-xl font-bold mb-4">
+      openclaw/models.json
+    </h3>
+
+<pre class="bg-black rounded-xl p-5 text-sm text-purple-300"><code>{
+  "providers": {
+    "openai": {
+      "baseUrl": "https://api.openai.com/v1",
+      "models": [
+        {
+          "id": "gpt-5.6",
+          "name": "GPT-5.6",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 200000
+        }
+      ]
+    },
+
+    "anthropic": {
+      "baseUrl": "https://api.anthropic.com",
+      "models": [
+        {
+          "id": "claude-sonnet-4-6",
+          "name": "Claude Sonnet",
+          "reasoning": true
+        }
+      ]
+    },
+
+    "google": {
+      "models": [
+        {
+          "id": "gemini",
+          "name": "Gemini"
+        }
+      ]
+    },
+
+    "groq": {
+      "models": [
+        {
+          "id": "llama",
+          "name": "Llama"
+        }
+      ]
+    },
+
+    "ollama": {
+      "baseUrl": "http://ollama:11434/v1",
+      "models": [
+        {
+          "id": "local",
+          "name": "Local"
+        }
+      ]
+    }
+  }
+}</code></pre>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- REDIS -->
+<!-- ========================================================= -->
+
+<section id="redis" class="mb-14">
+
+  <h2 class="text-3xl font-bold mb-6">
+    🔴 Redis Reliability Layer
+  </h2>
+
+  <div class="grid md:grid-cols-3 gap-5">
+
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+
+      <div class="text-3xl mb-3">
+        🧠
+      </div>
+
+      <h3 class="font-bold">
+        Cache
+      </h3>
+
+      <p class="text-gray-400 text-sm mt-2">
+        Stores short-lived diagnostic responses and reduces repeated
+        provider/API calls.
+      </p>
+
+    </div>
+
+
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+
+      <div class="text-3xl mb-3">
+        🛡
+      </div>
+
+      <h3 class="font-bold">
+        Circuit Breaker
+      </h3>
+
+      <p class="text-gray-400 text-sm mt-2">
+        Opens a provider circuit after repeated failures.
+      </p>
+
+    </div>
+
+
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+
+      <div class="text-3xl mb-3">
+        🔄
+      </div>
+
+      <h3 class="font-bold">
+        Recovery
+      </h3>
+
+      <p class="text-gray-400 text-sm mt-2">
+        Automatically transitions OPEN → HALF_OPEN → CLOSED.
+      </p>
+
+    </div>
+
+  </div>
+
+
+<pre class="bg-gray-900 border border-gray-800 rounded-2xl p-5 mt-5 text-sm"><code>                    Request
+                       │
+                       ▼
+                 Circuit Breaker
+                       │
+             ┌─────────┴─────────┐
+             │                   │
+          CLOSED                OPEN
+             │                   │
+             ▼                   ▼
+          Provider          Fallback Model
+             │
+        ┌────┴────┐
+        │         │
+     Success   Failure
+        │         │
+        ▼         ▼
+     CLOSED    failures++
+                    │
+                    ▼
+              threshold reached
+                    │
+                    ▼
+                  OPEN</code></pre>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- MONITORING -->
+<!-- ========================================================= -->
+
+<section id="monitoring" class="mb-14">
+
+  <h2 class="text-3xl font-bold mb-6">
+    📊 Prometheus + Grafana
+  </h2>
+
+  <div class="grid md:grid-cols-2 gap-5">
+
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+      <h3 class="font-bold text-xl mb-4">
+        Metrics
+      </h3>
+
+<pre class="bg-black rounded-xl p-4 text-sm text-green-300"><code>crystal_castle_api_requests_total
+
+crystal_castle_api_latency_seconds
+
+crystal_castle_ai_requests_total
+
+crystal_castle_ai_latency_seconds
+
+crystal_castle_ai_fallback_total
+
+crystal_castle_circuit_events_total
+
+crystal_castle_cache_events_total</code></pre>
+
+    </div>
+
+
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+      <h3 class="font-bold text-xl mb-4">
+        Observability
+      </h3>
+
+      <ul class="space-y-3 text-gray-400">
+
+        <li>✅ API request rate</li>
+        <li>✅ API latency</li>
+        <li>✅ AI model latency</li>
+        <li>✅ Model fallback rate</li>
+        <li>✅ Circuit breaker events</li>
+        <li>✅ Cache hit/miss</li>
+
+      </ul>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- TESTING -->
+<!-- ========================================================= -->
+
+<section id="testing" class="mb-14">
+
+  <h2 class="text-3xl font-bold mb-6">
+    🧪 pytest
+  </h2>
+
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+<pre class="bg-black rounded-xl p-5 text-sm text-green-300"><code>services/api/tests/
+│
+├── test_api.py
+├── test_circuit_breaker.py
+├── test_diagnostics.py
+└── test_router.py</code></pre>
+
+  </div>
+
+
+  <div class="mt-5 bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+<pre class="bg-black rounded-xl p-5 text-sm"><code>cd services/api
+
+pip install -r requirements.txt
+
+pytest -q</code></pre>
+
+  </div>
+
+
+  <div class="grid md:grid-cols-3 gap-5 mt-5">
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+      <strong>Circuit Tests</strong>
+      <p class="text-gray-400 text-sm mt-2">
+        Verify OPEN/CLOSED transitions.
+      </p>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+      <strong>Router Tests</strong>
+      <p class="text-gray-400 text-sm mt-2">
+        Verify model fallback behavior.
+      </p>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+      <strong>Diagnostic Tests</strong>
+      <p class="text-gray-400 text-sm mt-2">
+        Verify HTTP errors and endpoint validation.
+      </p>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- DOCKER -->
+<!-- ========================================================= -->
+
+<section id="docker" class="mb-14">
+
+  <h2 class="text-3xl font-bold mb-6">
+    🐳 Docker Compose
+  </h2>
+
+<pre class="bg-gray-900 border border-gray-800 rounded-2xl p-6 text-sm"><code>services:
+
+  web:
+    Next.js
+    :3000
+
+  api:
+    FastAPI
+    :8000
+
+  redis:
+    Redis
+    :6379
+
+  prometheus:
+    Prometheus
+    :9090
+
+  grafana:
+    Grafana
+    :3001</code></pre>
+
+
+  <div class="mt-5 bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+<pre class="bg-black rounded-xl p-5 text-green-300"><code>docker compose up --build
+
+docker compose ps
+
+docker compose logs -f api
+
+docker compose run --rm api pytest -q
+
+docker compose down</code></pre>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- ENV -->
+<!-- ========================================================= -->
+
+<section class="mb-14">
+
+  <h2 class="text-3xl font-bold mb-6">
+    🔐 Environment
+  </h2>
+
+<pre class="bg-gray-900 border border-gray-800 rounded-2xl p-6 text-sm"><code>ENVIRONMENT=development
+
+REDIS_URL=redis://redis:6379/0
+
+DIAGNOSTIC_TIMEOUT=8
+
+AI_TIMEOUT=20
+
+CIRCUIT_FAILURE_THRESHOLD=3
+
+CIRCUIT_RECOVERY_TIMEOUT=30
+
+CACHE_TTL=30
+
+OPENCLAW_ENABLED=true
+
+OPENCLAW_BIN=openclaw
+
+OPENCLAW_AGENT=main
+
+OPENCLAW_PRIMARY_MODEL=op

@@ -1,6 +1,18 @@
 # 🔮 Crystal Castle X
 
+![Status](https://img.shields.io/badge/status-active%20development-238636?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-1f6feb?style=flat-square)
+![Version](https://img.shields.io/badge/version-0.1.0-8957e5?style=flat-square)
+![Node](https://img.shields.io/badge/Node.js-≥18-da3633?style=flat-square&logo=node.js&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-3fb950?style=flat-square&logo=docker&logoColor=white)
+![AI](https://img.shields.io/badge/AI-Zyntro--Media-a371f7?style=flat-square)
+
 > Runner AI powered by Zyntro-Media-AI
+![Build](https://img.shields.io/github/actions/workflow/status/ZyntroAI/crystalcastleX/ci.yml?branch=main&style=flat-square&label=build)
+![Tests](https://img.shields.io/badge/tests-passing-3fb950?style=flat-square)
+![Coverage](https://img.shields.io/badge/coverage-75%25-8957e5?style=flat-square)
+![Contributors](https://img.shields.io/github/contributors/ZyntroAI/crystalcastleX?style=flat-square&color=1f6feb)
+> 
 
 Crystal Castle X is an AI-powered development and automation platform
 designed to organize AI runners, application services, developer tooling,

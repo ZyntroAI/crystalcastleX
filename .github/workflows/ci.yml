@@ -1,37 +1,51 @@
-name: CI for CrystalCastleX
+name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches:
+      - main
+      - develop
+
   pull_request:
-    branches: [ main, develop ]
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  validate-and-build:
+  validate:
+    name: Validate GitHub Action
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm' # สลับเป็น 'yarn' หรือ 'pnpm' ตามมัดแพ็กเกจที่โปรเจกต์ใช้จริง
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
 
-    - name: Install Dependencies
-      run: npm ci
+      - name: Verify Node.js
+        run: |
+          node --version
+          npm --version
 
-    - name: Run Linter (ESLint)
-      run: npm run lint
+      - name: Install Dependencies
+        run: npm ci
 
-    - name: Check TypeScript Types
-      run: npx tsc --noEmit
+      - name: Run ESLint
+        run: npm run lint
 
-    - name: Build Next.js Application
-      run: npm run build
-      env:
-        NEXT_TELEMETRY_DISABLED: 1
-        # หากจำเป็นต้องใช้ Env ในการ Build ให้ดึงจาก GitHub Secrets 
-        # NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+      - name: Validate Entry Point
+        run: node --check index.js
+
+      - name: Run Tests
+        run: npm test

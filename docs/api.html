@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Crystal Castle API</title>
+
+  <meta
+    name="description"
+    content="Crystal Castle API documentation for image-to-video generation, monitoring, and alerts."
+  >
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f6f8fa;
+      --border: #d0d7de;
+      --text: #24292f;
+      --muted: #57606a;
+      --primary: #0969da;
+      --success: #1a7f37;
+      --warning: #9a6700;
+      --danger: #cf222e;
+      --code: #24292f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    header {
+      padding: 3rem 1.5rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    header .container,
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.25;
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: 2.5rem;
+    }
+
+    h2 {
+      margin-top: 3rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      margin-top: 2rem;
+    }
+
+    .version {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .description {
+      max-width: 800px;
+      color: var(--muted);
+    }
+
+    main {
+      padding: 2rem 1.5rem 5rem;
+    }
+
+    nav {
+      margin: 1.5rem 0 2rem;
+      padding: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    nav a {
+      display: inline-block;
+      margin-right: 1rem;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    code {
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      background: var(--surface);
+      font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+    }
+
+    pre {
+      overflow-x: auto;
+      padding: 1rem;
+      border-radius: 8px;
+      background: var(--code);
+      color: #ffffff;
+    }
+
+    pre code {
+      padding: 0;
+      background: transparent;
+      color: inherit;
+    }
+
+    .endpoint {
+      margin: 2rem 0;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .method {
+      display: inline-block;
+      min-width: 70px;
+      margin-right: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 5px;
+      color: #ffffff;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .get {
+      background: var(--primary);
+    }
+
+    .post {
+      background: var(--success);
+    }
+
+    .auth {
+      margin: 1rem 0;
+      padding: 0.75rem 1rem;
+      border-left: 4px solid var(--warning);
+      background: #fff8c5;
+    }
+
+    table {
+      width: 100%;
+      margin: 1rem 0 2rem;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 0.7rem;
+      border: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--surface);
+    }
+
+    .status {
+      display: inline-block;
+      margin-right: 0.4rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-family: monospace;
+      font-weight: 700;
+    }
+
+    .status.success {
+      color: var(--success);
+      background: #dafbe1;
+    }
+
+    .status.error {
+      color: var(--danger);
+      background: #ffebe9;
+    }
+
+    footer {
+      padding: 2rem 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 700px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="container">
+    <h1>Crystal Castle API</h1>
+    <div class="version">Version 1.0.0</div>
+
+    <p class="description">
+      API for image-to-video generation, asynchronous pipeline processing,
+      affiliate link monitoring, service health, and alerts.
+    </p>
+  </div>
+</header>
+
+<main>
+
+  <nav aria-label="API navigation">
+    <a href="#authentication">Authentication</a>
+    <a href="#generation">Generation</a>
+    <a href="#monitoring">Monitoring</a>
+    <a href="#alerts">Alerts</a>
+    <a href="#schemas">Schemas</a>
+    <a href="#errors">Errors</a>
+  </nav>
+
+  <section id="authentication">
+    <h2>Authentication</h2>
+
+    <p>
+      Protected endpoints require an API key in the
+      <code>X-API-KEY</code> request header.
+    </p>
+
+    <pre><code>X-API-KEY: YOUR_API_KEY</code></pre>
+
+    <div class="auth">
+      Never commit API keys to source control or expose them in client-side
+      JavaScript.
+    </div>
+  </section>
+
+  <section id="generation">
+    <h2>Generation</h2>
+
+    <div class="endpoint">
+      <h3>
+        <span class="method post">POST</span>
+        <code>/v1/generate</code>
+      </h3>
+
+      <p>
+        Starts an asynchronous image-to-video generation job.
+      </p>
+
+      <div class="auth">
+        Authentication required.
+      </div>
+
+      <h4>Headers</h4>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Required</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>X-API-KEY</code></td>
+            <td>Yes</td>
+            <td>API authentication key.</td>
+          </tr>
+          <tr>
+            <td><code>Idempotency-Key</code></td>
+            <td>No</td>
+            <td>
+              Prevents duplicate jobs when a request is retried.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>Request</h4>
+
+      <pre><code>{
+  "product_id": "product-123",
+  "image_url": "https://example.com/product.jpg",
+  "platform": "tiktok",
+  "style": "streetwear-retro",
+  "metadata": {
+    "campaign": "summer-2026"
+  }
+}</code></pre>
+
+      <h4>Response</h4>
+
+      <p>
+        <span class="status success">202</span>
+        Job accepted.
+      </p>
+
+      <pre><code>{
+  "job_id": "job_01JXYZ123",
+  "status": "queued",
+  "created_at": "2026-08-23T04:00:00Z"
+}</code></pre>
+
+      <h4>Error responses</h4>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="status error">400</span></td>
+            <td>Invalid request.</td>
+          </tr>
+          <tr>
+            <td><span class="status error">401</span></td>
+            <td>Authentication failed.</td>
+          </tr>
+          <tr>
+            <td><span class="status error">429</span></td>
+            <td>Rate limit exceeded.</td>
+          </tr>
+          <tr>
+            <td><span class="status error">503</span></td>
+            <td>Generation service unavailable.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="endpoint">
+      <h3>
+        <span class="method get">GET</span>
+        <code>/v1/generate/{job_id}</code>
+      </h3>
+
+      <p>
+        Returns the current state of a generation job.
+      </p>
+
+      <div class="auth">
+        Authentication required.
+      </div>
+
+      <h4>Path parameters</h4>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Required</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>job_id</code></td>
+            <td>Yes</td>
+            <td>Unique generation job identifier.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>Response</h4>
+
+      <p>
+        <span class="status success">200</span>
+        Generation status.
+      </p>
+
+      <pre><code>{
+  "job_id": "job_01JXYZ123",
+  "status": "completed",
+  "artifact_url": "https://cdn.example.com/video.mp4",
+  "created_at": "2026-08-23T04:00:00Z"
+}</code></pre>
+
+      <h4>Errors</h4>
+
+      <table>
+        <tbody>
+          <tr>
+            <td><span class="status error">401</span></td>
+            <td>Authentication failed.</td>
+          </tr>
+          <tr>
+            <td><span class="status error">404</span></td>
+            <td>Generation job not found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="monitoring">
+    <h2>Monitoring</h2>
+
+    <div class="endpoint">
+      <h3>
+        <span class="method get">GET</span>
+        <code>/v1/status</code>
+      </h3>
+
+      <p>
+        Returns service health and pipeline metrics.
+      </p>
+
+      <p>
+        Authentication is not required for this endpoint.
+      </p>
+
+      <pre><code>{
+  "uptime": 86400,
+  "version": "1.0.0",
+  "queue_length": 3,
+  "healthy": true
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+      <h3>
+        <span class="method post">POST</span>
+        <code>/v1/monitor/link</code>
+      </h3>
+
+      <p>
+        Validates or monitors an affiliate URL.
+      </p>
+
+      <div class="auth">
+        Authentication required.
+      </div>
+
+      <h4>Request</h4>
+
+      <pre><code>{
+  "affiliate_url": "https://example.com/product/123",
+  "check_now": true
+}</code></pre>
+
+      <h4>Response</h4>
+
+      <pre><code>{
+  "ok": true,
+  "reason": "Link is reachable",
+  "expires_at": "2026-12-31T23:59:59Z"
+}</code></pre>
+
+      <h4>Errors</h4>
+
+      <table>
+        <tbody>
+          <tr>
+            <td><span class="status error">400</span></td>
+            <td>Invalid affiliate URL.</td>
+          </tr>
+          <tr>
+            <td><span class="status error">401</span></td>
+            <td>Authentication failed.</td>
+          </tr>
+          <tr>
+            <td><span class="status error">429</span></td>
+            <td>Rate limit exceeded.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="alerts">
+    <h2>Alerts</h2>
+
+    <div class="endpoint">
+      <h3>
+        <span class="method post">POST</span>
+        <code>/v1/alerts</code>
+      </h3>
+
+      <p>
+        Sends a manual alert through configured notification providers,
+        such as LINE or a webhook.
+      </p>
+
+      <div class="auth">
+        Authentication required.
+      </div>
+
+      <h4>Request</h4>
+
+      <pre><code>{
+  "level": "warning",
+  "message": "Generation queue is growing",
+  "meta": {
+    "queue_length": 100
+  }
+}</code></pre>
+
+      <h4>Response</h4>
+
+      <p>
+        <span class="status success">202</span>
+        Alert accepted.
+      </p>
+
+      <h4>Errors</h4>
+
+      <table>
+        <tbody>
+          <tr>
+            <td><span class="status error">400</span></td>
+            <td>Invalid alert request.</td>
+          </tr>
+          <tr>
+            <td><span class="status error">401</span></td>
+            <td>Authentication failed.</td>
+          </tr>
+          <tr>
+            <td><span class="status error">429</span></td>
+            <td>Rate limit exceeded.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="schemas">
+    <h2>Data Schemas</h2>
+
+    <h3>GenerationRequest</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>product_id</code></td>
+          <td>string</td>
+          <td>Yes</td>
+          <td>Product identifier.</td>
+        </tr>
+        <tr>
+          <td><code>image_url</code></td>
+          <td>URI</td>
+          <td>Yes</td>
+          <td>Source product image.</td>
+        </tr>
+        <tr>
+          <td><code>platform</code></td>
+          <td>enum</td>
+          <td>No</td>
+          <td>tiktok, shopee, reels, or threads.</td>
+        </tr>
+        <tr>
+          <td><code>style</code></td>
+          <td>string</td>
+          <td>No</td>
+          <td>Generation profile or prompt name.</td>
+        </tr>
+        <tr>
+          <td><code>metadata</code></td>
+          <td>object</td>
+          <td>No</td>
+          <td>Additional application metadata.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>GenerationStatus</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>queued</code></td>
+          <td>Job is waiting in the processing queue.</td>
+        </tr>
+        <tr>
+          <td><code>processing</code></td>
+          <td>Job is currently being processed.</td>
+        </tr>
+        <tr>
+          <td><code>completed</code></td>
+          <td>Generation completed successfully.</td>
+        </tr>
+        <tr>
+          <td><code>failed</code></td>
+          <td>Generation failed.</td>
+        </tr>
+        <tr>
+          <td><code>cancelled</code></td>
+          <td>Generation was cancelled.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>AlertRequest</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Required</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>level</code></td>
+          <td>info | warning | critical</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td><code>message</code></td>
+          <td>string</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td><code>meta</code></td>
+          <td>object</td>
+          <td>No</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="errors">
+    <h2>Error Handling</h2>
+
+    <p>
+      API errors use a consistent error response structure.
+    </p>
+
+    <pre><code>{
+  "error": {
+    "code": "INVALID_REQUEST",
+    "message": "Invalid image URL.",
+    "request_id": "req_01JXYZ123"
+  }
+}</code></pre>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Meaning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>400</td>
+          <td>Invalid request.</td>
+        </tr>
+        <tr>
+          <td>401</td>
+          <td>Authentication failed.</td>
+        </tr>
+        <tr>
+          <td>404</td>
+          <td>Resource not found.</td>
+        </tr>
+        <tr>
+          <td>429</td>
+          <td>Rate limit exceeded.</td>
+        </tr>
+        <tr>
+          <td>503</td>
+          <td>Service unavailable.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="architecture">
+    <h2>Pipeline Architecture</h2>
+
+    <pre><code>Client
+  │
+  │ X-API-KEY
+  ▼
+API Gateway
+  │
+  ├── POST /v1/generate
+  │       │
+  │       ▼
+  │     Queue
+  │       │
+  │       ▼
+  │   Video Pipeline
+  │       │
+  │       ▼
+  │   Object Storage
+  │
+  ├── GET /v1/generate/{job_id}
+  │
+  ├── GET /v1/status
+  │
+  ├── POST /v1/monitor/link
+  │       │
+  │       ▼
+  │   Link Monitor
+  │
+  └── POST /v1/alerts
+          │
+          ├── LINE
+          └── Webhook</code></pre>
+  </section>
+
+</main>
+
+<footer>
+  <p>
+    Crystal Castle API · Version 1.0.0
+  </p>
+</footer>
+
+</body>
+</html>

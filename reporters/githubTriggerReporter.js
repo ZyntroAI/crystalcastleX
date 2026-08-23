@@ -1,17 +1,17 @@
-// githubTriggerReporter.js
-const { Octokit } = require("@octokit/rest");
+// reporters/githubTriggerReporter.js
 
 class GitHubTriggerReporter {
+  onBegin(config, suite) {
+    console.log(
+      `\nGitHub Trigger Reporter: ${suite.allTests().length} tests`
+    );
+  }
+
   onEnd(result) {
-    if (result.status === 'passed') {
-      const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-      octokit.actions.createWorkflowDispatch({
-        owner: 'ZyntroMedia',
-        repo: 'zyntromedia',
-        workflow_id: 'studio-usage.yml',
-        ref: 'main'
-      });
-    }
+    console.log(
+      `GitHub Trigger Reporter: ${result.status}`
+    );
   }
 }
+
 module.exports = GitHubTriggerReporter;

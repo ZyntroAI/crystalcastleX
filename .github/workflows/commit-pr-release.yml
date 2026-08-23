@@ -2,40 +2,201 @@ name: Commit, PR & Release Automation
 
 on:
   push:
-    branches: [ "**" ]
+    branches:
+      - "**"
   pull_request:
-    types: [opened, edited, synchronize]
+    types:
+      - opened
+      - edited
+      - synchronize
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: automation-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  # ============================================================
+  # Commitlint
+  # ============================================================
   commitlint:
+    name: Commitlint
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: npm install -g @commitlint/cli @commitlint/config-conventional
-      - run: git log --format=%s -n 10 | commitlint
 
-  pr-metadata:
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v7
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install commitlint
+        run: |
+          npm install --global \
+            @commitlint/cli \
+            @commitlint/config-conventional
+
+      - name: Create commitlint config
+        run: |
+          cat > commitlint.config.cjs <<'EOF'
+          module.exports = {
+            extends: ['@commitlint/config-conventional']
+          };
+          EOF
+
+      - name: Validate recent commits
+        run: |
+          git log --format=%s -n 10 | commitlint
+
+  # ============================================================
+  # Pull Request Metadata
+  # ============================================================
+  pr-metadata:
+    name: PR Metadata
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Update PR metadata
+        uses: actions/github-script@v7
         with:
           script: |
             const pr = context.payload.pull_request;
-            if (!pr.title || pr.title.trim() === "") {
-              const commits = await github.rest.pulls.listCommits({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.number
-              });
-              const subject = commits.data[0].commit.message.split("\n")[0];
-              await github.rest.pulls.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.number,
-                title: subject
-              });
+
+            if (!pr) {
+              core.info("Not a pull request event.");
+              return;
             }
-            if (!pr.body || pr.body.trim() === "") {
-              const template = `
-            ### 🚀 Summary
-           
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = pr.number;
+
+            let title = pr.title;
+            let body = pr.body;
+
+            // --------------------------------------------------
+            // Generate PR title from first commit when missing
+            // --------------------------------------------------
+            if (!title || title.trim() === "") {
+              const commits = await github.rest.pulls.listCommits({
+                owner,
+                repo,
+                pull_number
+              });
+
+              if (commits.data.length > 0) {
+                title = commits.data[0].commit.message
+                  .split("\n")[0]
+                  .trim();
+              } else {
+                title = "chore: update pull request";
+              }
+            }
+
+            // --------------------------------------------------
+            // Generate PR body when missing
+            // --------------------------------------------------
+            if (!body || body.trim() === "") {
+              body = `### 🚀 Summary
+
+              Automated pull request metadata.
+
+              ### 🔍 Changes
+
+              - Review the commits included in this pull request.
+              - Verify tests and CI checks.
+              - Confirm documentation is updated when required.
+
+              ### 🧪 Validation
+
+              - [ ] Tests pass
+              - [ ] Lint passes
+              - [ ] Build passes
+              - [ ] Documentation updated
+
+              ### 📦 Release
+
+              - [ ] No release required
+              - [ ] Patch release
+              - [ ] Minor release
+              - [ ] Major release
+              `;
+            }
+
+            await github.rest.pulls.update({
+              owner,
+              repo,
+              pull_number,
+              title,
+              body
+            });
+
+            core.info(`Updated PR #${pull_number}`);
+
+  # ============================================================
+  # Version / Release
+  # ============================================================
+  release:
+    name: New Version Release
+    if: >
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install semantic-release
+        run: |
+          npm install --global \
+            semantic-release \
+            @semantic-release/commit-analyzer \
+            @semantic-release/release-notes-generator \
+            @semantic-release/changelog \
+            @semantic-release/npm \
+            @semantic-release/github
+
+      - name: Create semantic-release configuration
+        run: |
+          cat > .releaserc.json <<'EOF'
+          {
+            "branches": [
+              "main"
+            ],
+            "plugins": [
+              "@semantic-release/commit-analyzer",
+              "@semantic-release/release-notes-generator",
+              [
+                "@semantic-release/changelog",
+                {
+                  "changelogFile": "CHANGELOG.md"
+                }
+              ],
+              "@semantic-release/npm",
+              "@semantic-release/github"
+            ]
+          }
+          EOF
+
+      - name: Release new version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: semantic-release

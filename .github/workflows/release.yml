@@ -1,47 +1,52 @@
-name: Release
+name: Release + Deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: [main, develop]
 
 permissions:
-  contents: write
-  issues: read
-  pull-requests: read
-
-concurrency:
-  group: release-${{ github.ref }}
-  cancel-in-progress: true
+  contents: write  # for semantic-release git push
+  issues: write    # for semantic-release github
+  pull-requests: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
-
-    timeout-minutes: 20
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # semantic-release ต้องดู history ทั้งหมด
+          persist-credentials: false
+      
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: 'pnpm' }
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
+      - run: pnpm install --frozen-lockfile
 
-      - name: Install
-        run: npm ci
+      # Auto Sync README Version
+      - name: Update README Version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          sed -i "s/version-[0-9]\+\.[0-9]\+\.[0-9]\+/version-$VERSION/g" README.md
 
-      - name: Build
-        run: npm run build --if-present
-
-      - name: Test
-        run: npm test --if-present
-
-      - name: Release
+      - name: Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }} # ถ้าจะ publish npm
+        run: pnpm release
+
+  deploy:
+    needs: release
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && needs.release.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to Vercel Production
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'

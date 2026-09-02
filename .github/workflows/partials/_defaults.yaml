@@ -1,0 +1,9 @@
+env:
+  NODE_OPTIONS: --max-old-space-size=4096
+  CI: true
+defaults:
+  run:
+    shell: bash
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true

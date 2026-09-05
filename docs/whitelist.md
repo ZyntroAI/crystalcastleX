@@ -42,6 +42,8 @@ on agent_logs
 for insert
 using (
   auth.jwt() ->> 'email' in (
+    'zyntro.ai.studio@gmail.com',
+    'nobizzmaru_new_computer@outlook.com'
     'nobizzmaru@gmail.com',
     'napnotgood@gmail.com',
     'nobizzmaru2025@outlook.co.th',

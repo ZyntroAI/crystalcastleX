@@ -16,3 +16,5 @@
 [![GitHub Issues](https://img.shields.io/github/issues/ZyntroAI/crystalcastleX?style=flat-square)](https://github.com/ZyntroAI/crystalcastleX/issues)
 [![GitHub PRs](https://img.shields.io/github/issues-pr/ZyntroAI/crystalcastleX?style=flat-square)](https://github.com/ZyntroAI/crystalcastleX/pulls)
 [![Last Commit](https://img.shields.io/github/last-commit/ZyntroAI/crystalcastleX?style=flat-square)](https://github.com/ZyntroAI/crystalcastleX/commits/main)
+<!-- Replace the old line -->
+[![Update README from docs/knowledge](https://github.com/zyntromedia/crystalcastleX/actions/workflows/update-readme.yml/badge.svg)](https://github.com/zyntromedia/crystalcastleX/actions/workflows/update-readme.yml)

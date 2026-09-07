@@ -1,0 +1,22 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4@a5ac7e51b4161a53822589d0f3208c5b32d4238e
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4@72eb3ec98690805102a86b0a8e466541018099b
+        with:
+          fail-on-severity: moderate
+          license-check: true

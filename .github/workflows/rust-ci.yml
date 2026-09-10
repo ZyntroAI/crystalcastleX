@@ -7,11 +7,42 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  build-test-publish:
     runs-on: ubuntu-latest
     steps:
+      # Checkout source
       - uses: actions/checkout@v3
+
+      # Build & test Rust
       - name: Build and Test
         run: |
           cargo build --verbose
           cargo test --verbose
+
+      # Setup Java (Temurin JDK 21)
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # Configure Maven settings for publishing
+      - name: Configure Maven
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOF
+          <settings>
+            <servers>
+              <server>
+                <id>github</id>
+                <username>${GITHUB_ACTOR}</username>
+                <password>${{ secrets.GITHUB_TOKEN }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
+      # Publish to GitHub Packages (example)
+      - name: Publish with Maven
+        run: mvn deploy -DskipTests

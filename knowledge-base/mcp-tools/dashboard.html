@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MCP &amp; AI Tools — Dashboard</title>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#1e293b; --panel-2:#243348; --line:#334155;
+    --text:#e2e8f0; --muted:#94a3b8; --accent:#818cf8;
+    --t1:#22c55e; --t2:#eab308; --t3:#f97316; --t4:#ef4444;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{padding:28px 22px 18px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#111e38,#0f172a)}
+  h1{margin:0 0 6px;font-size:22px}
+  .sub{color:var(--muted);font-size:13px}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 22px 60px}
+  .stats{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:12px 16px;min-width:120px}
+  .stat b{display:block;font-size:22px}
+  .stat span{color:var(--muted);font-size:12px}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 22px}
+  input[type=search],select{background:var(--panel);color:var(--text);
+    border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
+  input[type=search]{flex:1;min-width:220px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .chip{cursor:pointer;user-select:none;background:var(--panel);border:1px solid var(--line);
+    border-radius:999px;padding:6px 13px;font-size:13px;color:var(--muted)}
+  .chip.on{background:#312e81;border-color:var(--accent);color:#e0e7ff}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;
+    transition:border-color .15s,transform .15s}
+  .card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .card h3{margin:0 0 8px;font-size:16px;display:flex;align-items:center;gap:8px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .badge{border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:600;
+    border:1px solid transparent}
+  .t1{background:#052e16;color:var(--t1);border-color:#166534}
+  .t2{background:#3b3005;color:var(--t2);border-color:#854d0e}
+  .t3{background:#431407;color:var(--t3);border-color:#9a3412}
+  .t4{background:#450a0a;color:var(--t4);border-color:#991b1b}
+  .ok{background:#052e16;color:#4ade80;border-color:#166534}
+  .beta{background:#1e293b;color:#93c5fd;border-color:#1e40af}
+  .cat{background:var(--panel-2);color:var(--muted);border-color:var(--line)}
+  .label{color:var(--muted);font-size:12px;margin:10px 0 5px;text-transform:uppercase;letter-spacing:.04em}
+  .tags{display:flex;gap:6px;flex-wrap:wrap}
+  .tag{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+    padding:3px 8px;font-size:11.5px;color:#cbd5e1;font-family:ui-monospace,monospace}
+  .tag.redact{color:#fca5a5;border-color:#7f1d1d}
+  .empty{color:var(--muted);padding:40px 0;text-align:center}
+  footer{color:var(--muted);font-size:12px;border-top:1px solid var(--line);
+    padding:16px 22px;text-align:center}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0">
+    <h1>🧠 MCP &amp; AI Tools — Dashboard</h1>
+    <div class="sub">Categorized · Security tiers T1–T4 · Aligned with the OWASP LLM Top 10</div>
+  </div>
+</header>
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+  <div class="controls">
+    <input type="search" id="q" placeholder="Search tools, permissions, categories…" />
+    <select id="tier"><option value="">All tiers</option></select>
+    <select id="cat"><option value="">All categories</option></select>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">No tools match the current filters.</div>
+</div>
+<footer>Source: <code>registry.yaml</code> · Updated <span id="upd"></span></footer>
+<script>
+const DATA = {
+  "meta": {
+    "version": "1.0",
+    "updated": "2026-09-11",
+    "total": 20,
+    "categories": [
+      {
+        "id": "marketing",
+        "emoji": "📢",
+        "title": "Marketing & Content",
+        "tier": "T2–T3",
+        "security": "🟡 Moderate",
+        "count": 4
+      },
+      {
+        "id": "development",
+        "emoji": "🧩",
+        "title": "Dev & Code & Systems",
+        "tier": "T3",
+        "security": "🟡 Moderate",
+        "count": 5
+      },
+      {
+        "id": "data",
+        "emoji": "📊",
+        "title": "Data & Databases & Analytics",
+        "tier": "T2–T3",
+        "security": "🔒 High",
+        "count": 2
+      },
+      {
+        "id": "collaboration",
+        "emoji": "🔗",
+        "title": "Collaboration & Productivity",
+        "tier": "T2",
+        "security": "🟡 Moderate",
+        "count": 4
+      },
+      {
+        "id": "ai-core",
+        "emoji": "🤖",
+        "title": "AI Core & Orchestration",
+        "tier": "T2",
+        "security": "🟡 Moderate",
+        "count": 5
+      }
+    ]
+  },
+  "tools": [
+    {
+      "name": "OpenAI GPT",
+      "category": "marketing",
+      "categoryTitle": "Marketing & Content",
+      "emoji": "📢",
+      "tier": "T2",
+      "tierClass": "t2",
+      "tierName": "Internal read",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:prompts",
+        "execute:completions"
+      ],
+      "redact": [
+        "api_key",
+        "org_id"
+      ]
+    },
+    {
+      "name": "Google Gemini",
+      "category": "marketing",
+      "categoryTitle": "Marketing & Content",
+      "emoji": "📢",
+      "tier": "T2",
+      "tierClass": "t2",
+      "tierName": "Internal read",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:prompts",
+        "execute:completions"
+      ],
+      "redact": [
+        "api_key",
+        "project_id"
+      ]
+    },
+    {
+      "name": "GitHub Copilot",
+      "category": "marketing",
+      "categoryTitle": "Marketing & Content",
+      "emoji": "📢",
+      "tier": "T3",
+      "tierClass": "t3",
+      "tierName": "Write / Execute",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:code",
+        "write:suggestions",
+        "execute:completions"
+      ],
+      "redact": [
+        "copilot_token",
+        "oauth_token"
+      ]
+    },
+    {
+      "name": "Anthropic Claude",
+      "category": "marketing",
+      "categoryTitle": "Marketing & Content",
+      "emoji": "📢",
+      "tier": "T2",
+      "tierClass": "t2",
+      "tierName": "Internal read",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:prompts",
+        "execute:completions"
+      ],
+      "redact": [
+        "api_key"
+      ]
+    },
+    {
+      "name": "GitHub",
+      "category": "development",
+      "categoryTitle": "Dev & Code & Systems",
+      "emoji": "🧩",
+      "tier": "T3",
+      "tierClass": "t3",
+      "tierName": "Write / Execute",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:repos",
+        "write:repos",
+        "read:prs",
+        "write:prs",
+        "read:workflows"
+      ],
+      "redact": [
+        "pat",
+        "oauth_token",
+        "app_private_key"
+      ]
+    },
+    {
+      "name": "GitHub Copilot",
+      "category": "development",
+      "categoryTitle": "Dev & Code & Systems",
+      "emoji": "🧩",
+      "tier": "T3",
+      "tierClass": "t3",
+      "tierName": "Write / Execute",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:code",
+        "write:code",
+        "execute:completions"
+      ],
+      "redact": [
+        "copilot_token",
+        "oauth_token"
+      ]
+    },
+    {
+      "name": "Cursor",
+      "category": "development",
+      "categoryTitle": "Dev & Code & Systems",
+      "emoji": "🧩",
+      "tier": "T3",
+      "tierClass": "t3",
+      "tierName": "Write / Execute",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:code",
+        "write:code",
+        "execute:completions"
+      ],
+      "redact": [
+        "api_key",
+        "oauth_token"
+      ]
+    },
+    {
+      "name": "Claude Code",
+      "category": "development",
+      "categoryTitle": "Dev & Code & Systems",
+      "emoji": "🧩",
+      "tier": "T3",
+      "tierClass": "t3",
+      "tierName": "Write / Execute",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "Local",
+      "permissions": [
+        "read:code",
+        "write:code",
+        "execute:commands"
+      ],
+      "redact": [
+        "api_key",
+        "oauth_token"
+      ]
+    },
+    {
+      "name": "Gemini CLI",
+      "category": "development",
+      "categoryTitle": "Dev & Code & Systems",
+      "emoji": "🧩",
+      "tier": "T3",
+      "tierClass": "t3",
+      "tierName": "Write / Execute",
+      "status": "beta",
+      "security": "moderate",
+      "deploy": "Local",
+      "permissions": [
+        "read:code",
+        "execute:commands"
+      ],
+      "redact": [
+        "api_key",
+        "oauth_token"
+      ]
+    },
+    {
+      "name": "Google Sheets",
+      "category": "data",
+      "categoryTitle": "Data & Databases & Analytics",
+      "emoji": "📊",
+      "tier": "T2",
+      "tierClass": "t2",
+      "tierName": "Internal read",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:sheets",
+        "write:sheets"
+      ],
+      "redact": [
+        "oauth_token",
+        "refresh_token",
+        "spreadsheet_id"
+      ]
+    },
+    {
+      "name": "Supabase",
+      "category": "data",
+      "categoryTitle": "Data & Databases & Analytics",
+      "emoji": "📊",
+      "tier": "T3",
+      "tierClass": "t3",
+      "tierName": "Write / Execute",
+      "status": "ready",
+      "security": "high",
+      "deploy": "Self-host / SaaS",
+      "permissions": [
+        "read:db",
+        "write:db",
+        "execute:queries"
+      ],
+      "redact": [
+        "service_role_key",
+        "anon_key",
+        "db_password"
+      ]
+    },
+    {
+      "name": "Notion",
+      "category": "collaboration",
+      "categoryTitle": "Collaboration & Productivity",
+      "emoji": "🔗",
+      "tier": "T2",
+      "tierClass": "t2",
+      "tierName": "Internal read",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:pages",
+        "write:pages",
+        "read:databases"
+      ],
+      "redact": [
+        "integration_token",
+        "database_id"
+      ]
+    },
+    {
+      "name": "Slack",
+      "category": "collaboration",
+      "categoryTitle": "Collaboration & Productivity",
+      "emoji": "🔗",
+      "tier": "T2",
+      "tierClass": "t2",
+      "tierName": "Internal read",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:channels",
+        "write:messages",
+        "read:users"
+      ],
+      "redact": [
+        "bot_token",
+        "oauth_token",
+        "webhook_url"
+      ]
+    },
+    {
+      "name": "Google Calendar",
+      "category": "collaboration",
+      "categoryTitle": "Collaboration & Productivity",
+      "emoji": "🔗",
+      "tier": "T2",
+      "tierClass": "t2",
+      "tierName": "Internal read",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:events",
+        "write:events"
+      ],
+      "redact": [
+        "oauth_token",
+        "refresh_token"
+      ]
+    },
+    {
+      "name": "Gmail",
+      "category": "collaboration",
+      "categoryTitle": "Collaboration & Productivity",
+      "emoji": "🔗",
+      "tier": "T2",
+      "tierClass": "t2",
+      "tierName": "Internal read",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:mail",
+        "write:mail",
+        "send:mail"
+      ],
+      "redact": [
+        "oauth_token",
+        "refresh_token",
+        "app_password"
+      ]
+    },
+    {
+      "name": "LangGraph",
+      "category": "ai-core",
+      "categoryTitle": "AI Core & Orchestration",
+      "emoji": "🤖",
+      "tier": "T2",
+      "tierClass": "t2",
+      "tierName": "Internal read",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "Self-host",
+      "permissions": [
+        "read:graphs",
+        "execute:workflows"
+      ],
+      "redact": [
+        "api_key"
+      ]
+    },
+    {
+      "name": "LangChain",
+      "category": "ai-core",
+      "categoryTitle": "AI Core & Orchestration",
+      "emoji": "🤖",
+      "tier": "T2",
+      "tierClass": "t2",
+      "tierName": "Internal read",
+      "status": "ready",
+      "security": "moderate",
+      "deploy": "Self-host",
+      "permissions": [
+        "read:chains",
+        "execute:models",
+        "read:memory"
+      ],
+      "redact": [
+        "api_key",
+        "model_token"
+      ]
+    },
+    {
+      "name": "Dola AI",
+      "category": "ai-core",
+      "categoryTitle": "AI Core & Orchestration",
+      "emoji": "🤖",
+      "tier": "T2",
+      "tierClass": "t2",
+      "tierName": "Internal read",
+      "status": "beta",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:agents",
+        "execute:workflows"
+      ],
+      "redact": [
+        "api_key"
+      ]
+    },
+    {
+      "name": "base44",
+      "category": "ai-core",
+      "categoryTitle": "AI Core & Orchestration",
+      "emoji": "🤖",
+      "tier": "T2",
+      "tierClass": "t2",
+      "tierName": "Internal read",
+      "status": "beta",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:apps",
+        "write:apps"
+      ],
+      "redact": [
+        "api_key",
+        "app_secret"
+      ]
+    },
+    {
+      "name": "OnSpaceAI",
+      "category": "ai-core",
+      "categoryTitle": "AI Core & Orchestration",
+      "emoji": "🤖",
+      "tier": "T2",
+      "tierClass": "t2",
+      "tierName": "Internal read",
+      "status": "beta",
+      "security": "moderate",
+      "deploy": "SaaS",
+      "permissions": [
+        "read:spaces",
+        "write:spaces",
+        "execute:workflows"
+      ],
+      "redact": [
+        "api_key",
+        "token"
+      ]
+    }
+  ]
+};
+const {meta, tools} = DATA;
+const $ = (s)=>document.querySelector(s);
+
+$('#stats').innerHTML = `
+  <div class="stat"><b>${meta.total}</b><span>Tools</span></div>
+  <div class="stat"><b>${meta.categories.length}</b><span>Categories</span></div>
+  <div class="stat"><b>${tools.filter(t=>t.tier==='T3'||t.tier==='T4').length}</b><span>High risk (T3–T4)</span></div>
+  <div class="stat"><b>${tools.reduce((n,t)=>n+t.redact.length,0)}</b><span>Redact fields</span></div>`;
+$('#upd').textContent = meta.updated;
+
+$('#tier').insertAdjacentHTML('beforeend',
+  [...new Set(tools.map(t=>t.tier))].sort().map(t=>`<option value="${t}">${t}</option>`).join(''));
+$('#cat').insertAdjacentHTML('beforeend',
+  meta.categories.map(c=>`<option value="${c.id}">${c.emoji} ${c.title}</option>`).join(''));
+
+let activeCat = '';
+$('#chips').innerHTML = `<span class="chip on" data-cat="">All</span>` +
+  meta.categories.map(c=>`<span class="chip" data-cat="${c.id}">${c.emoji} ${c.title} (${c.count})</span>`).join('');
+$('#chips').addEventListener('click', e=>{
+  const chip = e.target.closest('.chip'); if(!chip) return;
+  activeCat = chip.dataset.cat;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on', c===chip));
+  render();
+});
+$('#q').addEventListener('input', render);
+$('#tier').addEventListener('change', render);
+$('#cat').addEventListener('change', ()=>{ activeCat='';
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on', c.dataset.cat==='')); render(); });
+
+function statusBadge(s){
+  return s==='ready'
+    ? `<span class="badge ok">✅ ready</span>`
+    : `<span class="badge beta">🧪 ${s}</span>`;
+}
+
+function render(){
+  const q = $('#q').value.trim().toLowerCase();
+  const tier = $('#tier').value;
+  const catSel = $('#cat').value;
+  const list = tools.filter(t=>{
+    if(activeCat && t.category!==activeCat) return false;
+    if(catSel && t.category!==catSel) return false;
+    if(tier && t.tier!==tier) return false;
+    if(q){
+      const hay = [t.name,t.categoryTitle,t.tier,t.deploy,t.security,...t.permissions,...t.redact].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  $('#grid').innerHTML = list.map(t=>`
+    <div class="card">
+      <h3>${t.emoji} ${t.name}</h3>
+      <div class="row">
+        <span class="badge ${t.tierClass}">${t.tier} · ${t.tierName}</span>
+        ${statusBadge(t.status)}
+        <span class="badge cat">${t.categoryTitle}</span>
+      </div>
+      <div class="label">Deploy</div>
+      <div class="tags"><span class="tag">${t.deploy}</span></div>
+      <div class="label">Permissions</div>
+      <div class="tags">${t.permissions.map(p=>`<span class="tag">${p}</span>`).join('')}</div>
+      <div class="label">Redact on write</div>
+      <div class="tags">${t.redact.map(r=>`<span class="tag redact">${r}</span>`).join('')}</div>
+    </div>`).join('');
+  $('#empty').style.display = list.length ? 'none' : 'block';
+}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+# MCP & AI Tools Registry — crystalcastleX
+# Source of truth for knowledge-base/mcp-tools in ZyntroAI/crystalcastleX.
+# Aligned with the OWASP LLM Top 10 and the AST security tiering model (T1–T4).
+# T1 = public read · T2 = internal read · T3 = write/execute · T4 = admin/security
+#
+# NOTE: entries mirror category-*.md exactly (20 rows, 5 categories).
+# GitHub Copilot appears in both Marketing and Development, matching the catalog tables.
+
+version: '1.0'
+updated: '2026-09-11'
+reference:
+- OWASP LLM Top 10
+- AST Security Tiering (T1–T4)
+- MCP Protocol
+tiers:
+  T1:
+    name: Public read
+    risk: low
+    description: อ่านข้อมูลสาธารณะ ไม่แตะข้อมูลภายใน
+  T2:
+    name: Internal read
+    risk: medium
+    description: อ่านข้อมูลภายในองค์กร / เรียกโมเดล
+  T3:
+    name: Write / Execute
+    risk: high
+    description: เขียนข้อมูลหรือรันคำสั่งในระบบ
+  T4:
+    name: Admin / Security
+    risk: critical
+    description: จัดการสิทธิ์ ความปลอดภัย และขอบเขตการเข้าถึง
+categories:
+  marketing:
+    title: Marketing & Content
+    tier: T2–T3
+    security: 🟡 Moderate
+  development:
+    title: Dev & Code & Systems
+    tier: T3
+    security: 🟡 Moderate
+  data:
+    title: Data & Databases & Analytics
+    tier: T2–T3
+    security: 🔒 High
+  collaboration:
+    title: Collaboration & Productivity
+    tier: T2
+    security: 🟡 Moderate
+  ai-core:
+    title: AI Core & Orchestration
+    tier: T2
+    security: 🟡 Moderate
+tools:
+- name: OpenAI GPT
+  category: marketing
+  tier: T2
+  status: ready
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:prompts
+  - execute:completions
+  redact:
+  - api_key
+  - org_id
+- name: Google Gemini
+  category: marketing
+  tier: T2
+  status: ready
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:prompts
+  - execute:completions
+  redact:
+  - api_key
+  - project_id
+- name: GitHub Copilot
+  category: marketing
+  tier: T3
+  status: ready
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:code
+  - write:suggestions
+  - execute:completions
+  redact:
+  - copilot_token
+  - oauth_token
+- name: Anthropic Claude
+  category: marketing
+  tier: T2
+  status: ready
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:prompts
+  - execute:completions
+  redact:
+  - api_key
+- name: GitHub
+  category: development
+  tier: T3
+  status: ready
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:repos
+  - write:repos
+  - read:prs
+  - write:prs
+  - read:workflows
+  redact:
+  - pat
+  - oauth_token
+  - app_private_key
+- name: GitHub Copilot
+  category: development
+  tier: T3
+  status: ready
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:code
+  - write:code
+  - execute:completions
+  redact:
+  - copilot_token
+  - oauth_token
+- name: Cursor
+  category: development
+  tier: T3
+  status: ready
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:code
+  - write:code
+  - execute:completions
+  redact:
+  - api_key
+  - oauth_token
+- name: Claude Code
+  category: development
+  tier: T3
+  status: ready
+  security: moderate
+  deploy: Local
+  permissions:
+  - read:code
+  - write:code
+  - execute:commands
+  redact:
+  - api_key
+  - oauth_token
+- name: Gemini CLI
+  category: development
+  tier: T3
+  status: beta
+  security: moderate
+  deploy: Local
+  permissions:
+  - read:code
+  - execute:commands
+  redact:
+  - api_key
+  - oauth_token
+- name: Google Sheets
+  category: data
+  tier: T2
+  status: ready
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:sheets
+  - write:sheets
+  redact:
+  - oauth_token
+  - refresh_token
+  - spreadsheet_id
+- name: Supabase
+  category: data
+  tier: T3
+  status: ready
+  security: high
+  deploy: Self-host / SaaS
+  permissions:
+  - read:db
+  - write:db
+  - execute:queries
+  redact:
+  - service_role_key
+  - anon_key
+  - db_password
+- name: Notion
+  category: collaboration
+  tier: T2
+  status: ready
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:pages
+  - write:pages
+  - read:databases
+  redact:
+  - integration_token
+  - database_id
+- name: Slack
+  category: collaboration
+  tier: T2
+  status: ready
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:channels
+  - write:messages
+  - read:users
+  redact:
+  - bot_token
+  - oauth_token
+  - webhook_url
+- name: Google Calendar
+  category: collaboration
+  tier: T2
+  status: ready
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:events
+  - write:events
+  redact:
+  - oauth_token
+  - refresh_token
+- name: Gmail
+  category: collaboration
+  tier: T2
+  status: ready
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:mail
+  - write:mail
+  - send:mail
+  redact:
+  - oauth_token
+  - refresh_token
+  - app_password
+- name: LangGraph
+  category: ai-core
+  tier: T2
+  status: ready
+  security: moderate
+  deploy: Self-host
+  permissions:
+  - read:graphs
+  - execute:workflows
+  redact:
+  - api_key
+- name: LangChain
+  category: ai-core
+  tier: T2
+  status: ready
+  security: moderate
+  deploy: Self-host
+  permissions:
+  - read:chains
+  - execute:models
+  - read:memory
+  redact:
+  - api_key
+  - model_token
+- name: Dola AI
+  category: ai-core
+  tier: T2
+  status: beta
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:agents
+  - execute:workflows
+  redact:
+  - api_key
+- name: base44
+  category: ai-core
+  tier: T2
+  status: beta
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:apps
+  - write:apps
+  redact:
+  - api_key
+  - app_secret
+- name: OnSpaceAI
+  category: ai-core
+  tier: T2
+  status: beta
+  security: moderate
+  deploy: SaaS
+  permissions:
+  - read:spaces
+  - write:spaces
+  - execute:workflows
+  redact:
+  - api_key
+  - token

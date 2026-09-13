@@ -110,3 +110,48 @@ secrets.json
 !.gitignore
 !package.json
 !package-lock.json
+
+# --- Added by full-repo update (UPD-20260914-0529) ---
+# Next.js
+.next/
+out/
+next-env.d.ts
+swc/
+
+# Turborepo
+.turbo/
+
+# Vercel / Netlify
+.vercel/
+.netlify/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Playwright / test reports
+playwright-report/
+test-results/
+blob-report/
+
+# Editor / OS extras
+.fleet/
+*.code-workspace
+*.orig
+*.rej
+
+# Local databases & dumps
+*.sqlite
+*.sqlite3
+*.db
+
+# Large binaries that should not be tracked
+*.vsix
+
+# Never commit real env files
+.env.local

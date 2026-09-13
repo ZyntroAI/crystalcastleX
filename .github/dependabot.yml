@@ -1,7 +1,7 @@
 version: 2
 updates:
-  # Root Next.js project
-    - package-ecosystem: "npm"
+  # GitHub Actions workflows
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
@@ -10,14 +10,25 @@ updates:
       timezone: "Asia/Bangkok"
     open-pull-requests-limit: 5
     labels:
-            - "dependencies"
-            - "nextjs"
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+
+  # Node package (install-crystal action package)
+  - package-ecosystem: "npm"
+    directory: "/Package"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+      timezone: "Asia/Bangkok"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "npm"
     groups:
-      nextjs:
-        patterns:
-                    - "next"
-                    - "react*"
-                    - "@types/react*"
       dev-deps:
         dependency-type: "development"
         update-types: ["patch", "minor"]
@@ -25,20 +36,28 @@ updates:
       prefix: "chore"
       include: "scope"
 
-  # Docker
-    - package-ecosystem: "docker"
+  # Python dependencies (Backend)
+  - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "03:00"
       timezone: "Asia/Bangkok"
-    labels: ["dependencies", "docker"]
-
-  # GitHub Actions
-    - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      timezone: "Asia/Bangkok"
-    labels: ["dependencies", "ci"]
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
     commit-message:
-      prefix: "ci"
+      prefix: "chore"
+      include: "scope"
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      timezone: "Asia/Bangkok"
+    labels:
+      - "dependencies"
+      - "docker"

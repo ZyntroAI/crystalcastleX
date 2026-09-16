@@ -1,3 +1,10 @@
+## [1.5.0](https://github.com/ZyntroAI/crystalcastleX/compare/v1.4.3...v1.5.0) (2026-09-16)
+
+
+### Features
+
+* **update:** full repository update to latest stable (Node 22 / pnpm 9) — part 1/2 ([#12](https://github.com/ZyntroAI/crystalcastleX/issues/12)) ([c57596d](https://github.com/ZyntroAI/crystalcastleX/commit/c57596de14e177e5534503ab89e02fa46906bdac))
+
 ## [1.4.3](https://github.com/ZyntroAI/crystalcastleX/compare/v1.4.2...v1.4.3) (2026-09-16)
 
 ## [1.4.2](https://github.com/ZyntroAI/crystalcastleX/compare/v1.4.1...v1.4.2) (2026-09-13)

@@ -5,6 +5,7 @@
 [![CI](https://github.com/ZyntroAI/crystalcastleX/actions/workflows/ci.yml/badge.svg)](https://github.com/ZyntroAI/crystalcastleX/actions/workflows/ci.yml)
 [![CrystalCastle AI Pipeline](https://github.com/ZyntroAI/crystalcastleX/actions/workflows/CrystalCastleCopilot.yml/badge.svg)](https://github.com/ZyntroAI/crystalcastleX/actions/workflows/CrystalCastleCopilot.yml)
 [![Update README from docs/knowledge](https://github.com/ZyntroAI/crystalcastleX/actions/workflows/update-readme.yml/badge.svg?branch=main)](https://github.com/ZyntroAI/crystalcastleX/actions/workflows/update-readme.yml)
+[![Essential Logging Workflow](https://github.com/ZyntroAI/crystalcastleX/actions/workflows/logging.yml/badge.svg?branch=main&event=push)](https://github.com/ZyntroAI/crystalcastleX/actions/workflows/logging.yml)
 [![License](https://img.shields.io/badge/license-MIT-1f6feb?style=flat-square)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)

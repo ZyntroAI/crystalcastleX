@@ -1,0 +1,3311 @@
+diff --git a/.github/workflows/Check-Absolute-Path.yml b/.github/workflows/Check-Absolute-Path.yml
+index b68c9b4..f6d05c9 100644
+--- a/.github/workflows/Check-Absolute-Path.yml
++++ b/.github/workflows/Check-Absolute-Path.yml
+@@ -16,17 +16,17 @@ jobs:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           fetch-depth: 0
+ 
+       - name: Set up Python
+-        uses: actions/setup-python@v5
++        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+         with:
+           python-version: '3.11'
+ 
+       - name: Cache pip
+-        uses: actions/cache@v4
++        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+         with:
+           path: ~/.cache/pip
+           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+@@ -50,7 +50,7 @@ jobs:
+           python scripts/scan_paths.py --format json > path_report.json || true
+ 
+       - name: Upload reports
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: path-scan-reports
+           path: |
+@@ -59,7 +59,7 @@ jobs:
+ 
+       - name: Comment on PR
+         if: github.event_name == 'pull_request'
+-        uses: peter-evans/create-or-update-comment@v4
++        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
+         with:
+           token: ${{ secrets.GITHUB_TOKEN }}
+           issue-number: ${{ github.event.pull_request.number }}
+@@ -112,7 +112,7 @@ jobs:
+ 
+       - name: Add labels to PR
+         if: github.event_name == 'pull_request'
+-        uses: actions/github-script@v7
++        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+         with:
+           script: |
+             const labels = ['automation', 'path-scan'];
+diff --git a/.github/workflows/CrystalCastleCopilot.yml b/.github/workflows/CrystalCastleCopilot.yml
+index 61b6d27..419923f 100644
+--- a/.github/workflows/CrystalCastleCopilot.yml
++++ b/.github/workflows/CrystalCastleCopilot.yml
+@@ -12,6 +12,9 @@ env:
+   NODE_VERSION: 22
+   PNPM_VERSION: 9
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   validate:
+     name: Validate Structure & Lint
+@@ -19,15 +22,15 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Setup PNPM
+-        uses: pnpm/action-setup@v4
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+         with:
+           version: ${{ env.PNPM_VERSION }}
+ 
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: ${{ env.NODE_VERSION }}
+           cache: 'pnpm'
+@@ -62,15 +65,15 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Setup PNPM
+-        uses: pnpm/action-setup@v4
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+         with:
+           version: ${{ env.PNPM_VERSION }}
+ 
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: ${{ env.NODE_VERSION }}
+           cache: 'pnpm'
+@@ -111,15 +114,15 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Setup PNPM
+-        uses: pnpm/action-setup@v4
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+         with:
+           version: ${{ env.PNPM_VERSION }}
+ 
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: ${{ env.NODE_VERSION }}
+           cache: 'pnpm'
+@@ -131,7 +134,7 @@ jobs:
+         run: pnpm build
+ 
+       - name: Upload Build Artifact
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: crystalcastle-build
+           path: |
+@@ -145,15 +148,15 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Setup PNPM
+-        uses: pnpm/action-setup@v4
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+         with:
+           version: ${{ env.PNPM_VERSION }}
+ 
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: ${{ env.NODE_VERSION }}
+           cache: 'pnpm'
+@@ -181,7 +184,7 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Trigger Vercel Preview
+         run: |
+@@ -198,7 +201,7 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Deploy to Vercel
+         env:
+diff --git a/.github/workflows/IgnoreFileCheck.yml b/.github/workflows/IgnoreFileCheck.yml
+index 1a867b3..e18ba82 100644
+--- a/.github/workflows/IgnoreFileCheck.yml
++++ b/.github/workflows/IgnoreFileCheck.yml
+@@ -7,12 +7,16 @@ on:
+       - ".eslintignore"
+       - ".vercelignore"
+ 
++permissions:
++  contents: read
++  pull-requests: write
++  issues: write
+ jobs:
+   validate-ignore:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Run ignore file validation
+         run: |
+@@ -36,7 +40,7 @@ jobs:
+           echo "✅ Ignore files OK (MIT Standard)"
+ 
+       - name: AI Review Comment
+-        uses: actions/github-script@v7
++        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+         with:
+           script: |
+             github.rest.issues.createComment({
+diff --git a/.github/workflows/Log-Summary.yml b/.github/workflows/Log-Summary.yml
+index 8f75b1b..3241b50 100644
+--- a/.github/workflows/Log-Summary.yml
++++ b/.github/workflows/Log-Summary.yml
+@@ -25,23 +25,27 @@ jobs:
+ 
+     steps:
+       - name: Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           fetch-depth: 0
+           ref: ${{ github.event.repository.default_branch }}
+ 
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: Setup Node
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: 20
+-          cache: npm
++          node-version: '22'
++          cache: pnpm
+ 
+       - name: Install dependencies
+-        run: npm ci
++        run: pnpm install --frozen-lockfile
+ 
+       # Replace with API-based download if using workflow_run artifacts
+       - name: Download logs
+-        uses: actions/download-artifact@v4
++        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+         with:
+           name: workflow-logs
+           path: logs/
+diff --git a/.github/workflows/Logging-Fail.yml b/.github/workflows/Logging-Fail.yml
+index 5a89013..624532d 100644
+--- a/.github/workflows/Logging-Fail.yml
++++ b/.github/workflows/Logging-Fail.yml
+@@ -13,16 +13,20 @@ jobs:
+   build-test:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: '22'
+           cache: 'npm'
+ 
+       - name: Install dependencies
+-        run: npm ci
++        run: pnpm install --frozen-lockfile
+ 
+       - name: Run Unit Tests
+         run: |
+@@ -44,7 +48,7 @@ jobs:
+ 
+       - name: Upload fail logs
+         if: always()
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: unittest-fail-logs
+           path: version/CrystalCastle/logs/
+diff --git a/.github/workflows/SBOM.yml b/.github/workflows/SBOM.yml
+index a041d18..0cae0f6 100644
+--- a/.github/workflows/SBOM.yml
++++ b/.github/workflows/SBOM.yml
+@@ -9,6 +9,8 @@ on:
+   push:
+     branches: ["main"]
+ 
++permissions:
++  contents: read
+ jobs:
+   SBOM-upload:
+ 
+@@ -18,14 +20,14 @@ jobs:
+       contents: write
+ 
+     steps:
+-    - uses: actions/checkout@v6
++    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+     - name: Generate SBOM
+       # generation command documentation: https://github.com/microsoft/sbom-tool#sbom-generation
+       run: |
+         curl -Lo $RUNNER_TEMP/sbom-tool https://github.com/microsoft/sbom-tool/releases/latest/download/sbom-tool-linux-x64
+         chmod +x $RUNNER_TEMP/sbom-tool
+         $RUNNER_TEMP/sbom-tool generate -b . -bc . -pn $ -pv 1.0.0 -ps OwnerName -nsb https://sbom.mycompany.com -V Verbose
+-    - uses: actions/upload-artifact@v4
++    - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+       with:
+         name: sbom
+         path: _manifest/spdx_2.2
+diff --git a/.github/workflows/ToDoList.yaml b/.github/workflows/ToDoList.yaml
+index f291525..63beb11 100644
+--- a/.github/workflows/ToDoList.yaml
++++ b/.github/workflows/ToDoList.yaml
+@@ -5,12 +5,15 @@ on:
+     paths:
+       - "docs/worker/reviewer/reviewer.checklist.md"
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   notify:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout Repo
+-        uses: actions/checkout@v3
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Parse Checklist Progress
+         run: |
+@@ -19,7 +22,7 @@ jobs:
+           echo "progress=$COMPLETE/$TOTAL" >> $GITHUB_ENV
+ 
+       - name: Send Email Notification
+-        uses: dawidd6/action-send-mail@v3
++        uses: dawidd6/action-send-mail@4226df7daafa6fc901a43789c49bf7ab309066e7 # v3
+         with:
+           server_address: smtp.gmail.com
+           server_port: 465
+diff --git a/.github/workflows/agent-hub-ci.yml b/.github/workflows/agent-hub-ci.yml
+index 492196d..9f25a7e 100644
+--- a/.github/workflows/agent-hub-ci.yml
++++ b/.github/workflows/agent-hub-ci.yml
+@@ -10,6 +10,9 @@ on:
+     paths:
+       - 'agent-hub/**'
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   test:
+     runs-on: ubuntu-latest
+@@ -20,12 +23,16 @@ jobs:
+       run:
+         working-directory: agent-hub
+     steps:
+-      - uses: actions/checkout@v4
+-      - uses: actions/setup-node@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
++      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: ${{ matrix.node-version }}
+-          cache: npm
++          cache: pnpm
+           cache-dependency-path: agent-hub/package-lock.json
+-      - run: npm ci
++      - run: pnpm install --frozen-lockfile
+       - run: npm run build
+       - run: npm test
+diff --git a/.github/workflows/ai-changelog.yml b/.github/workflows/ai-changelog.yml
+index 5408805..a641568 100644
+--- a/.github/workflows/ai-changelog.yml
++++ b/.github/workflows/ai-changelog.yml
+@@ -5,12 +5,14 @@ on:
+     branches:
+       - main
+ 
++permissions:
++  contents: write
+ jobs:
+   changelog:
+     runs-on: ubuntu-latest
+ 
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Generate changelog
+         run: node scripts/generate-changelog.js
+diff --git a/.github/workflows/ai-commit.yml b/.github/workflows/ai-commit.yml
+index cd1f96e..216cf5c 100644
+--- a/.github/workflows/ai-commit.yml
++++ b/.github/workflows/ai-commit.yml
+@@ -7,13 +7,15 @@ on:
+       - feature/**
+       - main
+ 
++permissions:
++  contents: read
+ jobs:
+   summarize:
+     runs-on: ubuntu-latest
+ 
+     steps:
+       - name: Checkout
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Generate Diff
+         run: |
+@@ -25,7 +27,7 @@ jobs:
+           python scripts/generate_commit_context.py
+ 
+       - name: Upload Artifact
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: ai-summary
+           path: output/
+\ No newline at end of file
+diff --git a/.github/workflows/ai-log-summary.yml b/.github/workflows/ai-log-summary.yml
+index 58975a0..891a817 100644
+--- a/.github/workflows/ai-log-summary.yml
++++ b/.github/workflows/ai-log-summary.yml
+@@ -14,22 +14,26 @@ jobs:
+     runs-on: ubuntu-latest
+ 
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Download logs
+-        uses: actions/download-artifact@v4
++        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+         with:
+           name: workflow-logs
+           path: logs/
+         continue-on-error: true
+ 
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: Setup Node
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: 20
++          node-version: '22'
+ 
+       - name: Install deps
+-        run: npm install openai
++        run: pnpm install --frozen-lockfile openai
+ 
+       - name: Run AI summarizer
+         run: node scripts/ai-summarize-log.js
+diff --git a/.github/workflows/ai-pr-review.yml b/.github/workflows/ai-pr-review.yml
+index a3c0083..c378e61 100644
+--- a/.github/workflows/ai-pr-review.yml
++++ b/.github/workflows/ai-pr-review.yml
+@@ -14,7 +14,7 @@ jobs:
+ 
+     steps:
+       - name: Checkout
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Get PR diff
+         run: |
+diff --git a/.github/workflows/archive/manual-run.yml b/.github/workflows/archive/manual-run.yml
+index 3679948..171c783 100644
+--- a/.github/workflows/archive/manual-run.yml
++++ b/.github/workflows/archive/manual-run.yml
+@@ -1,6 +1,8 @@
+ on:
+   workflow_dispatch:
+ 
++permissions:
++  contents: read
+ jobs:
+   debug:
+     runs-on: ubuntu-latest
+diff --git a/.github/workflows/auto-comment-syntax.yml b/.github/workflows/auto-comment-syntax.yml
+index b160b02..278f633 100644
+--- a/.github/workflows/auto-comment-syntax.yml
++++ b/.github/workflows/auto-comment-syntax.yml
+@@ -6,12 +6,16 @@ on:
+       - ".github/workflows/*.yml"
+       - ".github/workflows/*.yaml"
+ 
++permissions:
++  contents: read
++  pull-requests: write
++  issues: write
+ jobs:
+   syntax-check:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout Repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Scan Workflow Files for Syntax Error
+         id: scan
+@@ -24,7 +28,7 @@ jobs:
+ 
+       - name: Post Reviewer Comment
+         if: env.error_found == 'true'
+-        uses: peter-evans/create-or-update-comment@v3
++        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
+         with:
+           issue-number: ${{ github.event.pull_request.number }}
+           body: |
+diff --git a/.github/workflows/auto-compress.yml b/.github/workflows/auto-compress.yml
+index 892e774..a94853c 100644
+--- a/.github/workflows/auto-compress.yml
++++ b/.github/workflows/auto-compress.yml
+@@ -36,6 +36,9 @@ env:
+   OUTPUT_DIR: 'compressed_output'
+   LOG_FILE: 'compress_report.log'
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   # ============================================
+   # JOB 1: SCAN & ANALYZE FILES
+@@ -50,7 +53,7 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           fetch-depth: 0
+ 
+@@ -111,17 +114,21 @@ jobs:
+ 
+     steps:
+       - name: Checkout
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: ${{ env.NODE_VERSION }}
+           cache: 'npm'
+ 
+       - name: Install Image Tools
+         run: |
+-          npm install -g sharp-cli imagemin-cli
++          pnpm install --frozen-lockfile -g sharp-cli imagemin-cli
+           sudo apt-get install -y optipng jpegoptim webp
+ 
+       - name: 🖼️ Compress PNG Files
+@@ -161,7 +168,7 @@ jobs:
+           done
+ 
+       - name: Upload Compressed Images
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: compressed-images-${{ github.run_number }}
+           path: |
+@@ -180,7 +187,7 @@ jobs:
+ 
+     steps:
+       - name: Checkout
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Install Compression Tools
+         run: |
+@@ -238,7 +245,7 @@ jobs:
+           echo "========================================"
+ 
+       - name: Upload Archives
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: file-archives-${{ github.run_number }}
+           path: ${{ env.OUTPUT_DIR }}/
+@@ -255,7 +262,7 @@ jobs:
+ 
+     steps:
+       - name: Checkout
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           token: ${{ secrets.GITHUB_TOKEN }}
+ 
+@@ -339,7 +346,7 @@ jobs:
+ 
+       - name: 📱 Slack Notification (optional)
+         if: ${{ env.SLACK_WEBHOOK_URL!= '' }}
+-        uses: slackapi/slack-github-action@v1.26.0
++        uses: slackapi/slack-github-action@70cd7be8e40a46e8b0eced40b0de447bdb42f68e # v1.26.0
+         env:
+           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+diff --git a/.github/workflows/auto-label.yml b/.github/workflows/auto-label.yml
+index 68ae993..604c8c3 100644
+--- a/.github/workflows/auto-label.yml
++++ b/.github/workflows/auto-label.yml
+@@ -17,7 +17,7 @@ jobs:
+ 
+     steps:
+       - name: Apply labels from title
+-        uses: actions/github-script@v7
++        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+         with:
+           script: |
+             const item = context.payload.pull_request || context.payload.issue;
+diff --git a/.github/workflows/changelog.yml b/.github/workflows/changelog.yml
+index 69d89ae..2971db4 100644
+--- a/.github/workflows/changelog.yml
++++ b/.github/workflows/changelog.yml
+@@ -16,14 +16,14 @@ jobs:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           fetch-depth: 0
+           token: ${{ secrets.GITHUB_TOKEN }}
+ 
+       - name: Generate Changelog
+         id: changelog
+-        uses: TriPSs/conventional-changelog-action@v5
++        uses: TriPSs/conventional-changelog-action@ee43def3241429afddab215ba89090cbf64fb45c # v6
+         with:
+           github-token: ${{ secrets.GITHUB_TOKEN }}
+           preset: 'conventionalcommits'
+@@ -36,7 +36,7 @@ jobs:
+ 
+       - name: Create Pull Request
+         if: steps.changelog.outputs.skipped == 'false'
+-        uses: peter-evans/create-pull-request@v6
++        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7
+         with:
+           token: ${{ secrets.GITHUB_TOKEN }}
+           commit-message: 'chore(release): update changelog [skip ci]'
+diff --git a/.github/workflows/check-for-codeowner.yml b/.github/workflows/check-for-codeowner.yml
+index a56a538..696a9ee 100644
+--- a/.github/workflows/check-for-codeowner.yml
++++ b/.github/workflows/check-for-codeowner.yml
+@@ -15,7 +15,7 @@ jobs:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Check for CODEOWNERS
+         id: check_codeowners
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 42e4c5a..b22ea6d 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -25,13 +25,17 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: '22'
+-          cache: npm
++          cache: pnpm
+ 
+       - name: Verify Node.js
+         run: |
+@@ -39,7 +43,7 @@ jobs:
+           npm --version
+ 
+       - name: Install Dependencies
+-        run: npm ci
++        run: pnpm install --frozen-lockfile
+ 
+       - name: Run ESLint
+         run: npm run lint
+diff --git a/.github/workflows/cleanup-old-markdownfile.yml b/.github/workflows/cleanup-old-markdownfile.yml
+index ccdb941..1a21568 100644
+--- a/.github/workflows/cleanup-old-markdownfile.yml
++++ b/.github/workflows/cleanup-old-markdownfile.yml
+@@ -5,12 +5,15 @@ on:
+     branches:
+       - main
+ 
++permissions:
++  contents: write
++  pull-requests: write
+ jobs:
+   cleanup:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Remove old reviewer md files
+         run: |
+diff --git a/.github/workflows/codeql.yml b/.github/workflows/codeql.yml
+index 89c7d5a..64c7037 100644
+--- a/.github/workflows/codeql.yml
++++ b/.github/workflows/codeql.yml
+@@ -19,6 +19,10 @@ on:
+   schedule:
+     - cron: '18 5 * * 0'
+ 
++permissions:
++  contents: read
++  pull-requests: write
++  security-events: write
+ jobs:
+   analyze:
+     name: Analyze (${{ matrix.language }})
+@@ -40,15 +44,15 @@ jobs:
+ 
+     steps:
+       - name: Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Initialize CodeQL
+-        uses: github/codeql-action/init@v3
++        uses: github/codeql-action@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
+         with:
+           languages: ${{ matrix.language }}
+           build-mode: ${{ matrix.build-mode }}
+ 
+       - name: Perform CodeQL Analysis
+-        uses: github/codeql-action/analyze@v3
++        uses: github/codeql-action@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
+         with:
+           category: "/language:${{matrix.language}}"
+diff --git a/.github/workflows/commit-lint.yml b/.github/workflows/commit-lint.yml
+index 56a2780..76ce42f 100644
+--- a/.github/workflows/commit-lint.yml
++++ b/.github/workflows/commit-lint.yml
+@@ -1,11 +1,14 @@
+ name: Lint Commit Message
+ on: [pull_request]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   check-commit:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: gsactions/commit-message-checker@v2
++      - uses: gsactions/commit-message-checker@16fa2d5de096ae0d35626443bcd24f1e756cafee # v2
+         with:
+           pattern: '^(feat|fix|docs|style|chore|affiliate)(\(.+\))?: .+'
+           error: '❌ รูปแบบ Commit ไม่ถูกต้อง! โปรดใช้: type(scope): description'
+diff --git a/.github/workflows/commit-pr-release.yml b/.github/workflows/commit-pr-release.yml
+index a6bb261..4c3d526 100644
+--- a/.github/workflows/commit-pr-release.yml
++++ b/.github/workflows/commit-pr-release.yml
+@@ -6,18 +6,21 @@ on:
+   pull_request:
+     types: [opened, edited, synchronize]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   commitlint:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
+-      - run: npm install -g @commitlint/cli @commitlint/config-conventional
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - run: pnpm install --frozen-lockfile -g @commitlint/cli @commitlint/config-conventional
+       - run: git log --format=%s -n 10 | commitlint
+ 
+   pr-metadata:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/github-script@v7
++      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+         with:
+           script: |
+             const pr = context.payload.pull_request;
+diff --git a/.github/workflows/compliance-report.yml b/.github/workflows/compliance-report.yml
+index 1010302..5131723 100644
+--- a/.github/workflows/compliance-report.yml
++++ b/.github/workflows/compliance-report.yml
+@@ -3,11 +3,15 @@ name: Unified Compliance Report
+ on:
+   pull_request:
+ 
++permissions:
++  contents: read
++  pull-requests: write
++  issues: write
+ jobs:
+   compliance-report:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Generate compliance report
+         run: |
+@@ -26,7 +30,7 @@ jobs:
+           done
+ 
+       - name: Post PR compliance comment
+-        uses: actions/github-script@v7
++        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+         with:
+           script: |
+             const fs = require('fs');
+diff --git a/.github/workflows/cross-sync.yml b/.github/workflows/cross-sync.yml
+index 989cb8d..09e2804 100644
+--- a/.github/workflows/cross-sync.yml
++++ b/.github/workflows/cross-sync.yml
+@@ -4,12 +4,15 @@ on:
+     branches:
+       - main
+ 
++permissions:
++  contents: write
++  pull-requests: write
+ jobs:
+   sync-docs:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout source repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Setup Git
+         run: |
+@@ -24,7 +27,7 @@ jobs:
+           cp docs/workflows/reviewer.flow.md sync_docs/
+ 
+       - name: Push to PureAgent-Dev
+-        uses: ad-m/github-push-action@v0.8.0
++        uses: ad-m/github-push-action@d91a481090679876dfc4178fef17f286781251df # v0.8.0
+         with:
+           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+           repository: 1napz/pure-agent-dev
+diff --git a/.github/workflows/crystalcastle-ai.yml b/.github/workflows/crystalcastle-ai.yml
+index becb837..4a1561e 100644
+--- a/.github/workflows/crystalcastle-ai.yml
++++ b/.github/workflows/crystalcastle-ai.yml
+@@ -12,6 +12,9 @@ env:
+   NODE_VERSION: 22
+   PNPM_VERSION: 9
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   validate:
+     name: Validate Structure & Lint
+@@ -19,15 +22,15 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Setup PNPM
+-        uses: pnpm/action-setup@v4
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+         with:
+           version: ${{ env.PNPM_VERSION }}
+ 
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: ${{ env.NODE_VERSION }}
+           cache: 'pnpm'
+@@ -62,15 +65,15 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Setup PNPM
+-        uses: pnpm/action-setup@v4
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+         with:
+           version: ${{ env.PNPM_VERSION }}
+ 
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: ${{ env.NODE_VERSION }}
+           cache: 'pnpm'
+@@ -111,15 +114,15 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Setup PNPM
+-        uses: pnpm/action-setup@v4
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+         with:
+           version: ${{ env.PNPM_VERSION }}
+ 
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: ${{ env.NODE_VERSION }}
+           cache: 'pnpm'
+@@ -131,7 +134,7 @@ jobs:
+         run: pnpm build
+ 
+       - name: Upload Build Artifact
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: crystalcastle-build
+           path: |
+@@ -145,15 +148,15 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Setup PNPM
+-        uses: pnpm/action-setup@v4
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+         with:
+           version: ${{ env.PNPM_VERSION }}
+ 
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: ${{ env.NODE_VERSION }}
+           cache: 'pnpm'
+@@ -181,7 +184,7 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Trigger Vercel Preview
+         run: |
+@@ -198,7 +201,7 @@ jobs:
+ 
+     steps:
+       - name: Checkout Repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Deploy to Vercel
+         env:
+diff --git a/.github/workflows/crystalcastle-pipeline.yml b/.github/workflows/crystalcastle-pipeline.yml
+index d3c0c1e..62f140c 100644
+--- a/.github/workflows/crystalcastle-pipeline.yml
++++ b/.github/workflows/crystalcastle-pipeline.yml
+@@ -6,25 +6,28 @@ on:
+   pull_request:
+     branches: [ "main", "develop" ]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   lint:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       - name: Run Markdown Lint
+         run: npx markdownlint docs/**/*.md
+ 
+   policy-check:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       - name: Validate Commit Policy
+         run: python scripts/check_commit_policy.py
+ 
+   test:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/setup-python@v4
++      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+         with:
+           python-version: "3.11"
+       - run: pip install -r requirements.txt
+@@ -41,7 +44,7 @@ jobs:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Deploy to Vercel
+-        uses: amondnet/vercel-action@v25
++        uses: amondnet/vercel-action@16e87c0a08142b0d0d33b76aeaf20823c381b9b9 # v25
+         with:
+           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+diff --git a/.github/workflows/dependabot-merge.yml b/.github/workflows/dependabot-merge.yml
+index 32e1c6d..bc786a1 100644
+--- a/.github/workflows/dependabot-merge.yml
++++ b/.github/workflows/dependabot-merge.yml
+@@ -4,6 +4,9 @@ on:
+   pull_request:
+     types: [opened, synchronize, reopened, ready_for_review]
+ 
++permissions:
++  contents: write
++  pull-requests: write
+ jobs:
+   dependabot-automerge:
+     runs-on: ubuntu-latest
+@@ -16,7 +19,7 @@ jobs:
+     steps:
+       - name: Dependabot metadata
+         id: dependabot-metadata
+-        uses: dependabot/fetch-metadata@v2
++        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3
+         with:
+           github-token: "${{ secrets.GITHUB_TOKEN }}"
+ 
+diff --git a/.github/workflows/deploy-dashboard.yml b/.github/workflows/deploy-dashboard.yml
+index 1d6d8ac..32ac792 100644
+--- a/.github/workflows/deploy-dashboard.yml
++++ b/.github/workflows/deploy-dashboard.yml
+@@ -6,12 +6,14 @@ on:
+     paths: ['crystalcastle-dashboard/**']
+   workflow_dispatch:
+ 
++permissions:
++  contents: read
+ jobs:
+   deploy:
+     name: Deploy crystalcastle-dashboard
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Deploy to Vercel
+         run: |
+diff --git a/.github/workflows/docker-deploy.yml b/.github/workflows/docker-deploy.yml
+index f89501b..948dfd9 100644
+--- a/.github/workflows/docker-deploy.yml
++++ b/.github/workflows/docker-deploy.yml
+@@ -6,6 +6,10 @@ on:
+   pull_request:
+     branches: [ "main" ]
+ 
++permissions:
++  contents: read
++  pull-requests: write
++  packages: write
+ jobs:
+   build-and-deploy:
+     runs-on: ubuntu-latest
+@@ -13,11 +17,11 @@ jobs:
+     steps:
+       # 1. Checkout source code
+       - name: Checkout repository
+-        uses: actions/checkout@v3
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       # 2. Setup Python (optional: run tests)
+       - name: Set up Python
+-        uses: actions/setup-python@v4
++        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+         with:
+           python-version: "3.11"
+ 
+@@ -32,7 +36,7 @@ jobs:
+ 
+       # 4. Login to Docker Registry (DockerHub หรือ GHCR)
+       - name: Login to DockerHub
+-        uses: docker/login-action@v2
++        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+         with:
+           username: ${{ secrets.DOCKER_USERNAME }}
+           password: ${{ secrets.DOCKER_PASSWORD }}
+@@ -45,7 +49,7 @@ jobs:
+ 
+       # 6. Deploy (ตัวอย่าง: SSH ไปเซิร์ฟเวอร์)
+       - name: Deploy via SSH
+-        uses: appleboy/ssh-action@v0.1.10
++        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1
+         with:
+           host: ${{ secrets.SERVER_HOST }}
+           username: ${{ secrets.SERVER_USER }}
+diff --git a/.github/workflows/docker-image.yml b/.github/workflows/docker-image.yml
+index 196c022..b60d045 100644
+--- a/.github/workflows/docker-image.yml
++++ b/.github/workflows/docker-image.yml
+@@ -6,6 +6,9 @@ on:
+   pull_request:
+     branches: [ "Crystalcastle" ]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+ 
+   build:
+@@ -13,6 +16,6 @@ jobs:
+     runs-on: ubuntu-latest
+ 
+     steps:
+-    - uses: actions/checkout@v4
++    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+     - name: Build the Docker image
+       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+diff --git a/.github/workflows/docker-publish.yml b/.github/workflows/docker-publish.yml
+index 7a75981..9fa5c30 100644
+--- a/.github/workflows/docker-publish.yml
++++ b/.github/workflows/docker-publish.yml
+@@ -4,21 +4,24 @@ on:
+   release:
+     types: [published]
+ 
++permissions:
++  contents: read
++  packages: write
+ jobs:
+   push:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v3
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       
+       - name: Login to GitHub Container Registry
+-        uses: docker/login-action@v2
++        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+         with:
+           registry: ghcr.io
+           username: ${{ github.actor }}
+           password: ${{ secrets.GITHUB_TOKEN }}
+           
+       - name: Build and push
+-        uses: docker/build-push-action@v4
++        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+         with:
+           push: true
+           tags: ghcr.io/zyntro-media-ai/crystalcastle:latest
+diff --git a/.github/workflows/docs.yml b/.github/workflows/docs.yml
+index 6716b50..35012fe 100644
+--- a/.github/workflows/docs.yml
++++ b/.github/workflows/docs.yml
+@@ -5,11 +5,13 @@ on:
+     branches:
+       - main
+ 
++permissions:
++  contents: read
+ jobs:
+   docs-validate:
+     if: contains(github.event.head_commit.message, 'docs')
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v3
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       - name: Run Docs Validation
+         run: python scripts/jobs/docs/docs_validate.py
+\ No newline at end of file
+diff --git a/.github/workflows/docstring-enforcement.yml b/.github/workflows/docstring-enforcement.yml
+index e53edb0..a3e1269 100644
+--- a/.github/workflows/docstring-enforcement.yml
++++ b/.github/workflows/docstring-enforcement.yml
+@@ -4,18 +4,21 @@ on:
+   pull_request:
+     branches: [main, develop, Crystalcastle]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   docstring-check:
+     runs-on: ubuntu-latest
+ 
+     steps:
+       - name: Checkout repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Setup Node
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: 20
++          node-version: '22'
+ 
+       # 1. Detect missing docstrings
+       - name: Scan missing docstrings
+diff --git a/.github/workflows/fallback-mistral.yml b/.github/workflows/fallback-mistral.yml
+index 1367e14..c75f076 100644
+--- a/.github/workflows/fallback-mistral.yml
++++ b/.github/workflows/fallback-mistral.yml
+@@ -4,13 +4,15 @@ name: Mistral Agent Test
+ on:
+   workflow_dispatch:
+ 
++permissions:
++  contents: read
+ jobs:
+   run-agent:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v3
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       - name: Set up Python
+-        uses: actions/setup-python@v4
++        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+         with:
+           python-version: '3.11'
+       - name: Install deps
+diff --git a/.github/workflows/feedback-logger.yml b/.github/workflows/feedback-logger.yml
+index 27d81f5..da81232 100644
+--- a/.github/workflows/feedback-logger.yml
++++ b/.github/workflows/feedback-logger.yml
+@@ -13,7 +13,7 @@ jobs:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout Repo
+-        uses: actions/checkout@v3
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           ref: ${{ github.head_ref }} # ← check out the PR branch, not detached HEAD
+ 
+diff --git a/.github/workflows/gitignore-check.yml b/.github/workflows/gitignore-check.yml
+index 9cd84eb..967ca00 100644
+--- a/.github/workflows/gitignore-check.yml
++++ b/.github/workflows/gitignore-check.yml
+@@ -6,12 +6,15 @@ on:
+   pull_request:
+     branches: [ "main" ]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   check-gitignore:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout repository
+-        uses: actions/checkout@v3
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Validate .gitignore
+         run: |
+diff --git a/.github/workflows/governance.yml b/.github/workflows/governance.yml
+index fe0111a..021c020 100644
+--- a/.github/workflows/governance.yml
++++ b/.github/workflows/governance.yml
+@@ -2,15 +2,19 @@ name: Governance
+ on:
+   pull_request:
+     branches: [ main, develop ]
++permissions:
++  contents: read
++  pull-requests: write
++  security-events: write
+ jobs:
+   privacy-check:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       - run: npm run privacy-check
+ 
+   security-scan:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
+-      - uses: github/codeql-action/analyze@v2
+\ No newline at end of file
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - uses: github/codeql-action@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
+diff --git a/.github/workflows/license-check.yml b/.github/workflows/license-check.yml
+index ea5b5d9..e6abb63 100644
+--- a/.github/workflows/license-check.yml
++++ b/.github/workflows/license-check.yml
+@@ -8,11 +8,14 @@ on:
+       - 'docs/license/**'
+       - 'frontend/license/**'
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   license-check:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Verify license placement
+         run: |
+diff --git a/.github/workflows/lint.yml b/.github/workflows/lint.yml
+index 2255b45..2b609ee 100644
+--- a/.github/workflows/lint.yml
++++ b/.github/workflows/lint.yml
+@@ -4,21 +4,28 @@ on:
+   push:
+   pull_request:
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   lint:
+     runs-on: ubuntu-latest
+ 
+     steps:
+       - name: Checkout
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: Setup Node
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: 20
++          node-version: '22'
+ 
+       - name: Install dependencies
+-        run: npm install
++        run: pnpm install --frozen-lockfile
+ 
+       - name: Run lint
+         run: npm run lint
+\ No newline at end of file
+diff --git a/.github/workflows/log-to-artifact.yml b/.github/workflows/log-to-artifact.yml
+index 30b9f5f..331a2c6 100644
+--- a/.github/workflows/log-to-artifact.yml
++++ b/.github/workflows/log-to-artifact.yml
+@@ -7,13 +7,15 @@ on:
+       - completed
+   workflow_dispatch:
+ 
++permissions:
++  contents: read
+ jobs:
+   upload-logs:
+     runs-on: ubuntu-latest
+     if: ${{ github.event.workflow_run.conclusion == 'failure' || github.event_name == 'workflow_dispatch' }}
+     steps:
+       - name: Download logs
+-        uses: actions/download-artifact@v4
++        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+         with:
+           name: test-logs
+           path: logs/
+@@ -30,7 +32,7 @@ jobs:
+           fi
+ 
+       - name: Upload log artifact
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: action-review-log
+           path: logs/action_review.log
+diff --git a/.github/workflows/logging.yml b/.github/workflows/logging.yml
+index 6880990..9a122ad 100644
+--- a/.github/workflows/logging.yml
++++ b/.github/workflows/logging.yml
+@@ -4,12 +4,15 @@ on:
+   pull_request:
+     types: [opened, synchronize, closed]
+ 
++permissions:
++  contents: write
++  pull-requests: write
+ jobs:
+   log-essential:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Log Essential PR Data
+         run: |
+diff --git a/.github/workflows/main-dispatch.yml b/.github/workflows/main-dispatch.yml
+index 8671c13..c34ba1a 100644
+--- a/.github/workflows/main-dispatch.yml
++++ b/.github/workflows/main-dispatch.yml
+@@ -12,6 +12,8 @@ on:
+           - check_status
+           - fetch_openai_feed
+ 
++permissions:
++  contents: read
+ jobs:
+   trigger-job:
+     runs-on: ubuntu-latest
+diff --git a/.github/workflows/manual-run-command.yml b/.github/workflows/manual-run-command.yml
+index e142adb..a545ffa 100644
+--- a/.github/workflows/manual-run-command.yml
++++ b/.github/workflows/manual-run-command.yml
+@@ -12,11 +12,13 @@ on:
+           - test_scripts        # สั่งเทสระบบ/สคริปต์
+           - fetch_data          # สั่งหาข้อมูล/ดึงข้อมูลสินค้า
+ 
++permissions:
++  contents: write
+ jobs:
+   admin_tasks:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       # --- 1. สั่งย้าย (Migration & Archive) ---
+       - name: Execute Migration
+diff --git a/.github/workflows/monorepo-cicd-vercel.yml b/.github/workflows/monorepo-cicd-vercel.yml
+index 90e82c3..dc552ac 100644
+--- a/.github/workflows/monorepo-cicd-vercel.yml
++++ b/.github/workflows/monorepo-cicd-vercel.yml
+@@ -16,6 +16,9 @@ env:
+   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}   # move out of hardcode
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   ci:
+     name: Build & Test / ${{ matrix.app }}
+@@ -27,17 +30,21 @@ jobs:
+         app: [web, docs, admin]
+ 
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           fetch-depth: 2         # turbo needs HEAD^ for change detection
+ 
+-      - uses: actions/setup-node@v4
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
++      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: ${{ env.NODE_VERSION }}
+           cache: "npm"
+ 
+       - name: Install dependencies
+-        run: npm ci              # faster + strict lockfile in CI
++        run: pnpm install --frozen-lockfile              # faster + strict lockfile in CI
+ 
+       - name: Lint
+         run: npx turbo run lint --filter=apps/${{ matrix.app }}
+@@ -57,7 +64,7 @@ jobs:
+     timeout-minutes: 10
+ 
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Deploy to Vercel
+         run: |
+diff --git a/.github/workflows/move-file.yml b/.github/workflows/move-file.yml
+index 531fa66..2ce817e 100644
+--- a/.github/workflows/move-file.yml
++++ b/.github/workflows/move-file.yml
+@@ -5,12 +5,14 @@ on:
+     branches:
+       - main
+ 
++permissions:
++  contents: write
+ jobs:
+   restructure:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout Repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Create folders
+         run: |
+diff --git a/.github/workflows/multi-provider-review.yml b/.github/workflows/multi-provider-review.yml
+index 9c57c77..37b2fe9 100644
+--- a/.github/workflows/multi-provider-review.yml
++++ b/.github/workflows/multi-provider-review.yml
+@@ -4,12 +4,15 @@ on:
+   pull_request:
+   workflow_dispatch:
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   review:
+     runs-on: ubuntu-latest
+     steps:
+       - name: 📥 Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           fetch-depth: 0  # Required for incremental review
+ 
+diff --git a/.github/workflows/nextjs.yml b/.github/workflows/nextjs.yml
+index a6bef16..adb2259 100644
+--- a/.github/workflows/nextjs.yml
++++ b/.github/workflows/nextjs.yml
+@@ -30,7 +30,7 @@ jobs:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       - name: Detect package manager
+         id: detect-package-manager
+         run: |
+@@ -49,12 +49,12 @@ jobs:
+             exit 1
+           fi
+       - name: Setup Node
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: "20"
+           cache: ${{ steps.detect-package-manager.outputs.manager }}
+       - name: Setup Pages
+-        uses: actions/configure-pages@v5
++        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
+         with:
+           # Automatically inject basePath in your Next.js configuration file and disable
+           # server side image optimization (https://nextjs.org/docs/api-reference/next/image#unoptimized).
+@@ -62,7 +62,7 @@ jobs:
+           # You may remove this line if you want to manage the configuration yourself.
+           static_site_generator: next
+       - name: Restore cache
+-        uses: actions/cache@v4
++        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+         with:
+           path: |
+             .next/cache
+@@ -76,7 +76,7 @@ jobs:
+       - name: Build with Next.js
+         run: ${{ steps.detect-package-manager.outputs.runner }} next build
+       - name: Upload artifact
+-        uses: actions/upload-pages-artifact@v3
++        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+         with:
+           path: ./out
+ 
+@@ -90,4 +90,4 @@ jobs:
+     steps:
+       - name: Deploy to GitHub Pages
+         id: deployment
+-        uses: actions/deploy-pages@v5
++        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
+diff --git a/.github/workflows/notify.yml b/.github/workflows/notify.yml
+index 43310f7..9b5de13 100644
+--- a/.github/workflows/notify.yml
++++ b/.github/workflows/notify.yml
+@@ -5,12 +5,14 @@ on:
+     - cron: "0 9 * * *"   # Daily scan เวลา 9 โมงเช้า
+   workflow_dispatch:
+ 
++permissions:
++  contents: read
+ jobs:
+   notify:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout Repo
+-        uses: actions/checkout@v3
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Run Security & Performance Scan
+         run: bash scripts/scan.sh
+diff --git a/.github/workflows/post-merge.yml b/.github/workflows/post-merge.yml
+index addf224..bf4beba 100644
+--- a/.github/workflows/post-merge.yml
++++ b/.github/workflows/post-merge.yml
+@@ -7,21 +7,27 @@ concurrency:
+   group: production-deploy
+   cancel-in-progress: true
+ 
++permissions:
++  contents: read
+ jobs:
+   post-merge:
+     runs-on: ubuntu-latest
+ 
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: 🟢 Setup Node
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: 20
++          node-version: '22'
+           cache: 'npm'
+ 
+       - name: 📦 Install dependencies
+-        run: npm ci
++        run: pnpm install --frozen-lockfile
+ 
+       - name: 🧪 Run tests
+         run: npm test
+@@ -39,7 +45,7 @@ jobs:
+ 
+       - name: 📣 Notify team
+         if: always()
+-        uses: slackapi/slack-github-action@v1.23.0
++        uses: slackapi/slack-github-action@70cd7be8e40a46e8b0eced40b0de447bdb42f68e # v1.26.0
+         env:
+           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+         with:
+diff --git a/.github/workflows/pr-check.yml b/.github/workflows/pr-check.yml
+index f1d3043..184f785 100644
+--- a/.github/workflows/pr-check.yml
++++ b/.github/workflows/pr-check.yml
+@@ -3,10 +3,13 @@ name: PR Check
+ on:
+   pull_request:
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   test:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v3
+-      - run: npm install
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - run: pnpm install --frozen-lockfile
+       - run: npm test
+\ No newline at end of file
+diff --git a/.github/workflows/pr-logger.yml b/.github/workflows/pr-logger.yml
+index d991ce6..7cb4860 100644
+--- a/.github/workflows/pr-logger.yml
++++ b/.github/workflows/pr-logger.yml
+@@ -4,11 +4,14 @@ on:
+   pull_request:
+     types: [opened, edited, closed, reopened, synchronize]
+ 
++permissions:
++  contents: write
++  pull-requests: write
+ jobs:
+   log:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Create log file
+         run: |
+diff --git a/.github/workflows/pr-status.yml b/.github/workflows/pr-status.yml
+index 185fd87..b246a3e 100644
+--- a/.github/workflows/pr-status.yml
++++ b/.github/workflows/pr-status.yml
+@@ -15,7 +15,7 @@ jobs:
+   generate-pr-status:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Fetch open PRs
+         env:
+diff --git a/.github/workflows/python-package-conda.yml b/.github/workflows/python-package-conda.yml
+index f358604..1545692 100644
+--- a/.github/workflows/python-package-conda.yml
++++ b/.github/workflows/python-package-conda.yml
+@@ -2,6 +2,8 @@ name: Python Package using Conda
+ 
+ on: [push]
+ 
++permissions:
++  contents: read
+ jobs:
+   build-linux:
+     runs-on: ubuntu-latest
+@@ -9,9 +11,9 @@ jobs:
+       max-parallel: 5
+ 
+     steps:
+-    - uses: actions/checkout@v4
++    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+     - name: Set up Python 3.10
+-      uses: actions/setup-python@v3
++      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+       with:
+         python-version: '3.10'
+     - name: Add conda to system path
+diff --git a/.github/workflows/release-notes.yml b/.github/workflows/release-notes.yml
+index 94f5eb8..7b74ed1 100644
+--- a/.github/workflows/release-notes.yml
++++ b/.github/workflows/release-notes.yml
+@@ -5,12 +5,14 @@ on:
+     branches:
+       - main
+ 
++permissions:
++  contents: write
+ jobs:
+   release:
+     runs-on: ubuntu-latest
+ 
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Generate release notes
+         run: node scripts/generate-release.js
+diff --git a/.github/workflows/release.yml b/.github/workflows/release.yml
+index 6c17b05..c1824a2 100644
+--- a/.github/workflows/release.yml
++++ b/.github/workflows/release.yml
+@@ -13,15 +13,15 @@ jobs:
+   release:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           fetch-depth: 0  # semantic-release ต้องดู history ทั้งหมด
+           persist-credentials: false
+       
+-      - uses: pnpm/action-setup@v4
++      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+         with: { version: 9 }
+-      - uses: actions/setup-node@v4
+-        with: { node-version: 20, cache: 'pnpm' }
++      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
++        with: { node-version: '22', cache: 'pnpm' }
+ 
+       - run: pnpm install --frozen-lockfile
+ 
+@@ -42,9 +42,9 @@ jobs:
+     runs-on: ubuntu-latest
+     if: github.ref == 'refs/heads/main' && needs.release.result == 'success'
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       - name: Deploy to Vercel Production
+-        uses: amondnet/vercel-action@v25
++        uses: amondnet/vercel-action@16e87c0a08142b0d0d33b76aeaf20823c381b9b9 # v25
+         with:
+           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+diff --git a/.github/workflows/reviewer-checklist.yml b/.github/workflows/reviewer-checklist.yml
+index a63cf9a..0e4926d 100644
+--- a/.github/workflows/reviewer-checklist.yml
++++ b/.github/workflows/reviewer-checklist.yml
+@@ -5,15 +5,19 @@ on:
+   pull_request:
+     types: [opened, reopened, edited]
+ 
++permissions:
++  contents: read
++  pull-requests: write
++  issues: write
+ jobs:
+   add-checklist-comment:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Add Reviewer Checklist Comment
+-        uses: actions/github-script@v7
++        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+         with:
+           github-token: ${{ secrets.GITHUB_TOKEN }}
+           script: |
+diff --git a/.github/workflows/rust-ci.yml b/.github/workflows/rust-ci.yml
+index ddfaf2a..8c38455 100644
+--- a/.github/workflows/rust-ci.yml
++++ b/.github/workflows/rust-ci.yml
+@@ -6,12 +6,15 @@ on:
+   pull_request:
+     branches: [ main ]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   build-test-publish:
+     runs-on: ubuntu-latest
+     steps:
+       # Checkout source
+-      - uses: actions/checkout@v3
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       # Build & test Rust
+       - name: Build and Test
+@@ -21,7 +24,7 @@ jobs:
+ 
+       # Setup Java (Temurin JDK 21)
+       - name: Setup Java JDK
+-        uses: actions/setup-java@v3
++        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+         with:
+           java-version: '21'
+           distribution: 'temurin'
+diff --git a/.github/workflows/security.yml b/.github/workflows/security.yml
+index 60a5b95..0561801 100644
+--- a/.github/workflows/security.yml
++++ b/.github/workflows/security.yml
+@@ -7,12 +7,15 @@ on:
+   pull_request:
+     branches: [main, develop]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   trufflehog-scan:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
+-      - uses: trufflesecurity/trufflehog@main
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - uses: trufflesecurity/trufflehog@4b7d1d3a6827691637eff750b6482042e06462d0 # v3.90.5
+         with:
+           path: ./
+           base: ${{ github.event.before }}
+@@ -22,7 +25,7 @@ jobs:
+   security-check:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       - run: |
+           if grep -R "API_KEY" .; then exit 1; fi
+           if grep -R "SECRET" .; then exit 1; fi
+@@ -30,14 +33,14 @@ jobs:
+   ignore-file-check:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       - run: |
+           if git diff --name-only origin/main HEAD | grep -E ".gitignore|.eslintignore|.vercelignore"; then exit 1; fi
+ 
+   repo-verify:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       - run: |
+           VERSION=$(node -p "require('./package.json').version")
+           CHANGELOG_VERSION=$(grep -m1 '^## ' changelog.md | sed 's/## //')
+diff --git a/.github/workflows/semantic-release.yml b/.github/workflows/semantic-release.yml
+index edb6f4e..8117bad 100644
+--- a/.github/workflows/semantic-release.yml
++++ b/.github/workflows/semantic-release.yml
+@@ -5,6 +5,9 @@ on:
+     branches:
+       - main
+ 
++permissions:
++  contents: write
++  pull-requests: write
+ jobs:
+   release:
+     runs-on: ubuntu-latest
+@@ -15,13 +18,17 @@ jobs:
+       pull-requests: write
+ 
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+-      - uses: actions/setup-node@v4
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+         with:
+-          node-version: 20
++          version: 9
++      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
++        with:
++          node-version: '22'
+ 
+-      - run: npm install
++      - run: pnpm install --frozen-lockfile
+ 
+       - run: npx semantic-release
+         env:
+diff --git a/.github/workflows/setup-python.yml b/.github/workflows/setup-python.yml
+index 3ba2207..cc95ea0 100644
+--- a/.github/workflows/setup-python.yml
++++ b/.github/workflows/setup-python.yml
+@@ -18,9 +18,9 @@ jobs:
+     runs-on: ubuntu-latest
+ 
+     steps:
+-    - uses: actions/checkout@v4
++    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+     - name: Set up Python 3.10
+-      uses: actions/setup-python@v3
++      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+       with:
+         python-version: "3.10"
+     - name: Install dependencies
+diff --git a/.github/workflows/sign-flow-by-codeowner.yml b/.github/workflows/sign-flow-by-codeowner.yml
+index e45edde..2249d7a 100644
+--- a/.github/workflows/sign-flow-by-codeowner.yml
++++ b/.github/workflows/sign-flow-by-codeowner.yml
+@@ -14,7 +14,7 @@
+     git commit -m "chore: add CODEOWNERS template (generated by path-scan)"
+     git push --set-upstream origin automation/add-codeowners
+ - name: Open PR for CODEOWNERS
+-  uses: peter-evans/create-pull-request@v5
++  uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7
+   with:
+     token: ${{ secrets.GITHUB_TOKEN }}
+     title: "chore: add CODEOWNERS template (automation)"
+diff --git a/.github/workflows/smoke.yml b/.github/workflows/smoke.yml
+index dc8b187..0ef97cb 100644
+--- a/.github/workflows/smoke.yml
++++ b/.github/workflows/smoke.yml
+@@ -6,20 +6,23 @@ on:
+     branches:
+       - main
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   smoke:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Set up Python
+-        uses: actions/setup-python@v4
++        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+         with:
+           python-version: '3.11'
+ 
+       - name: Cache pip
+-        uses: actions/cache@v4
++        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+         with:
+           path: ~/.cache/pip
+           key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
+diff --git a/.github/workflows/sync-copilot-metrics.yml b/.github/workflows/sync-copilot-metrics.yml
+index 60ea2c8..aa9d441 100644
+--- a/.github/workflows/sync-copilot-metrics.yml
++++ b/.github/workflows/sync-copilot-metrics.yml
+@@ -3,15 +3,17 @@ on:
+   schedule:
+     - cron: '0 0 * * 1' # รันทุกวันจันทร์ตอนเที่ยงคืน
+ 
++permissions:
++  contents: read
+ jobs:
+   fetch-metrics:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout Code
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Set up Python
+-        uses: actions/setup-python@v5
++        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+         with:
+           python-python: '3.x'
+ 
+diff --git a/.github/workflows/sync-github-mobile.yml b/.github/workflows/sync-github-mobile.yml
+index 3dcf3e6..2ac9cb8 100644
+--- a/.github/workflows/sync-github-mobile.yml
++++ b/.github/workflows/sync-github-mobile.yml
+@@ -5,6 +5,9 @@ on:
+     types: [closed]   # ✅ Trigger เมื่อ PR ถูกปิด
+   workflow_dispatch:   # ✅ เผื่อกรณี manual run
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   sync:
+     if: github.event.pull_request.merged == true
+@@ -12,18 +15,22 @@ jobs:
+ 
+     steps:
+       - name: 📥 Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: ⚙️ Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: '20'
++          node-version: '22'
+ 
+       - name: 🔄 Sync Repo State
+         run: |
+           echo "✅ PR #${{ github.event.pull_request.number }} merged via GitHub Mobile"
+           echo "🔄 Running sync tasks..."
+-          npm ci
++          pnpm install --frozen-lockfile
+           npm run build
+ 
+       - name: 🚀 Deploy to Vercel (One-Time)
+diff --git a/.github/workflows/sync-readme.yml b/.github/workflows/sync-readme.yml
+index b38c752..83a0844 100644
+--- a/.github/workflows/sync-readme.yml
++++ b/.github/workflows/sync-readme.yml
+@@ -7,13 +7,15 @@ on:
+     branches:
+       - main
+ 
++permissions:
++  contents: write
+ jobs:
+   sync:
+     runs-on: ubuntu-latest
+ 
+     steps:
+       - name: Checkout source repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Clone target repo
+         run: |
+diff --git a/.github/workflows/test-and-coverage.yml b/.github/workflows/test-and-coverage.yml
+index 80234c1..14e047b 100644
+--- a/.github/workflows/test-and-coverage.yml
++++ b/.github/workflows/test-and-coverage.yml
+@@ -7,6 +7,9 @@ on:
+   pull_request:
+     branches: [main]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   test:
+     name: Vitest Coverage
+@@ -14,22 +17,26 @@ jobs:
+ 
+     steps:
+       - name: Checkout
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: '20'
++          node-version: '22'
+           cache: 'npm'
+ 
+       - name: Install dependencies
+-        run: npm ci
++        run: pnpm install --frozen-lockfile
+ 
+       - name: Run tests with coverage
+         run: npx vitest run --coverage
+ 
+       - name: Upload coverage to Codecov
+-        uses: codecov/codecov-action@v4
++        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5
+         with:
+           files: ./coverage/lcov.info
+           flags: unittests
+@@ -37,6 +44,6 @@ jobs:
+ 
+       - name: Coverage summary comment (PR only)
+         if: github.event_name == 'pull_request'
+-        uses: davelosert/vitest-coverage-report-action@v2
++        uses: davelosert/vitest-coverage-report-action@c4bbc33a89b7ace0e63d35f1f7d4bcee31155a73 # v2
+         with:
+           github-token: ${{ secrets.GITHUB_TOKEN }}
+diff --git a/.github/workflows/update-auto-changelog.yml b/.github/workflows/update-auto-changelog.yml
+index f4beba2..63fed93 100644
+--- a/.github/workflows/update-auto-changelog.yml
++++ b/.github/workflows/update-auto-changelog.yml
+@@ -5,6 +5,8 @@ on:
+     branches:
+       - main
+ 
++permissions:
++  contents: read
+ jobs:
+   changelog:
+     runs-on: ubuntu-latest
+@@ -13,7 +15,7 @@ jobs:
+ 
+     steps:
+       - name: Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           fetch-depth: 0
+ 
+diff --git a/.github/workflows/update-docs.yml b/.github/workflows/update-docs.yml
+index 8ac1856..93f64c3 100644
+--- a/.github/workflows/update-docs.yml
++++ b/.github/workflows/update-docs.yml
+@@ -4,17 +4,20 @@ on:
+   pull_request:
+     types: [opened, synchronize, closed]
+ 
++permissions:
++  contents: write
++  pull-requests: write
+ jobs:
+   update-docs:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: 20
++          node-version: '22'
+ 
+       - name: Generate Dynamic Docs
+         run: |
+diff --git a/.github/workflows/update-readme.yml b/.github/workflows/update-readme.yml
+index b171e7f..7e4b981 100644
+--- a/.github/workflows/update-readme.yml
++++ b/.github/workflows/update-readme.yml
+@@ -10,6 +10,8 @@ on:
+   schedule:
+     - cron: '0 0 * * *' # รันทุกวันเผื่อไว้
+ 
++permissions:
++  contents: write
+ jobs:
+   update-readme:
+     runs-on: ubuntu-latest
+@@ -18,10 +20,10 @@ jobs:
+ 
+     steps:
+       - name: Checkout
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Set up Python
+-        uses: actions/setup-python@v5
++        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+         with:
+           python-version: '3.11'
+ 
+diff --git a/.github/workflows/validate-branch-value.yml b/.github/workflows/validate-branch-value.yml
+index 5994d5b..f312c53 100644
+--- a/.github/workflows/validate-branch-value.yml
++++ b/.github/workflows/validate-branch-value.yml
+@@ -21,6 +21,9 @@ concurrency:
+   group: package-lock-${{ github.ref }}
+   cancel-in-progress: true
+ 
++permissions:
++  contents: write
++  pull-requests: write
+ jobs:
+   validate-and-compare:
+     runs-on: ubuntu-latest
+@@ -28,14 +31,18 @@ jobs:
+       contents: read
+     steps:
+       - name: Checkout PR branch (or push commit)
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           fetch-depth: 0
+ 
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: 18
++          node-version: '22'
+           cache: 'npm'
+ 
+       - name: Get base branch name
+@@ -54,17 +61,17 @@ jobs:
+       - name: Validate package-lock.json syntax
+         run: |
+           if! jq empty package-lock.json 2>/dev/null; then
+-            echo "::error::package-lock.json is not valid JSON. Run 'npm install' to regenerate it."
++            echo "::error::package-lock.json is not valid JSON. Run 'pnpm install --frozen-lockfile' to regenerate it."
+             exit 1
+           fi
+ 
+-      # Step 2: Strict check - npm ci fails if lock is out of sync
+-      - name: Verify lock file integrity with npm ci
++      # Step 2: Strict check - pnpm install --frozen-lockfile fails if lock is out of sync
++      - name: Verify lock file integrity with pnpm install --frozen-lockfile
+         run: |
+-          # npm ci deletes node_modules and installs from lock file
++          # pnpm install --frozen-lockfile deletes node_modules and installs from lock file
+           # It fails if package.json and package-lock.json are mismatched
+-          npm ci --ignore-scripts --dry-run=false
+-          echo "✅ npm ci succeeded - lock file is in sync with package.json"
++          pnpm install --frozen-lockfile --ignore-scripts --dry-run=false
++          echo "✅ pnpm install --frozen-lockfile succeeded - lock file is in sync with package.json"
+ 
+       # Step 3: Compare package-lock.json with base branch
+       - name: Compare package-lock.json
+@@ -83,7 +90,7 @@ jobs:
+         if: steps.compare.outputs.changed == 'true'
+         run: |
+           if git diff --quiet ${{ steps.vars.outputs.base_branch }} HEAD -- package.json; then
+-            echo "::error::package-lock.json changed but package.json did not. This suggests manual editing of lock file. Please revert or run 'npm install' and commit both."
++            echo "::error::package-lock.json changed but package.json did not. This suggests manual editing of lock file. Please revert or run 'pnpm install --frozen-lockfile' and commit both."
+             exit 1
+           else
+             echo "✅ Both package.json and package-lock.json changed – acceptable."
+@@ -94,7 +101,7 @@ jobs:
+         run: |
+           if git diff --name-only ${{ steps.vars.outputs.base_branch }} HEAD | grep -q 'package.json'; then
+             if git diff --quiet ${{ steps.vars.outputs.base_branch }} HEAD -- package-lock.json; then
+-              echo "::error::package.json changed but package-lock.json is unchanged. Run 'npm install' and commit the updated lock file."
++              echo "::error::package.json changed but package-lock.json is unchanged. Run 'pnpm install --frozen-lockfile' and commit the updated lock file."
+               exit 1
+             fi
+           fi
+@@ -114,20 +121,20 @@ jobs:
+       contents: write
+     steps:
+       - name: Checkout PR branch
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           ref: ${{ github.head_ref }}
+           token: ${{ secrets.GITHUB_TOKEN }}
+ 
+       - name: Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: 18
++          node-version: '22'
+ 
+       - name: Regenerate package-lock.json
+         run: |
+           rm -f package-lock.json
+-          npm install
++          pnpm install --frozen-lockfile
+ 
+       - name: Commit and push if changed
+         run: |
+@@ -139,7 +146,7 @@ jobs:
+             git push
+             echo "✅ Auto‑fixed and pushed package-lock.json."
+           else
+-            echo "ℹ️ No changes needed after npm install."
++            echo "ℹ️ No changes needed after pnpm install --frozen-lockfile."
+       - "package-lock.json"
+ 
+ jobs:
+@@ -147,14 +154,14 @@ jobs:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout Repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Validate package-lock.json
+         run: |
+           jq . package-lock.json > /dev/null
+ 
+       - name: Install Dependencies
+-        run: npm ci
++        run: pnpm install --frozen-lockfile
+ 
+       - name: Check Lockfile Drift
+         run: |
+diff --git a/.github/workflows/vercel-deploy.yml b/.github/workflows/vercel-deploy.yml
+index 77a4d12..67e9d18 100644
+--- a/.github/workflows/vercel-deploy.yml
++++ b/.github/workflows/vercel-deploy.yml
+@@ -5,17 +5,23 @@ on:
+     branches:
+       - 'selftest/**'
+ 
++permissions:
++  contents: read
+ jobs:
+   test-and-build:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: Use Node
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: '18'
++          node-version: '22'
+       - name: Install
+-        run: npm ci
++        run: pnpm install --frozen-lockfile
+       - name: Run tests
+         run: npm test
+       - name: Build
+@@ -25,7 +31,7 @@ jobs:
+     needs: test-and-build
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       - name: Install Vercel CLI
+         run: npm i -g vercel
+       - name: Trigger Vercel Deploy
+diff --git a/.github/workflows/webpack.yml b/.github/workflows/webpack.yml
+index 9626ff6..a847d06 100644
+--- a/.github/workflows/webpack.yml
++++ b/.github/workflows/webpack.yml
+@@ -6,23 +6,38 @@ on:
+   pull_request:
+     branches: [ "main" ]
+ 
++permissions:
++  contents: read
++
++concurrency:
++  group: webpack-${{ github.workflow }}-${{ github.ref }}
++  cancel-in-progress: true
++
+ jobs:
+   build:
+     runs-on: ubuntu-latest
+ 
+     strategy:
+       matrix:
+-        node-version: [18.x, 20.x, 22.x]
++        # package.json engines requires Node >=22 — narrower matrix avoids
++        # guaranteed failures on unsupported runtimes.
++        node-version: [ '22' ]
+ 
+     steps:
+-    - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+ 
+-    - name: Use Node.js ${{ matrix.node-version }}
+-      uses: actions/setup-node@v4
+-      with:
+-        node-version: ${{ matrix.node-version }}
++      - name: Use Node.js ${{ matrix.node-version }}
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
++        with:
++          node-version: ${{ matrix.node-version }}
++          cache: pnpm
+ 
+-    - name: Build
+-      run: |
+-        npm install
+-        npx webpack
++      - name: Build
++        run: |
++          pnpm install --frozen-lockfile
++          npx webpack
+diff --git a/workflows/CI.yml b/workflows/CI.yml
+index 9a359c3..7f633a6 100644
+--- a/workflows/CI.yml
++++ b/workflows/CI.yml
+@@ -4,6 +4,9 @@ on:
+   pull_request:
+     branches: [main]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   build-test:
+     branches: [main]
+@@ -27,16 +30,20 @@ jobs:
+ 
+     steps:
+       - name: 📥 Checkout
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: 🟢 Setup Node
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: 20
++          node-version: '22'
+           cache: "npm"
+ 
+       - name: 📦 Install deps
+-        run: npm ci
++        run: pnpm install --frozen-lockfile
+ 
+       - name: 🔍 Type check
+         run: npm run typecheck
+@@ -53,11 +60,11 @@ jobs:
+       - name: 🏗 Build
+         run: npm run build
+         with:
+-          node-version: 20
+-          cache: npm
++          node-version: '22'
++          cache: pnpm
+ 
+       - name: 📦 Install deps
+-        run: npm ci
++        run: pnpm install --frozen-lockfile
+ 
+       - name: 🧹 Lint
+         run: npm run lint
+@@ -73,7 +80,7 @@ jobs:
+ 
+       - name: 📊 Upload coverage
+         if: always()
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: coverage
+           path: coverage
+@@ -84,18 +91,18 @@ jobs:
+     needs: checks
+ 
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: 20
+-          cache: npm
++          node-version: '22'
++          cache: pnpm
+ 
+-      - run: npm ci
++      - run: pnpm install --frozen-lockfile
+       - run: npm run build
+ 
+       - name: 📦 Upload build
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: build
+           path: dist
+@@ -106,14 +113,14 @@ jobs:
+     needs: build
+ 
+     steps:
+-      - uses: actions/checkout@v4
+-      - run: npm ci
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - run: pnpm install --frozen-lockfile
+ 
+       - name: ⚡ Run benchmark
+         run: node scripts/benchmark.ts
+ 
+       - name: 📤 Upload metrics
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: metrics
+           path: metrics.json
+@@ -123,8 +130,8 @@ jobs:
+     runs-on: ubuntu-latest
+ 
+     steps:
+-      - uses: actions/checkout@v4
+-      - run: npm ci
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - run: pnpm install --frozen-lockfile
+ 
+       - name: 🔍 npm audit (high only)
+         run: npm audit --audit-level=high || true
+@@ -137,7 +144,7 @@ jobs:
+     steps:
+       - run: echo "✅ CI passed"
+       - name: 📊 Upload coverage
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: coverage
+           path: coverage
+@@ -148,13 +155,13 @@ jobs:
+     needs: setup
+ 
+     steps:
+-      - uses: actions/checkout@v4
+-      - uses: actions/setup-node@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: 20
+-          cache: npm
++          node-version: '22'
++          cache: pnpm
+ 
+-      - run: npm ci
++      - run: pnpm install --frozen-lockfile
+       - run: npm run test:ai
+ 
+   build:
+@@ -163,17 +170,17 @@ jobs:
+     needs: [lint, typecheck, test, ai-test]
+ 
+     steps:
+-      - uses: actions/checkout@v4
+-      - uses: actions/setup-node@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: 20
+-          cache: npm
++          node-version: '22'
++          cache: pnpm
+ 
+-      - run: npm ci
++      - run: pnpm install --frozen-lockfile
+       - run: npm run build
+ 
+       - name: 📦 Upload build artifact
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: build
+           path: dist
+@@ -184,14 +191,14 @@ jobs:
+     needs: build
+ 
+     steps:
+-      - uses: actions/checkout@v4
+-      - run: npm ci
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - run: pnpm install --frozen-lockfile
+ 
+       - name: ⚡ Run benchmark
+         run: node scripts/benchmark.ts
+ 
+       - name: 📤 Upload metrics
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: metrics
+           path: metrics.json
+@@ -202,8 +209,8 @@ jobs:
+     needs: setup
+ 
+     steps:
+-      - uses: actions/checkout@v4
+-      - run: npm ci
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - run: pnpm install --frozen-lockfile
+ 
+       - name: 🔍 Audit dependencies
+         run: npm audit --audit-level=high || true
+diff --git a/workflows/Deploy-Github-Page.yml b/workflows/Deploy-Github-Page.yml
+index 547a308..8598251 100644
+--- a/workflows/Deploy-Github-Page.yml
++++ b/workflows/Deploy-Github-Page.yml
+@@ -5,23 +5,31 @@ on:
+     branches:
+       - main  # or your default branch
+ 
++permissions:
++  contents: read
++  pages: write
++  id-token: write
+ jobs:
+   deploy:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout repository
+-        uses: actions/checkout@v3
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: Setup Node.js
+-        uses: actions/setup-node@v3
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: '18'
++          node-version: '22'
+ 
+       - name: Build project
+-        run: npm install && npm run build
++        run: pnpm install --frozen-lockfile && npm run build
+ 
+       - name: Deploy to GitHub Pages
+-        uses: peaceiris/actions-gh-pages@v3
++        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4
+         with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
+           publish_dir: ./dist
+\ No newline at end of file
+diff --git a/workflows/Docs300.yml b/workflows/Docs300.yml
+index 28b4b8a..a58943e 100644
+--- a/workflows/Docs300.yml
++++ b/workflows/Docs300.yml
+@@ -6,16 +6,18 @@ on:
+     - cron: '41 04 * * *'
+     # รันทุกวันจันทร์ เวลา 04:00 UTC (ปรับได้)
+ 
++permissions:
++  contents: read
+ jobs:
+   generate-and-deploy:
+     runs-on: ubuntu-latest
+ 
+     steps:
+       - name: Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Set up Python 3.11
+-        uses: actions/setup-python@v5
++        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+         with:
+           python-version: '3.11'
+ 
+diff --git a/workflows/FileNamingRules.yml b/workflows/FileNamingRules.yml
+index 88844a3..df4ac19 100644
+--- a/workflows/FileNamingRules.yml
++++ b/workflows/FileNamingRules.yml
+@@ -5,12 +5,14 @@ on:
+     - cron: "0 2 * * *" # รันทุกวันตอนตี 2
+   workflow_dispatch:
+ 
++permissions:
++  contents: read
+ jobs:
+   check-filenames:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout Repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Scan Filenames
+         run: |
+@@ -34,7 +36,7 @@ jobs:
+           fi
+ 
+       - name: Upload Log
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: file-naming-log
+           path: logs/file_naming.log
+diff --git a/workflows/PIPELINE.yaml b/workflows/PIPELINE.yaml
+index a88f3d0..eebb016 100644
+--- a/workflows/PIPELINE.yaml
++++ b/workflows/PIPELINE.yaml
+@@ -5,6 +5,9 @@ on:
+     types: [opened, synchronize, reopened]
+   workflow_dispatch:
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   smoke-test:
+     runs-on: ubuntu-latest
+@@ -12,8 +15,8 @@ jobs:
+       group: ${{ github.ref }}-smoke
+       cancel-in-progress: true
+     steps:
+-      - uses: actions/checkout@v4
+-      - run: npm install --prefer-offline --no-audit --progress=false
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - run: pnpm install --frozen-lockfile=false
+       - name: Run smoke tests
+         run: npm test -- tests/smoke/ || echo "❌ Smoke tests failed" > version/CrystalCastle/logs/smoke-fail.log
+ 
+@@ -36,8 +39,8 @@ jobs:
+       group: ${{ github.ref }}-full
+       cancel-in-progress: true
+     steps:
+-      - uses: actions/checkout@v4
+-      - run: npm install
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - run: pnpm install --frozen-lockfile
+       - name: Run full coverage tests
+         run: npm test -- --coverage || echo "❌ Unit test failed" > version/CrystalCastle/logs/unittest-fail.log
+ 
+diff --git a/workflows/Sync-Vercel.yml b/workflows/Sync-Vercel.yml
+index 02c5e7b..4a70b1f 100644
+--- a/workflows/Sync-Vercel.yml
++++ b/workflows/Sync-Vercel.yml
+@@ -5,6 +5,9 @@ on:
+   pull_request:
+     types: [closed]    # ✅ Trigger only when PR is closed (merged)
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   deploy:
+     if: github.event.pull_request.merged == true
+@@ -12,15 +15,19 @@ jobs:
+ 
+     steps:
+       - name: 📥 Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: ⚙️ Setup Node.js
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: '20'
++          node-version: '22'
+ 
+       - name: 📦 Install dependencies
+-        run: npm ci
++        run: pnpm install --frozen-lockfile
+ 
+       - name: 🏗️ Build project
+         run: npm run build
+diff --git a/workflows/ai-video.yml b/workflows/ai-video.yml
+index 5e83a70..3af5082 100644
+--- a/workflows/ai-video.yml
++++ b/workflows/ai-video.yml
+@@ -5,12 +5,15 @@ on:
+   pull_request:
+     branches: [ main ]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   ai-video:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout Repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Generate Caption (Gemini/Groq)
+         run: |
+diff --git a/workflows/auto-label.yml b/workflows/auto-label.yml
+index 397ff2a..0f16de9 100644
+--- a/workflows/auto-label.yml
++++ b/workflows/auto-label.yml
+@@ -4,13 +4,16 @@ on:
+   pull_request:
+     types: [opened]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   label:
+     runs-on: ubuntu-latest
+     env:
+       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # ✅ อยู่ในระดับ job
+     steps:
+-      - uses: actions/labeler@v4
++      - uses: actions/labeler@b8dd2d9be0f68b860e7dae5dae7d772984eacd6d # v6
+         with:
+           repo-token: ${{ secrets.GITHUB_TOKEN }}        # ✅ indent ถูกต้อง
+           configuration-path: .github/labeler.yml
+diff --git a/workflows/backup-db.yml b/workflows/backup-db.yml
+index 5c387de..081481e 100644
+--- a/workflows/backup-db.yml
++++ b/workflows/backup-db.yml
+@@ -6,6 +6,8 @@ on:
+     - cron: '0 2 * * *'  # รันทุกวันตอนตี 2
+   workflow_dispatch:  # รัน manual ได้
+ 
++permissions:
++  contents: read
+ jobs:
+   backup:
+     runs-on: ubuntu-latest
+@@ -19,7 +21,7 @@ jobs:
+           backup_path: ./backups
+           
+       - name: Upload to GitHub Artifacts
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: db-backup-${{ github.run_id }}
+           path: ./backups/
+diff --git a/workflows/chat-merge-request.yaml b/workflows/chat-merge-request.yaml
+index 44da4e6..155eda2 100644
+--- a/workflows/chat-merge-request.yaml
++++ b/workflows/chat-merge-request.yaml
+@@ -7,6 +7,8 @@ on:
+         description: 'Pull Request Number'
+         required: true
+ 
++permissions:
++  contents: read
+ jobs:
+   request-approval:
+     runs-on: ubuntu-latest
+@@ -30,7 +32,7 @@ jobs:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Merge Pull Request
+-        uses: actions/github-script@v6
++        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+         with:
+           script: |
+             github.pulls.merge({
+diff --git a/workflows/compare-release.yml b/workflows/compare-release.yml
+index 1bd47fb..bc1f09f 100644
+--- a/workflows/compare-release.yml
++++ b/workflows/compare-release.yml
+@@ -4,18 +4,21 @@ on:
+   pull_request:
+     types: [opened, synchronize]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   compare:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout base branch
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           ref: ${{ github.event.pull_request.base.ref }}
+           path: base
+ 
+       - name: Checkout head branch
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           ref: ${{ github.event.pull_request.head.ref }}
+           path: head
+@@ -26,12 +29,12 @@ jobs:
+           cat diff_report.txt
+ 
+       - name: Upload diff report
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: diff-report
+           path: diff_report.txt
+ 
+       - name: Comment on PR
+-        uses: marocchino/sticky-pull-request-comment@v2
++        uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2
+         with:
+           path: diff_report.txt
+diff --git a/workflows/compliance.yml b/workflows/compliance.yml
+index 3804d8f..30bf3c2 100644
+--- a/workflows/compliance.yml
++++ b/workflows/compliance.yml
+@@ -3,6 +3,8 @@ on:
+   push:
+     branches: [main]
+ 
++permissions:
++  contents: read
+ jobs:
+   call-shared-audit:
+     uses: my-org/.github-shared/.github/workflows/repo-audit.yml@v1
+diff --git a/workflows/deploy-githubpage.yaml b/workflows/deploy-githubpage.yaml
+index 5136d90..a8e91fa 100644
+--- a/workflows/deploy-githubpage.yaml
++++ b/workflows/deploy-githubpage.yaml
+@@ -5,18 +5,26 @@ on:
+     branches:
+       - main
+ 
++permissions:
++  contents: read
++  pages: write
++  id-token: write
+ jobs:
+   build-and-deploy:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v3
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: Setup Node.js
+-        uses: actions/setup-node@v3
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+-          node-version: 18
+-      - run: npm ci && npm run build
++          node-version: '22'
++      - run: pnpm install --frozen-lockfile && npm run build
+       - name: Deploy to GitHub Pages
+-        uses: peaceiris/actions-gh-pages@v3
++        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4
+         with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
+           publish_dir: ./dist
+\ No newline at end of file
+diff --git a/workflows/force-squash-merge.yml b/workflows/force-squash-merge.yml
+index ec15228..67ceffe 100644
+--- a/workflows/force-squash-merge.yml
++++ b/workflows/force-squash-merge.yml
+@@ -5,6 +5,9 @@ on:
+   schedule:
+     - cron: "0 * * * *" # ทุกชั่วโมงเช็คจำนวน PR
+ 
++permissions:
++  contents: write
++  pull-requests: write
+ jobs:
+   check-pr-count:
+     runs-on: ubuntu-latest
+diff --git a/workflows/health-check.yml b/workflows/health-check.yml
+index 70e6dcc..ae00828 100644
+--- a/workflows/health-check.yml
++++ b/workflows/health-check.yml
+@@ -5,6 +5,10 @@ on:
+     - cron: "*/30 * * * *"
+   workflow_dispatch:
+ 
++permissions:
++  contents: read
++  pull-requests: write
++  issues: write
+ jobs:
+   health-check:
+     runs-on: ubuntu-latest
+@@ -34,7 +38,7 @@ jobs:
+ 
+       - name: Open or update GitHub Issue on failure
+         if: steps.api-check.outputs.status == 'unhealthy'
+-        uses: actions/github-script@v7
++        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+         with:
+           script: |
+             const title = "🚨 API Health Check Failed"
+diff --git a/workflows/line-notify.yml b/workflows/line-notify.yml
+index 9ef584f..d861668 100644
+--- a/workflows/line-notify.yml
++++ b/workflows/line-notify.yml
+@@ -5,6 +5,8 @@ on:
+   push:
+     branches: [ main ]
+ 
++permissions:
++  contents: read
+ jobs:
+   notify:
+     runs-on: ubuntu-latest
+diff --git a/workflows/pr-check.yml b/workflows/pr-check.yml
+index 08759a8..8c9b1cc 100644
+--- a/workflows/pr-check.yml
++++ b/workflows/pr-check.yml
+@@ -4,20 +4,27 @@ on:
+   pull_request:
+     branches: [main]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   check:
+     runs-on: ubuntu-latest
+     env:
+       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # ✅ เพิ่มแล้ว
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       
+-      - uses: actions/setup-node@v4
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+         with:
+-          node-version: 18
++          version: 9
++      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
++        with:
++          node-version: '22'
+       
+       - name: Install dependencies
+-        run: npm ci
++        run: pnpm install --frozen-lockfile
+       
+       - name: Check syntax
+         run: node --check api/*.js 2>/dev/null || echo "Syntax check completed"
+diff --git a/workflows/pr-labeler.yml b/workflows/pr-labeler.yml
+index c523adb..2b5641e 100644
+--- a/workflows/pr-labeler.yml
++++ b/workflows/pr-labeler.yml
+@@ -3,6 +3,9 @@ on:
+   pull_request:
+     types: [opened, synchronize]  # ทำงานเมื่อเปิด PR หรือ push commit ใหม่
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   labeler:
+     permissions:
+@@ -10,8 +13,8 @@ jobs:
+       pull-requests: write          # ต้องมีสิทธิ์เขียน label
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
+-      - uses: actions/labeler@v5
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++      - uses: actions/labeler@b8dd2d9be0f68b860e7dae5dae7d772984eacd6d # v6
+         with:
+           configuration-path: .github/labeler.yml   # path ไฟล์ config
+           sync-labels: true                         # ลบ label ที่ไม่ตรงเงื่อนไขทิ้ง (optional)
+diff --git a/workflows/pr-testcase.yml b/workflows/pr-testcase.yml
+index a7c77fa..539b5c6 100644
+--- a/workflows/pr-testcase.yml
++++ b/workflows/pr-testcase.yml
+@@ -53,11 +53,11 @@ jobs:
+ 
+     steps:
+       - name: 📥 Checkout repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       # ⚡ Gradle Cache
+       - name: ⚡ Cache Gradle
+-        uses: actions/cache@v4
++        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+         with:
+           path: |
+             ~/.gradle/caches
+@@ -67,7 +67,7 @@ jobs:
+             ${{ runner.os }}-gradle-${{ matrix.gradle }}-${{ matrix.java }}-
+ 
+       - name: ☕ Setup Java ${{ matrix.java }}
+-        uses: actions/setup-java@v4
++        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+         with:
+           distribution: temurin
+           java-version: ${{ matrix.java }}
+@@ -80,21 +80,25 @@ jobs:
+         run: ./gradlew wrapper --gradle-version ${{ matrix.gradle }} --distribution-type all
+ 
+       # 🌐 Setup Node.js
++      - name: Setup pnpm
++        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
++        with:
++          version: 9
+       - name: 🌐 Setup Node.js ${{ matrix.node }}
+-        uses: actions/setup-node@v4
++        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+         with:
+           node-version: ${{ matrix.node }}
+           cache: 'npm'
+ 
+       - name: 📦 Install frontend dependencies
+-        run: npm install
++        run: pnpm install --frozen-lockfile
+ 
+       - name: 🧪 Run frontend tests
+         run: npm test || echo "No frontend tests found"
+ 
+       # 🐍 Setup Python
+       - name: 🐍 Setup Python ${{ matrix.python }}
+-        uses: actions/setup-python@v5
++        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+         with:
+           python-version: ${{ matrix.python }}
+ 
+@@ -128,7 +132,7 @@ jobs:
+ 
+       - name: 📎 Upload test report (JDK ${{ matrix.java }} - Gradle ${{ matrix.gradle }} - Node ${{ matrix.node }} - Python ${{ matrix.python }} - DB ${{ matrix.db }} - ${{ matrix.os }})
+         if: always()
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: test-report-jdk-${{ matrix.java }}-gradle-${{ matrix.gradle }}-node-${{ matrix.node }}-python-${{ matrix.python }}-db-${{ matrix.db }}-${{ matrix.os }}
+           path: "**/build/reports/tests/test/"
+@@ -149,7 +153,7 @@ jobs:
+ 
+       - name: 📤 Upload summary (JDK ${{ matrix.java }} - Gradle ${{ matrix.gradle }} - Node ${{ matrix.node }} - Python ${{ matrix.python }} - DB ${{ matrix.db }} - ${{ matrix.os }})
+         if: always()
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+         with:
+           name: summary-jdk-${{ matrix.java }}-gradle-${{ matrix.gradle }}-node-${{ matrix.node }}-python-${{ matrix.python }}-db-${{ matrix.db }}-${{ matrix.os }}
+           path: $GITHUB_ENV
+@@ -163,7 +167,7 @@ jobs:
+     if: always()
+     steps:
+       - name: 📥 Download summaries
+-        uses: actions/download-artifact@v4
++        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+         with:
+           path: summaries
+ 
+@@ -179,7 +183,7 @@ jobs:
+           done
+ 
+       - name: 💬 Comment PR with aggregated result
+-        uses: actions/github-script@v7
++        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+         with:
+           script: |
+             const fs = require('fs');
+diff --git a/workflows/privacy-check.yml b/workflows/privacy-check.yml
+index af3c8c0..fc58cf5 100644
+--- a/workflows/privacy-check.yml
++++ b/workflows/privacy-check.yml
+@@ -5,12 +5,15 @@ on:
+   pull_request:
+     branches: [ "main" ]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   validate-privacy:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout repo
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Validate privacy.yml exists
+         run: |
+diff --git a/workflows/release.yml b/workflows/release.yml
+index 9df8198..b541394 100644
+--- a/workflows/release.yml
++++ b/workflows/release.yml
+@@ -15,6 +15,8 @@ on:
+         description: 'Release summary (ใส่สั้นๆ)'
+         required: true
+ 
++permissions:
++  contents: write
+ jobs:
+   release:
+     runs-on: ubuntu-latest
+@@ -23,7 +25,7 @@ jobs:
+ 
+     steps:
+       - name: Checkout repository
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           fetch-depth: 0
+ 
+diff --git a/workflows/secret-scan.yml b/workflows/secret-scan.yml
+index 7c4ab33..cec22f9 100644
+--- a/workflows/secret-scan.yml
++++ b/workflows/secret-scan.yml
+@@ -6,18 +6,21 @@ on:
+   push:
+     branches: [main]
+ 
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   scan:
+     runs-on: ubuntu-latest
+     env:
+       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # ✅ เพิ่มแล้ว
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           fetch-depth: 0
+       
+       - name: Run TruffleHog
+-        uses: trufflesecurity/trufflehog@main
++        uses: trufflesecurity/trufflehog@4b7d1d3a6827691637eff750b6482042e06462d0 # v3.90.5
+         with:
+           path: ./
+           base: ${{ github.event.before }}
+diff --git a/workflows/security-check.yml b/workflows/security-check.yml
+index 2e95fe6..4f1c02a 100644
+--- a/workflows/security-check.yml
++++ b/workflows/security-check.yml
+@@ -19,7 +19,7 @@ jobs:
+ 
+     steps:
+       - name: Checkout code
+-        uses: actions/checkout@v4
++        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+ 
+       - name: Run security checks
+         run: |
+diff --git a/workflows/security-headers.yml b/workflows/security-headers.yml
+index 60bb469..ec8362f 100644
+--- a/workflows/security-headers.yml
++++ b/workflows/security-headers.yml
+@@ -4,6 +4,8 @@ name: Security Headers Check
+ on:
+   deployment_status:
+ 
++permissions:
++  contents: read
+ jobs:
+   check:
+     if: github.event.deployment_status.state == 'success'
+diff --git a/workflows/supabase-backup.yml b/workflows/supabase-backup.yml
+index 09fb0cc..1d5aa39 100644
+--- a/workflows/supabase-backup.yml
++++ b/workflows/supabase-backup.yml
+@@ -5,15 +5,17 @@ on:
+     - cron: '0 0 * * *'
+   workflow_dispatch:
+ 
++permissions:
++  contents: write
+ jobs:
+   backup:
+     runs-on: ubuntu-latest
+     env:
+       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # ✅ เพิ่มแล้ว
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       
+-      - uses: supabase/setup-cli@v1
++      - uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1 # v1
+         with:
+           version: latest
+       
+diff --git a/workflows/sync-ignore-file.yml b/workflows/sync-ignore-file.yml
+index f12a793..fe71418 100644
+--- a/workflows/sync-ignore-file.yml
++++ b/workflows/sync-ignore-file.yml
+@@ -1,8 +1,11 @@
++permissions:
++  contents: read
++  pull-requests: write
+ jobs:
+   check-ignore-file:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+       - name: Verify ignore files
+         run: |
+           if git diff --name-only origin/main HEAD | grep -E ".gitignore|.eslintignore|.vercelignore"; then

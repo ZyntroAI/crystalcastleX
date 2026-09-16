@@ -16,6 +16,12 @@
 [![GitHub Issues](https://img.shields.io/github/issues/ZyntroAI/crystalcastleX?style=flat-square)](https://github.com/ZyntroAI/crystalcastleX/issues)
 [![Last Commit](https://img.shields.io/github/last-commit/ZyntroAI/crystalcastleX?style=flat-square)](https://github.com/ZyntroAI/crystalcastleX/commits/main)
 
+
+> **หมายเหตุ (Full-repo update · 2026-09-14)** — ทุก GitHub Action ถูก pin ด้วย commit SHA
+> แบบเต็ม (40 ตัวอักษร) และเพิ่ม `permissions:` แบบ least-privilege ทุก workflow แล้ว
+> dependencies อัปเดตเป็น latest stable (Next.js 15.5.25 · React 18.3.1 · TypeScript 5.9.3)
+> รายละเอียดการเปรียบเทียบอยู่ใน [`COMPARE_REPORT.md`](COMPARE_REPORT.md) และไฟล์ที่ต้อง
+> ตามต่ออยู่ใน [`REMARK_NOTES.md`](REMARK_NOTES.md)
 ## ✨ ภาพรวม
 
 Crystal Castle X คือระบบ AI Video Studio ที่รวม pipeline การสร้างวิดีโอ
@@ -27,8 +33,8 @@ Crystal Castle X คือระบบ AI Video Studio ที่รวม pipeli
 
 | เครื่องมือ | เวอร์ชัน |
 | --- | --- |
-| Node.js | 22 (ดู [`.nvmrc`](.nvmrc)) |
-| PNPM | 9 |
+| Node.js | 22.x (ดู [`.nvmrc`](.nvmrc)) |
+| PNPM | 9.15.x |
 | Python | 3.11+ (สำหรับ Backend) |
 | Docker | ล่าสุด (ถ้ารันแบบ container) |
 

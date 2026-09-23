@@ -1,3 +1,5 @@
+## [1.5.1](https://github.com/ZyntroAI/crystalcastleX/compare/v1.5.0...v1.5.1) (2026-09-23)
+
 ## [1.5.0](https://github.com/ZyntroAI/crystalcastleX/compare/v1.4.3...v1.5.0) (2026-09-16)
 
 

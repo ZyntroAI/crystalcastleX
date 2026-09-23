@@ -15,7 +15,15 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
-
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+    interval: weekly
+ 
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+    interval: weekly
   # Node package (install-crystal action package)
   - package-ecosystem: "npm"
     directory: "/Package"

@@ -1,40 +1,71 @@
-name: Update README from docs/knowledge
+name: 📝 Update README from docs/knowledge
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'docs/knowledge/**' # รันเมื่อไฟล์ในนี้เปลี่ยน
-      - 'scripts/update_readme.py'
-  workflow_dispatch: # กดรันเองได้
+      - 'docs/knowledge/**'       # Run when knowledge files change
+      - 'scripts/update_readme.py' # Run when the script changes
+  workflow_dispatch:             # Allow manual trigger
   schedule:
-    - cron: '0 0 * * *' # รันทุกวันเผื่อไว้
+    - cron: '0 0 * * *'          # Daily at midnight UTC
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   update-readme:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    timeout-minutes: 10
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v5 # Upgraded — removes Node 20 deprecation warning
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Python
+      - name: 🧹 Fix path conflict & ensure dir exists
+        run: |
+          # If FILE exists at docs/knowledge → rename it (causes "cannot create directory" error)
+          if [ -f "docs/knowledge" ]; then
+            echo "⚠️ Found file at docs/knowledge → renaming to docs/knowledge.md"
+            mv docs/knowledge docs/knowledge.md
+          fi
+          
+          # Safely create directory tree
+          mkdir -p docs/knowledge
+          
+          echo "✅ Path structure verified"
+          ls -la docs/
+
+      - name: 🐍 Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip' # Speed up dependency install
 
-      - name: Install deps
+      - name: 📦 Install dependencies
         run: pip install pyyaml
 
-      - name: Update README
+      - name: 🚀 Run README sync
         run: python scripts/update_readme.py
 
-      - name: Commit if changed
+      - name: ✍️ Commit & push changes
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
           git add README.md
-          git diff --cached --quiet || git commit -m "docs: auto sync knowledge to README"
-          git push
+          
+          # Exit cleanly if nothing changed
+          if git diff --staged --quiet; then
+            echo "✅ No README changes detected — nothing to commit"
+            exit 0
+          fi
+          
+          git commit -m "docs: auto-sync knowledge → README"
+          git push origin main
+          echo "🚀 README updated & pushed successfully"

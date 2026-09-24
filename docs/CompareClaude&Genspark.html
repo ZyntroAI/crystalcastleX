@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude vs Genspark Comparison & Skill Repository Documentation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2, h3 {
+            color: #111;
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 0.3em;
+        }
+        h1 { font-size: 1.8em; }
+        h2 { font-size: 1.4em; margin-top: 30px; }
+        h3 { font-size: 1.1em; margin-top: 20px; }
+        p, li { font-size: 1em; }
+        ul, ol { padding-left: 20px; }
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 12px;
+            overflow-x: auto;
+            font-family: Consolas, Monaco, "Andale Mono", monospace;
+            font-size: 0.9em;
+        }
+        code {
+            font-family: Consolas, Monaco, "Andale Mono", monospace;
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #ddd;
+            margin: 30px 0;
+        }
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>รายงานการเปรียบเทียบเชิงลึก: Claude vs Genspark และเอกสารชุดโปรเจกต์ Skill Repository</h1>
+    <p><strong>Author:</strong> ZyntroAI</p>
+
+    <hr>
+
+    <h2>1. รายละเอียดการเปรียบเทียบเชิงลึกระหว่าง Claude และ Genspark</h2>
+    
+    <h3>Core Focus: จุดต่างระหว่าง AI Assistant เชิงลึก กับ AI Workspace/Multi-Agent</h3>
+    <ul>
+        <li><strong>Claude (Anthropic) — AI Assistant เชิงลึก:</strong> เน้นเป็นผู้ช่วยอัจฉริยะที่โดดเด่นด้านการประมวลผลภาษาธรรมชาติ การเขียนเชิงวิชาการ/บทความยาว การวิเคราะห์เอกสารหนาๆ (เช่น PDF หลายร้อยหน้า) และการเขียนโปรแกรมขั้นสูง จุดแข็งคือพลังการคิดวิเคราะห์เชิงตรรกะ (Logical Reasoning) และความแม่นยำของบริบทที่ยาวมาก</li>
+        <li><strong>Genspark — AI Workspace / Multi-Agent Platform:</strong> เน้นเป็นแพลตฟอร์มทำงานแบบครบวงจร (All-in-One) ที่ขับเคลื่อนด้วยระบบ Multi-Agent ออกแบบมาเพื่อช่วยเคลียร์งานเอกสารทางธุรกิจ การสร้างสไลด์ สเปรดชีต และการค้นหาข้อมูลเชิงลึกอัตโนมัติ โดยจุดเด่นคือการรวบรวมโมเดลหลากหลายค่ายมาไว้ในที่เดียวเพื่อให้เหมาะกับงานแต่ละประเภท</li>
+    </ul>
+
+    <h3>Feature Comparison: เปรียบเทียบฟีเจอร์สำคัญ</h3>
+    <ul>
+        <li><strong>Claude (Anthropic):</strong> เด่นเรื่องการเขียน การวิเคราะห์ โค้ดดิ้งระดับโปรเจกต์ผ่าน <em>Claude Code</em> มีฟีเจอร์ <em>Artifacts</em> สำหรับสร้างชิ้นงานหรือแอปจำลองในแชททันที</li>
+        <li><strong>Genspark:</strong> เด่นเรื่อง <em>AI Slides</em>, <em>AI Sheets</em>, สรุปการประชุม และรันงานผ่าน Super Agent บนคลาวด์ พร้อมสลับใช้โมเดลหลากหลายค่ายได้</li>
+    </ul>
+
+    <h3>Pricing & Access: แผนใช้งานและโครงสร้างราคา</h3>
+    <ul>
+        <li><strong>Claude:</strong> Free Plan (ฟรี), Pro Plan (~$20/เดือน), Team / Max (~$25 - $100+/เดือน)</li>
+        <li><strong>Genspark:</strong> Free Plan (ฟรี), Plus / Pro Plans (~$14.99 - $24.99/เดือน ชำระรายปี) ใช้ระบบเครดิตสำหรับการประมวลผลฟีเจอร์หนักๆ</li>
+    </ul>
+
+    <h3>Use Case Recommendations: สรุปคำแนะนำการใช้งาน</h3>
+    <ul>
+        <li><strong>ควรเลือก Claude หาก:</strong> เป็นนักพัฒนา (Developer) หรือนักวิจัยที่ต้องการ AI ช่วยเขียนโค้ด ตรวจสอบโค้ด วิเคราะห์ข้อมูลเชิงลึก และเขียนบทความ/รายงานยาวๆ</li>
+        <li><strong>ควรเลือก Genspark หาก:</strong> ทำงานสายธุรกิจ การตลาด หรือต้องการทำสไลด์นำเสนอ (Presentation) รายงานสรุป และระบบอัตโนมัติเบ็ดเสร็จในที่เดียว</li>
+    </ul>
+
+    <hr>
+
+    <h2>2. YAML Schema สำหรับ Definition of Done (DoD / QA Acceptance)</h2>
+    <pre><code>version: "1.0.0"
+name: "skill-definition-of-done-schema"
+description: "QA and Acceptance criteria checklist for validating developed skills."
+
+checklist_categories:
+  - category_id: "core_structure"
+    title: "1. Core Files & Structure"
+    description: "ตรวจสอบความถูกต้องของไฟล์หลักและโครงสร้างพื้นฐาน"
+    items:
+      - id: "skill_md_exists"
+        label: "มีไฟล์ SKILL.md"
+        description: "ไฟล์ SKILL.md ต้องอยู่ในตำแหน่ง root ของไดเรกทอรีและมีเนื้อหาครบถ้วน"
+        type: "boolean"
+        required: true
+      - id: "manifest_validated"
+        label: "ผ่านการตรวจสอบ Manifest"
+        description: "ไฟล์การกำหนดค่า (Manifest/Config) ถูกต้องตาม Schema ที่กำหนด"
+        type: "boolean"
+        required: true
+
+  - category_id: "documentation"
+    title: "2. Documentation & Examples"
+    description: "ตรวจสอบคู่มือการใช้งานและตัวอย่าง"
+    items:
+      - id: "usage_examples_provided"
+        label: "มีตัวอย่างการใช้งาน (Examples)"
+        description: "ระบุตัวอย่าง Prompt หรือกรณีศึกษาการใช้งาน (Use Cases) ชัดเจน"
+        type: "boolean"
+        required: true
+      - id: "parameters_documented"
+        label: "จัดทำเอกสารพารามิเตอร์ครบถ้วน"
+        description: "อธิบายอินพุต เอาท์พุต และข้อกำหนดของตัวแปรต่างๆ ไว้เรียบร้อย"
+        type: "boolean"
+        required: true
+
+  - category_id: "testing_qa"
+    title: "3. Testing & Error Handling"
+    description: "ตรวจสอบคุณภาพโค้ดและการจัดการข้อผิดพลาด"
+    items:
+      - id: "unit_tests_passed"
+        label: "ผ่านการทดสอบยูนิต (Unit Tests)"
+        description: "โมดูลหรือฟังก์ชันภายใน Skill ผ่านการทดสอบโดยไม่มีข้อผิดพลาด"
+        type: "boolean"
+        required: true
+      - id: "fail_safe_handled"
+        label: "การจัดการข้อผิดพลาด (Error Handling)"
+        description: "ระบบรองรับสถานการณ์ฉุกเฉิน เช่น Fail-open หรือ Fallback mechanism เรียบร้อย"
+        type: "boolean"
+        required: false
+
+  - category_id: "integration"
+    title: "4. Deployment & Integration"
+    description: "ตรวจสอบความพร้อมในการเชื่อมต่อกับระบบจริง"
+    items:
+      - id: "runtime_compatibility"
+        label: "รองรับการรันบน Runtime เป้าหมาย"
+        description: "ทดสอบการทำงานร่วมกับ Multi-agent framework หรือสภาพแวดล้อมที่ใช้งานจริง"
+        type: "boolean"
+        required: true</code></pre>
+
+    <hr>
+
+    <h2>3. ชุดไฟล์ Markdown สำหรับ GitHub Repository</h2>
+
+    <h3>README.md</h3>
+    <pre><code># Skill Repository
+
+**Author:** ZyntroAI  
+**Version:** 1.0.0  
+**Description:** A comprehensive repository containing skill definitions, automation workflows, and QA acceptance guidelines.
+
+---
+
+## Overview
+This repository provides standardized templates, configuration schemas, and execution workflows designed to support multi-agent systems and automated documentation pipelines.
+
+## Structure
+- `SKILL.md`: Core skill definitions and operational guidelines.
+- `CHECKLIST.md`: Definition of Done (DoD) and QA acceptance criteria.
+- `.github/workflows/`: Automated indexing, synchronization, and policy diff audits.
+
+## References & Attributions
+* **Architecture & Comparative Analysis:** Genspark (AI Workspace & Multi-Agent Platform) vs. Claude (Deep Assistant & Coding Expert) integration workflow.
+* **Author:** ZyntroAI
+
+## License
+MIT License</code></pre>
+
+    <h3>SKILL.md</h3>
+    <pre><code># Skill Definition
+
+**Author:** ZyntroAI  
+
+## 1. Skill Overview
+- **Name:** Standard Skill Module
+- **Purpose:** Define core executable actions, parameters, and expected outputs for multi-agent execution.
+- **Target Runtime:** Multi-agent framework / Terminal / CI/CD pipeline.
+
+## 2. Input & Output Parameters</code></pre>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>input_payload</code></td>
+                <td>String/JSON</td>
+                <td>Yes</td>
+                <td>Raw data or prompt payload to be processed.</td>
+            </tr>
+            <tr>
+                <td><code>config_options</code></td>
+                <td>Object</td>
+                <td>No</td>
+                <td>Optional configuration overrides.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <pre><code>## 3. Execution Steps
+1. Initialize the environment and load environment variables.
+2. Validate incoming payloads against the schema.
+3. Execute core logic with fail-safe error handling (e.g., fail-open).
+4. Return structured output.</code></pre>
+
+    <h3>CHECKLIST.md</h3>
+    <pre><code># Definition of Done (DoD) & QA Acceptance Checklist
+
+**Author:** ZyntroAI  
+
+Use this checklist to validate the completeness of a skill before submission and merging.
+
+---
+
+## 1. Core Files & Structure
+- [ ] **SKILL.md exists:** The `SKILL.md` file is located in the root directory with complete content.
+- [ ] **Manifest validated:** Configuration files comply with the required schema.
+
+## 2. Documentation & Examples
+- [ ] **Usage examples provided:** Includes clear prompt examples or use case scenarios.
+- [ ] **Parameters documented:** Inputs, outputs, and variable specifications are clearly defined.
+
+## 3. Testing & Error Handling
+- [ ] **Unit tests passed:** Internal modules or functions pass unit tests without errors.
+- [ ] **Error handling implemented:** Support for failure scenarios (e.g., fail-open or fallback mechanisms) is in place.
+
+## 4. Deployment & Integration
+- [ ] **Runtime compatibility verified:** Tested for compatibility with multi-agent frameworks or target environments.</code></pre>
+
+    <hr>
+
+    <h2>4. Pull Request (PR) Template</h2>
+    <pre><code>Title: feat: add core skill definitions, DoD checklist, and documentation framework with references
+
+Description:
+This pull request introduces foundational documentation, execution guidelines, QA acceptance criteria, and reference attributions for the skill repository.
+
+Author & References:
+* Author: ZyntroAI
+* References: Architecture comparative insights and multi-agent workflow models between Genspark and Claude.
+
+Changes Made:
+* README.md: Added repository overview, project structure, and reference attributions.
+* SKILL.md: Defined core skill operations, input/output parameters, and multi-agent execution steps.
+* CHECKLIST.md: Implemented the Definition of Done (DoD) and QA Acceptance checklist for skill validation.
+* YAML Schema: Provided structured validation categories covering core structure, documentation, testing, and runtime integration.
+
+Checklist for Reviewers:
+* [ ] Verify that SKILL.md includes accurate parameter definitions.
+* [ ] Confirm CHECKLIST.md covers all necessary QA acceptance items.
+* [ ] Ensure repository metadata, references, and author attributions are correct.</code></pre>
+
+</div>
+
+</body>
+</html>

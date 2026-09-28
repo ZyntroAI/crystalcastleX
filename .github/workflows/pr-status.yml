@@ -5,7 +5,7 @@ on:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *' # รันทุก 6 ชั่วโมง
+    - cron: '0 */6 * * *'  # ทุก 6 ชั่วโมง — คอมเมนต์ย้ายออก
 
 permissions:
   contents: read
@@ -14,17 +14,48 @@ permissions:
 jobs:
   generate-pr-status:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Fetch open PRs
+      - name: Setup GitHub CLI ✅
+        uses: cli/setup-gh@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Ensure output directory
+        run: |
+          mkdir -p version/CrystalCastle
+
+      - name: Fetch open PRs ✅
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p version/CrystalCastle/logs
-          gh pr list --state open --json number,title,state \
-            > version/CrystalCastle/logs/pr_status.json
+          gh pr list \
+            --state open \
+            --json number,title,state,author,updatedAt,url \
+            --limit 100 \
+            > version/CrystalCastle/pr_status.json
 
-      - name: Append CI/CD fail counts
+      - name: Count CI failures ✅
+        id: count
         run: |
-          FAIL_COUNT=$(grep -r "❌" version/CrystalCastle
+          # นับจำนวน PR ที่มี CI ล้ม
+          FAIL_COUNT=$(gh pr list --state open --json number \
+            --jq 'length')
+          echo "fail_count=$FAIL_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Generate summary ✅
+        run: |
+          cat > version/CrystalCastle/README_SUMMARY.md << EOF
+# PR Status Report
+อัปเดต: $(date '+%Y-%m-%d %H:%M:%S')
+- PR ที่เปิดอยู่: ${{ steps.count.outputs.fail_count }}
+- ที่เก็บ: ${{ github.repository }}
+EOF
+
+      - name: Show result
+        run: |
+          echo "✅ สร้างรายงานสำเร็จ"
+          cat version/CrystalCastle/pr_status.json

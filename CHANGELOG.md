@@ -1,9 +1,32 @@
 📝 CHANGELOG — CrystalCastle X
  
-Repo:  zyntromedia/crystalcastleX  | Standard: Keep a Changelog + SemVer | Last Updated: 2026-09-04
+Repo:  zyntromedia/crystalcastleX  | Standard: Keep a Changelog + SemVer | Last Updated: 2026-09-26
  
  
  
+[Unreleased] — 2026-09-26 🔧 CI Hygiene
+
+✨ Added
+
+- `archive/workflows/ARCHIVE-MANIFEST.md` — records all 38 moved files with their blob SHAs, so any archived file can be located or restored by hash.
+
+🧹 Changed
+
+- Archived the inert top-level `workflows/` tree to `archive/workflows/` (38 files). GitHub Actions executes a workflow **only** at `.github/workflows/`, so that tree was dead weight that had drifted out of sync with live CI and collided on filename. Nothing under `.github/workflows/` was touched — the directory's tree hash is byte-identical (`1b17fa20`) across `main` and this branch.
+- Repaired 2 filenames exceeding the 255-byte `NAME_MAX` limit — their bytes are preserved under deterministic names recorded in the manifest.
+
+🐛 Fixed
+
+- `consolidate-workflows.sh` matched **zero files silently** after the archive move (it read the now-gone `workflows/` path) and ended in a literal `git push origin <main>` placeholder that fails verbatim. Rewritten against `archive/workflows/`, dry-run by default, with a collision guard so a move cannot shadow a live workflow.
+- `__tests__/workflows/test-yml.test.js` read `workflows/test.yml`, a file that **never existed** in this repository — verified absent from `main` and from all fetched history. `beforeAll` threw ENOENT on every run. Repointed at `.github/workflows/test-and-coverage.yml`; assertions verified 12/12 against the real file.
+- Updated 6 stale `workflows/...` path references across `RELEASE_NOTES.md`, `.github/RELEASE_NOTES.md`, `Backend/README.md` and `.template-docs/Recommended Architecture`.
+
+📌 Known Issues
+
+- ~678 paths remain uncheckoutable due to over-`NAME_MAX` filenames (e.g. `docs/knowledge/howtotos.md` with document content pasted into the filename). Tracked separately; a normal `git checkout` still fails.
+- `RELEASE_NOTES.md` references `workflows/Onboarding.md`, which does not exist anywhere in the repository. Left unrepaired rather than guessed at.
+- `doc/index.md` status badges point at `1napz/crystalcastle` — wrong repository. Pre-existing and unrelated.
+
 [1.0.0] — 2026-09-04 🚀 MAJOR RELEASE
  
 Theme: Agentic DevSecOps + Obsidian Vault Full Integration

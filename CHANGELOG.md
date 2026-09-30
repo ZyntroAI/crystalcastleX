@@ -1,4 +1,11 @@
-## 1.4.1 (2026-09-30)
+## [1.4.2](https://github.com/zyntromedia/crystalcastleX/compare/v1.4.1...v1.4.2) (2026-09-30)
+
+
+### Bug Fixes
+
+* **ci:** repair over-NAME_MAX paths that broke every checkout ([#9](https://github.com/zyntromedia/crystalcastleX/issues/9)) ([661306f](https://github.com/zyntromedia/crystalcastleX/commit/661306f0c0a407bb8211b0484182c179cdbe6216))
+
+## [1.4.1](https://github.com/zyntromedia/crystalcastleX/compare/bf54cfc440b653027c66e611b386a39a4baba75e...v1.4.1) (2026-09-30)
 
 
 ### Bug Fixes

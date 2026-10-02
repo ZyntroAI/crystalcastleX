@@ -1,3 +1,5 @@
+## [1.4.11](https://github.com/zyntromedia/crystalcastleX/compare/v1.4.10...v1.4.11) (2026-10-02)
+
 ## [1.4.10](https://github.com/zyntromedia/crystalcastleX/compare/v1.4.9...v1.4.10) (2026-10-02)
 
 ## [1.4.9](https://github.com/zyntromedia/crystalcastleX/compare/v1.4.8...v1.4.9) (2026-10-02)

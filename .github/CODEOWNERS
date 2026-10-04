@@ -1,0 +1,22 @@
+# 📋 ผู้รับผิดชอบ — CrystalCastleX
+# รูปแบบ: ไฟล์/ทาง  @ชื่อทีม/บุคคล
+
+# === รากโปรเจกต์ ===
+*  @zyntromedia
+
+# === Backend / Python ===
+/backend/         @zyntromedia/backend
+*.py              @zyntromedia/backend
+
+# === ระบบอัตโนมัติ / CI/CD ===
+.github/workflows/  @zyntromedia/devops
+dependabot.yml      @zyntromedia/devops
+
+# === เอกสาร ===
+docs/             @zyntromedia/docs
+*.md              @zyntromedia/docs
+README.md         @zyntromedia/docs
+
+# === การตั้งค่า ===
+*.yml             @zyntromedia/maintainers
+*.yaml            @zyntromedia/maintainers

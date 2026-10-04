@@ -1,48 +1,45 @@
-# Example configuration file that:
-#  - Uses a private registry for npm updates
-#  - Ignores lodash dependency
-#  - Disables version-updates
-#  - Applies custom labels
-#  - Adds assignees
-#  - Group security updates for golang dependencies into a single pull request
-
 version: 2
-registries:
-  # Define a private npm registry with the name `example`
-  example:
-    type: npm-registry
-    url: https://example.com
-    token: ${{secrets.NPM_TOKEN}}
+
 updates:
-  - package-ecosystem: "npm"
-    directory: "/src/npm-project"
-    schedule:
-      interval: "daily"
-    # For Lodash, ignore all updates
-    ignore:
-      - dependency-name: "lodash"
-    # Disable version updates for npm dependencies
-    open-pull-requests-limit: 0
-    registries:
-      # Ask Dependabot to use the private registry for npm
-      - example
-    # Raise all npm pull requests for security updates with custom labels
-    labels:
-      - "npm dependencies"
-      - "triage-board"
-    # Raise all npm pull requests for security updates with assignees
-    assignees:
-      - "user-name"
-  - package-ecosystem: "gomod"
-    directories:
-      - "**/*"
+  # 🐍 Python — Backend
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    target-branch: "main"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 0
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    cooldown:
+      after-update: "2d"
+    labels:
+      - "dependencies"
+      - "backend"
+    assignees:
+      - "@zyntromedia"
+    commit-message:
+      prefix: "chore(deps:backend)"
+      include: "scope"
     groups:
-      # Group security updates for golang dependencies
-      # into a single pull request
-      golang:
-        applies-to: security-updates
+      core:
         patterns:
-          - "golang.org*"
+          - "fastapi"
+          - "uvicorn"
+          - "pydantic"
+      dev:
+        dependency-type: "development"
+        patterns:
+          - "pytest*"
+          - "ruff"
+
+  # 📦 GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "main"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "ci"
+    assignees:
+      - "@zyntromedia"

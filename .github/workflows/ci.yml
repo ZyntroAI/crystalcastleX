@@ -5,6 +5,10 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+# ใน .github/workflows/ci.yml
+defaults:
+  run:
+    working-directory: backend  # ✅ ตรงกับโครงสร้างจริง
 
 jobs:
   validate-and-build:

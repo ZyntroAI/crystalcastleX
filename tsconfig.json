@@ -1,25 +1,45 @@
 {
   "compilerOptions": {
-    // Type Checking
+    // ── Strictness ─────────────────────────────────────────
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,          // `x?: T` is no longer assignable to `T | undefined`
+    "noImplicitOverride": true,                  // class method overrides must say `override`
+    "noImplicitReturns": true,                   // every code path in a value-returning fn must return
+    "noPropertyAccessFromIndexSignature": true,  // force `obj[key]` for index-signature keys
+    "noUncheckedSideEffectImports": true,        // TS 5.5+: side-effect-only imports must be `import "x"`
 
-    // Output
-    "target": "ES2022",
-    "module": "ESNext",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-
-    // Module Resolution
-    "moduleResolution": "bundler",
+    // ── Modules / ESM hygiene ──────────────────────────────
+    "verbatimModuleSyntax": true,                // enforces `import type`; supersedes isolatedModules
+    "moduleDetection": "force",                  // treat every file as a module (no "script" files)
+    "isolatedModules": true,                     // implied by verbatimModuleSyntax; kept for tooling
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
 
-    // Path Aliases
+    // ── Output (your bundler emits, tsc only typechecks) ──
+    "target": "ES2023",                          // bumped ES2022 → ES2023 (ESNext is also fine w/ bundler)
+    "module": "ESNext",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "useDefineForClassFields": true,
+
+    // ── Interop / correctness ──────────────────────────────
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,                        // large speedup; almost never worth disabling
+    "assumeChangesOnlyAffectDirectDependencies": true, // faster --watch / incremental rebuilds
+
+    // ── DX ────────────────────────────────────────────────
+    "incremental": true,                         // caches typecheck graph; speeds re-runs
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
+    "noErrorTruncation": true,                   // full, untruncated error messages in CI/editor
+
+    // ── Path aliases (unchanged) ───────────────────────────
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
@@ -27,15 +47,7 @@
       "@hooks/*": ["./src/hooks/*"],
       "@utils/*": ["./src/utils/*"],
       "@types/*": ["./src/types/*"]
-    },
-
-    // Interop
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-
-    // JSX (remove if not React)
-    "jsx": "react-jsx"
+    }
   },
   "include": ["src"],
   "exclude": [

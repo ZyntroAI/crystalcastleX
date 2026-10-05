@@ -1,6 +1,6 @@
 {
   "name": "@zyntro-media-ai/crystalcastle",
-  "version": "1.5.12",
+  "version": "1.5.13",
   "description": "Core components for Crystal Castle",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

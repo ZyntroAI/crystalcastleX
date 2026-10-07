@@ -55,7 +55,12 @@ jobs:
               repository: e.repository?.full_name
             }));
           ")
-          echo "PAYLOAD=$PAYLOAD" >> $GITHUB_ENV
+           DELIM=$(uuidgen)
+          {
+            echo "PAYLOAD<<$DELIM"
+            echo "$PAYLOAD"
+            echo "$DELIM"
+          } >> "$GITHUB_ENV"
       
       - name: Dispatch
         working-directory: ./notify_system

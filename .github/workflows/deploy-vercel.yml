@@ -13,6 +13,9 @@ on:
   # Manual Run: เปิดให้กดสั่งรันเองได้จากหน้า Actions
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 # Concurrency: ยกเลิกตัวเก่าที่กำลังรันค้าง แล้วรันแค่ตัวล่าสุด ประหยัดทรัพยากร
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

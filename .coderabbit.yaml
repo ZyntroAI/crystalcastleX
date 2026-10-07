@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
 language: "th-TH"
 tone_instructions: >
   รีวิวสั้น กระชับ ตรงประเด็น
@@ -15,8 +17,11 @@ reviews:
   suggested_labels: true
   auto_apply_labels: false
   suggested_reviewers: false
+
   auto_review:
-    drafts: true
+    enabled: true
+    auto_incremental_review: true
+    drafts: false
 
   review_instructions: |
     รายงานเฉพาะประเด็นระดับ medium–high impact
@@ -31,11 +36,6 @@ reviews:
   review_settings:
     minimum_severity: medium
     report_minor_issues: false
-
-  auto_review:
-    enabled: true
-    auto_incremental_review: true
-    drafts: false
 
   path_reviews:
     # ── GitHub Workflows ──
@@ -115,11 +115,3 @@ tools:
     enabled: true
   zizmor:
     enabled: true
-
-# ── Optional Linters — เปิดเมื่อมีในโปรเจกต์ ──
-# hadolint:
-#   enabled: true   # หากมี Dockerfile
-# checkov:
-#   enabled: true   # หากมี Terraform/IaC
-# tflint:
-#   enabled: true

@@ -1,22 +1,21 @@
-✅ เพิ่ม Badges ครบชุดแล้ว — วางที่ส่วนบนสุด ดูทันใจและครบข้อมูลทันที 🚀
+✅ นี่คือ README.md ฉบับล่าสุด ปรับให้ตรงกับโครงสร้างจริง ของ  zyntromedia/crystalcastleX  ครับ 🚀
  
  
  
 🧊 CrystalCastle X — AI-Native DevSecOps Platform
+ 
 License: MIT
-GitHub Release
-GitHub Stars
 Status
-Node Version
+Forks
+Commits
+ 
+Node
 TypeScript
 Python
-FastAPI
-Vercel
-CI Status
-Tests
-Security
-Conventional Commits
-Agentic DevSecOps Ecosystem — รวม GitLab AI, Obsidian Knowledge Vault, AI Orchestration และ CI/CD ครบวงจรในระบบเดียว
+Vitest
+Docker
+ 
+Agentic DevSecOps Ecosystem — ผสาน AI, CI/CD, คลังความรู้ และระบบอัตโนมัติไว้ในที่เดียว
  
  
  
@@ -24,10 +23,8 @@ Agentic DevSecOps Ecosystem — รวม GitLab AI, Obsidian Knowledge Vault, A
  
 - ภาพรวม
 - คุณสมบัติหลัก
-- โครงสร้างระบบ
+- โครงสร้างโปรเจกต์
 - เริ่มต้นใช้งาน
-- การติดตั้ง
-- การใช้งาน
 - เอกสาร
 - การมีส่วนร่วม
 - ใบอนุญาต
@@ -36,14 +33,13 @@ Agentic DevSecOps Ecosystem — รวม GitLab AI, Obsidian Knowledge Vault, A
  
 🌐 ภาพรวม
  
-CrystalCastle X คือแพลตฟอร์มพัฒนาซอฟต์แวร์รุ่นถัดไปที่ขับเคลื่อนด้วย AI — ผสานการวางแผน, เขียนโค้ด, ทดสอบ, ปรับใช้ และรักษาความปลอดภัยไว้ด้วยกันอย่างเป็นระบบเดียว
+CrystalCastle X คือแพลตฟอร์มพัฒนาซอฟต์แวร์รุ่นถัดไปที่ขับเคลื่อนด้วย AI — ครอบคลุมตั้งแต่การวางแผน, เขียนโค้ด, ทดสอบ, ปรับใช้ ไปจนถึงรักษาความปลอดภัย โดยทำงานร่วมกับ:
  
-ออกแบบสำหรับทีมที่ต้องการ:
- 
-- ⚡ ความเร็วในการส่งมอบฟีเจอร์
-- 🛡️ ความปลอดภัยฝังอยู่ในทุกขั้นตอน
-- 🧠 ความรู้ที่จัดระเบียบและนำกลับมาใช้ใหม่ได้
-- 🔄 ทำงานอัตโนมัติตั้งแต่คอมมิตจนถึงการปรับใช้จริง
+- 🤖 AI Orchestration — วางแผน ตรวจสอบ และแก้ไขด้วยอัตโนมัติ
+- 📚 Obsidian Knowledge Vault — จัดการความรู้เป็น Markdown เชื่อมต่อผ่าน Local API
+- ⚙️ GitHub Actions / CI/CD — ตรวจสอบ ทดสอบ และเผยแพร่ตลอดเวลา
+- 🐳 Container-Ready — มี Dockerfile + docker-compose พร้อมใช้งาน
+- 🚀 Vercel / Netlify — ปรับใช้ส่วนหน้าได้ทันที
  
  
  
@@ -52,58 +48,65 @@ CrystalCastle X คือแพลตฟอร์มพัฒนาซอฟต�
 🧠 AI-Native Core
  
 - วางแผนและจัดการงานด้วย AI อัจฉริยะ
-- ตรวจจับความลับและปัญหาด้านความปลอดภัยแบบเรียลไทม์
-- แนะนำโค้ด + แก้ไขอัตโนมัติ
-- ทดสอบเชิงคาดการณ์ + สแกนช่องโหว่แบบไดนามิก
+- ตรวจจับความลับและช่องโหว่ก่อนส่งโค้ด
+- แนะนำและปรับปรุงโค้ดอัตโนมัติ
+- ติดตามทุกการเปลี่ยนแปลงด้วย  trace_id 
  
 🛡️ DevSecOps ในตัว
  
-- วงจรเต็ม: วางแผน → พัฒนา → ทดสอบ → ปรับใช้ → ตรวจสอบความปลอดภัย
-- ตรวจจับภัยคุกคามด้วย AI + ตรวจสอบการปฏิบัติตามนโยบาย
-- บันทึกทุกการเปลี่ยนแปลง — ตรวจสอบย้อนกลับได้
-- บังคับใช้นโยบาย + ย้อนกลับอัตโนมัติเมื่อพบปัญหา
+- วงจรเต็ม: วางแผน → พัฒนา → ตรวจสอบ → ทดสอบ → ปรับใช้ → ตรวจสอบความปลอดภัย
+- ตรวจสอบความสอดคล้องกับนโยบายอัตโนมัติ
+- บันทึกประวัติทุกขั้นตอน — ตรวจสอบย้อนกลับได้เสมอ
+- ย้อนกลับอัตโนมัติเมื่อพบปัญหา
  
-📚 Obsidian Knowledge Integration
+📚 คลังความรู้ & เอกสาร
  
-- จัดการความรู้เป็น Markdown ใน Vault ท้องถิ่น
-- เชื่อมต่อผ่าน Local REST API — ทำงานแบบออฟไลน์ได้
-- แดชบอร์ด + สรุปอัตโนมัติด้วย Dataview
-- ซิงค์กับ Git — ประวัติทุกการเปลี่ยนแปลง
+- จัดการความรู้เป็น Markdown ในโฟลเดอร์  Vault/ 
+- รองรับ Obsidian — กราฟความเชื่อมโยง, แดชบอร์ด, บันทึกประจำวัน
+- ซิงค์ผ่าน Git — ไม่ต้องพึ่งเซิร์ฟเวอร์ภายนอก
+- เอกสารสองภาษา ไทย/อังกฤษ
  
-🔗 ระบบที่เชื่อมต่อ
+📦 เทคโนโลยี
  
-ระบบ หน้าที่ 
-GitLab 19.3 Agentic CI/CD, ความปลอดภัย 
-GitHub Actions ตรวจสอบ, ทดสอบ, เผยแพร่ 
-Obsidian คลังความรู้, บันทึก, ติดตาม 
-FastAPI API ส่วนกลาง, SDK 
-Vercel / Netlify ปรับใช้ส่วนหน้า 
+ส่วน เทคโนโลยี 
+ส่วนหน้า Next.js / React / TypeScript 
+ส่วนหลัง FastAPI / Python 3.10+ 
+ทดสอบ Vitest / Playwright 
+ตรวจสอบ ESLint / Prettier / Ruff 
+ปรับใช้ Vercel / Netlify / Docker 
+คลังความรู้ Obsidian + Local REST API 
  
  
  
-📂 โครงสร้างระบบ
+📂 โครงสร้างโปรเจกต์
  
 plaintext  
 crystalcastleX/
-├── .github/workflows/     # CI/CD Pipeline ทั้งหมด
-├── .obsidian/             # การตั้งค่า + ปลั๊กอิน Vault
-├── Vault/                 # คลังความรู้หลัก
-│   ├── Core/             # ดัชนี, README, CHANGELOG
-│   ├── Config/           # นโยบาย, ตัวแปร, กฎ
-│   ├── Pipelines/        # เวิร์กโฟลว์, GitLab, Runners
-│   ├── Traces/           # ประวัติ, บันทึก, การตรวจสอบ
-│   ├── Templates/        # แม่แบบบันทึก
-│   └── Examples/         # ตัวอย่าง API, สคริปต์
-├── Frontend/              # ส่วนหน้า (Next.js / React)
-├── Backend/               # ส่วนหลัง (FastAPI / Node.js)
-├── docs/                  # เอกสารประกอบ
-├── scripts/               # เครื่องมืออัตโนมัติ
-├── __tests__/             # ชุดทดสอบ
-├── package.json           # การขึ้นต่อม Node.js
-├── commitlint.config.js   # มาตรฐานข้อความคอมมิต
-├── vitest.config.js       # การตั้งค่าการทดสอบ
-├── vercel.json            # การปรับใช้ Vercel
-└── README.md              # ไฟล์นี้
+├── .github/workflows/      # CI/CD ทั้งหมด
+├── .obsidian/              # การตั้งค่า Obsidian Vault
+├── Vault/                  # คลังความรู้หลัก
+│   ├── Core/              # ดัชนี, README, CHANGELOG
+│   ├── Config/            # นโยบาย, ตัวแปร, กฎ
+│   ├── Pipelines/         # เวิร์กโฟลว์, CI/CD
+│   ├── Traces/            # ประวัติ, บันทึก, การตรวจสอบ
+│   ├── Templates/         # แม่แบบบันทึก
+│   └── Examples/          # ตัวอย่างโค้ด, API, สคริปต์
+├── Frontend/               # ส่วนหน้า (Next.js / React)
+├── Backend/                # ส่วนหลัง (FastAPI / Python)
+├── scripts/                # เครื่องมืออัตโนมัติ
+├── docs/                   # เอกสารประกอบ
+├── __tests__/              # ชุดทดสอบ
+├── .env.example            # ตัวอย่างตัวแปรสภาพแวดล้อม
+├── Dockerfile              # ภาพคอนเทนเนอร์
+├── docker-compose.yml      # รันระบบทั้งชุด
+├── package.json            # การขึ้นต่อม Node.js
+├── tsconfig.json           # การตั้งค่า TypeScript
+├── vitest.config.js        # การตั้งค่าการทดสอบ
+├── vercel.json             # การปรับใช้ Vercel
+├── CONTRIBUTING.md         # คู่มือการพัฒนา
+├── CHANGELOG.md            # บันทึกการเปลี่ยนแปลง
+├── SECURITY.md             # นโยบายความปลอดภัย
+└── README.md               # ไฟล์นี้
  
  
  
@@ -113,35 +116,40 @@ crystalcastleX/
 ข้อกำหนดเบื้องต้น
  
 - Node.js 24+
-- Python 3.10+ (สำหรับส่วน Backend)
+- Python 3.10+
 - Git
-- Obsidian (แนะนำ) — รองรับปลั๊กอิน: Local REST API, Templater, Dataview, Obsidian Git
+- Obsidian (แนะนำ) — ติดตั้งปลั๊กอิน: Local REST API, Templater, Dataview, Obsidian Git
  
 1. โคลนและติดตั้ง
  
 bash  
-# ดึงโค้ด
 git clone https://github.com/zyntromedia/crystalcastleX.git
 cd crystalcastleX
 
 # ติดตั้งแพ็กเกจ Node.js
 npm install
 
-# ตรวจสอบว่ามี package-lock.json หรือสร้าง
+# ตรวจสอบ package-lock.json
 if [ ! -f package-lock.json ]; then
   npm install --package-lock-only
 fi
  
  
-2. เปิดเป็น Obsidian Vault
+2. ตั้งค่าสภาพแวดล้อม
  
 bash  
-# เปิดโฟลเดอร์นี้ใน Obsidian
-# ที่อยู่ API เริ่มต้น: http://127.0.0.1:27124
-# ตั้งค่า Token ในส่วนปลั๊กอิน
+# คัดลอกไฟล์ตัวอย่าง
+cp .env.example .env
+# แก้ไขค่าต่างๆ ตามความเหมาะสม
  
  
-3. ตรวจสอบระบบ
+3. เปิดเป็น Obsidian Vault
+ 
+- เปิดโฟลเดอร์โปรเจกต์นี้ใน Obsidian
+- ที่อยู่ API เริ่มต้น:  http://127.0.0.1:27124 
+- ตั้งค่า Token ในส่วนปลั๊กอิน
+ 
+4. ตรวจสอบระบบ
  
 bash  
 # รันทดสอบ
@@ -154,16 +162,22 @@ npm run lint
 npm run dev
  
  
+5. รันด้วย Docker
+ 
+bash  
+docker-compose up --build
+ 
+ 
  
  
 📖 เอกสาร
  
-เอกสาร คำอธิบาย 
-CONTRIBUTING.md คู่มือการมีส่วนร่วม, มาตรฐานโค้ด 
-CHANGELOG.md บันทึกการเปลี่ยนแปลงเวอร์ชัน 
-SECURITY.md นโยบายความปลอดภัยและการรายงาน 
-ENVIRONMENT.md ตัวแปรสภาพแวดล้อม 
-docs/ เอกสารเชิงลึก, คู่มือ API, SDK 
+ไฟล์ คำอธิบาย 
+CONTRIBUTING.md มาตรฐานโค้ด, วิธีส่ง PR 
+CHANGELOG.md บันทึกการเปลี่ยนแปลงทุกเวอร์ชัน 
+SECURITY.md รายงานช่องโหว่และนโยบายความปลอดภัย 
+ENVIRONMENT.MD คำอธิบายตัวแปรสภาพแวดล้อม 
+docs/ คู่มือ API, SDK, คู่มือเชิงลึก 
  
  
  
@@ -202,22 +216,4 @@ MIT License — ดูรายละเอียดที่ไฟล์ LICENS
  
  
  
-🧊 CrystalCastle — สร้างอย่างมั่นคง พัฒนาอย่างชาญฉลาด
- 
- 
- 
-📋 รายการ Badge ที่เพิ่ม
- 
-Badge หมายความ 
- License  ใบอนุญาต MIT 
- Release  เวอร์ชันล่าสุด 
- Stars  จำนวนดาว ⭐ 
- Status  สถานะโครงการ 
- Node / TS / Python  เวอร์ชันภาษา 
- FastAPI / Vercel  เทคโนโลยีหลัก 
- CI / Tests  ผลรันงานอัตโนมัติ 
- Security  สถานะความปลอดภัย 
- Conventional Commits  มาตรฐานข้อความคอมมิต 
- 
-💡 หาก Badge CI/Tests ยังไม่แสดงผล ให้ตรวจสอบว่าไฟล์ workflow มีชื่อตรงกับ path ในลิงก์หรือยัง — ปรับชื่อไฟล์ให้ตรงกับจริงก็จะแสดงทันทีครับ ✅
- 
+🧊 CrystalCastle — สร้างอย่างมั่นคง พัฒนาอย่างชาญฉลาด  

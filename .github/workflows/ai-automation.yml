@@ -1,0 +1,96 @@
+name: 🤖 AI Automation — Changelog + Commit Summary
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Part 1: Generate AI Summary & Diff Artifacts ──
+  summarize:
+    name: 📝 AI Commit Summary
+    runs-on: ubuntu-latest
+    outputs:
+      summary-ready: ${{ steps.check-files.outputs.ready }}
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Need HEAD^ for diff
+
+      - name: 🔍 Generate Diff & Log
+        run: |
+          git log -1 --pretty=%B > commit.txt
+          git diff HEAD~1 HEAD > diff.txt
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 🤖 AI Summary
+        run: |
+          python scripts/generate_commit_context.py
+
+      - name: ✅ Check Outputs
+        id: check-files
+        run: |
+          if [ -f commit.txt ] && [ -f diff.txt ]; then
+            echo "ready=true" >> $GITHUB_OUTPUT
+          else
+            echo "ready=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📤 Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-commit-context
+          path: |
+            commit.txt
+            diff.txt
+          retention-days: 7
+
+  # ── Part 2: Generate & Auto-Commit Changelog ──
+  changelog:
+    name: 📋 Update Changelog
+    needs: summarize
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: github.ref == 'refs/heads/main' # Only run changelog on main branch
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for changelog
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🤖 Generate Changelog
+        run: node scripts/generate-changelog.js
+
+      - name: 📝 Commit & Push Changelog
+        run: |
+          git config user.name "ai-doc-bot"
+          git config user.email "bot@crystalcastle.dev"
+          
+          git add docs/CHANGELOG.md
+          
+          # Commit only if file changed
+          if git diff --staged --quiet; then
+            echo "ℹ️ No changes to CHANGELOG.md — nothing to commit"
+          else
+            git commit -m "docs: auto-update changelog"
+            git push
+            echo "✅ Changelog pushed successfully"
+          fi

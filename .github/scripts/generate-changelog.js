@@ -37,7 +37,9 @@ const entries = raw
   .split("\n")
   .map((line) => {
     const [subject, hash] = line.split("\t");
-    const safe = subject.replace(/`/g, "\\`"); // avoid breaking markdown
+    const safe = subject
+      .replace(/\\/g, "\\\\")
+      .replace(/`/g, "\\`"); // avoid breaking markdown
     return `- ${safe} (\`${hash}\`)`;
   })
   .join("\n");

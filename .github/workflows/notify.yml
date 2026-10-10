@@ -18,11 +18,4 @@ jobs:
       - name: Generate Notification
         run: bash scripts/notify.sh
 
-      - name: Push Notification (LINE/Slack)
-        uses: some/notify-action@v1
-        with:
-          message: |
-            [CrystalCastle Noti] 🚨
-            Security Scan พบ API Key หมดอายุ
-            โปรด Rotate ภายใน 24 ชม.
-          channel: "slack"
+      uses: slackapi/slack-github-action@v1.26.0

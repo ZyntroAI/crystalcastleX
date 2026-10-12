@@ -1,0 +1,74 @@
+
+name: Production Deployment
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify deployment branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main" || {
+            echo "::error::Production deployments must run from main."
+            exit 1
+          }
+
+      - name: Validate release
+        run: |
+          test -f .github/workflows/deploy-production.yml
+          test -f scripts/deploy-production.sh
+          bash -n scripts/deploy-production.sh
+
+  deploy:
+    name: Deploy to Production
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # GitHub pauses this job until environment protection passes.
+    environment:
+      name: production
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout approved commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Deploy
+        shell: bash
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          bash scripts/deploy-production.sh
+
+      - name: Record deployment revision
+        shell: bash
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+        run: |
+          echo "Deployed revision: ${DEPLOY_SHA}"

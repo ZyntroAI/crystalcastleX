@@ -1,3 +1,4 @@
+
 name: CI
 
 on:
@@ -20,8 +21,9 @@ concurrency:
 
 jobs:
   validate:
-    name: Validate GitHub Action
+    name: Validate Node.js Application
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout Repository
@@ -31,12 +33,34 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
+          cache: npm
 
-      - name: Verify Node.js Version
+      - name: Verify Runtime
         run: |
           node --version
           npm --version
+
+      - name: Validate Project Files
+        run: |
+          test -f package.json || {
+            echo "::error::package.json not found at repository root"
+            exit 1
+          }
+
+          test -f package-lock.json || {
+            echo "::error::package-lock.json not found at repository root"
+            exit 1
+          }
+
+          node -e "
+            const p = require('./package.json');
+            for (const name of ['lint', 'test']) {
+              if (!p.scripts || !p.scripts[name]) {
+                console.error('Missing npm script:', name);
+                process.exitCode = 1;
+              }
+            }
+          "
 
       - name: Install Dependencies
         run: npm ci
@@ -45,7 +69,12 @@ jobs:
         run: npm run lint
 
       - name: Validate JavaScript Syntax
-        run: node --check index.js
+        run: |
+          if [ -f index.js ]; then
+            node --check index.js
+          else
+            echo "index.js not found; checking is delegated to lint and tests."
+          fi
 
       - name: Run Test Suite
         run: npm test

@@ -170,3 +170,264 @@ export const config = {
 - Do not generate migration files manually — use `supabase db diff` instead.
 - Do not add `// eslint-disable` without a specific rule name and reason.
 - Do not suggest storing secrets in `next.config.js` env section.
+### Zyntro Media AI — Copilot Instructions: Debug & Rerun Jobs
+
+เป้าหมายคือเพิ่มมาตรฐาน CI Failure Diagnosis, Safe Job Reruns และ Automated Recovery ให้ทุก repository ภายใต้องค์กร `Zyntro-Media-AI` โดยไม่ลดระดับความปลอดภัยของ CI/CD และไม่เปลี่ยนลำดับการตรวจสอบเดิม
+
+The design adds a consistent recovery workflow to your existing pipeline:
+
+`Lint → Type-check → Test → Build → Diagnose → Rerun → Verify`
+
+หลักการสำคัญคือ Copilot ต้องตรวจสอบสาเหตุของความล้มเหลวก่อน rerun, แยก transient failures ออกจาก code defects และไม่ rerun deployment หรือขั้นตอนที่มี side effects โดยอัตโนมัติอย่างไม่มีเงื่อนไข
+
+### 1\. Add this section to organization-level Copilot instructions
+
+ไฟล์แนะนำ: `COPILOT_INSTRUCTIONS.md` ในเอกสารมาตรฐานขององค์กร หรือเพิ่มหัวข้อนี้ในไฟล์ organization-level instructions ที่คุณใช้อยู่จริง โดยเก็บไฟล์ `.github/copilot-instructions.md` ของแต่ละ repository สำหรับกฎเฉพาะโครงการ
+
+## 13. CI Debugging, Failed Job Reruns & Recovery
+
+### 13.1 Debugging Requirements
+- When a GitHub Actions job fails, inspect the workflow run, failed job, failed step, annotations, and relevant logs before recommending a fix.
+- Identify the exact failure category: lint, type-check, test, build, dependency installation, cache, network, permissions, secrets, runner, timeout, or deployment.
+- Distinguish transient infrastructure failures from deterministic code or configuration defects.
+- State the root cause, supporting log evidence, affected files, proposed fix, and verification steps.
+- Never claim a root cause is confirmed without supporting evidence. Label uncertain diagnoses as hypotheses.
+- Never expose secret values, access tokens, credentials, environment dumps, or sensitive log contents in comments or summaries.
+
+### 13.2 Safe Rerun Policy
+- Prefer rerunning only failed jobs when successful jobs do not need to be repeated.
+- Use a full workflow rerun only when upstream state, artifacts, dependencies, or job relationships require it.
+- Rerun a failed job only after reviewing its failure reason and checking whether its operations are safe to repeat.
+- Automatically retry only explicitly classified transient, idempotent operations with bounded attempts and backoff.
+- Use a maximum of two automatic retries after the initial attempt unless a repository-specific policy explicitly permits more.
+- Do not automatically rerun deterministic failures such as lint errors, TypeScript errors, failing tests, invalid YAML, missing configuration, or reproducible build errors.
+- Never automatically rerun production deployment, database migrations, destructive operations, or other non-idempotent actions without an explicit safety mechanism and authorization.
+- Do not change permissions, disable required checks, weaken branch protection, or skip security gates to make a rerun pass.
+- Record the original run ID, attempt number, failed job, failure category, reason for rerun, and final result.
+
+### 13.3 Rerun Decision Matrix
+- Transient network or service failure: inspect logs; retry only if the operation is safe.
+- Runner interruption or infrastructure failure: rerun the affected job after confirming that the environment is safe.
+- Dependency installation failure: inspect package-lock.json, registry access, and cache state before retrying.
+- Lint or type-check failure: fix the source or configuration; rerun the required checks.
+- Unit or integration test failure: reproduce and diagnose the failing test before rerunning.
+- Build failure: inspect compiler output, dependency versions, environment configuration, and build artifacts.
+- Permission or secret failure: correct authorization or configuration through the approved settings process.
+- Production deployment failure: stop, inspect deployment state, verify idempotency, and require appropriate authorization before retrying.
+
+### 13.4 GitHub Actions Rerun Operations
+- Use the GitHub Actions UI or the official REST API to rerun failed jobs.
+- Use the failed-jobs endpoint when successful jobs should remain untouched.
+- Use the individual-job rerun endpoint when only one failed or cancelled job needs to be retried.
+- Verify that the selected run belongs to the intended repository, workflow, branch, and commit.
+- Require Actions write permission for API-based reruns and use the least-privilege credential available.
+- Never store a GitHub token in source code, workflow YAML, logs, or artifacts.
+- Treat rerun requests as operational actions, not as permission to modify application code automatically.
+
+### 13.5 CI Observability
+- Publish a concise GitHub Actions job summary containing the failure category, failed step, sanitized evidence, remediation, and rerun outcome.
+- Upload diagnostic artifacts only when useful and ensure they exclude credentials and sensitive data.
+- Use GitHub annotations to identify actionable failures without duplicating sensitive logs.
+- Preserve test reports, coverage reports, and build diagnostics when safe.
+- Avoid duplicate notifications. Notify Slack only when SLACK_WEBHOOK_URL is configured, and never print the webhook URL.
+- Do not swallow exceptions or convert failed jobs into successful results without explicit, justified policy.
+
+### 13.6 Verification After Recovery
+- Confirm the rerun completed and inspect the resulting job conclusions.
+- Re-run the complete required validation sequence: lint → type-check → test → build.
+- Confirm that the successful run corresponds to the intended commit SHA.
+- Treat a successful rerun as evidence of recovery, not proof that an intermittent defect is permanently resolved.
+- Document recurring failures and create an issue when a durable fix is required.
+
+### 13.7 Copilot Reporting Format
+For each CI failure, report:
+1. Workflow name and run ID.
+2. Failed job and step.
+3. Failure category and evidence.
+4. Confirmed root cause or clearly labeled hypothesis.
+5. Recommended code or configuration change.
+6. Rerun scope: single job, failed jobs, or full workflow.
+7. Safety checks and required permissions.
+8. Verification result and remaining risks.
+
+### 13.8 Safety Boundaries
+- Diagnose first, repair second, rerun third, verify last.
+- Never fabricate a rerun result or claim that a job was rerun without an actual API or UI confirmation.
+- Never push fixes, approve pull requests, deploy production, or change repository security settings without the appropriate authorization.
+- If automated recovery is unavailable, provide the exact UI steps or API request needed for an authorized maintainer.
+
+### 2\. Add a manual failed-job rerun workflow
+
+ไฟล์ `.github/workflows/rerun-failed-jobs.yml` นี้ช่วยให้ maintainer สั่ง rerun เฉพาะ failed jobs ผ่าน `workflow_dispatch` ได้ โดยไม่ต้อง rerun งานที่สำเร็จทั้งหมด
+
+This is an optional operational workflow. It does not automatically rerun every failure, and it does not repair source code.
+
+```yaml
+
+name: Rerun Failed Jobs
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Completed GitHub Actions run ID"
+        required: true
+        type: string
+      confirm_rerun:
+        description: "Confirm that the failed jobs are safe to rerun"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: rerun-failed-jobs-${{ inputs.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  rerun:
+    name: Validate and Rerun Failed Jobs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Validate request
+        env:
+          RUN_ID: ${{ inputs.run_id }}
+          CONFIRM_RERUN: ${{ inputs.confirm_rerun }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$RUN_ID" =~ ^[0-9]+$ ]]; then
+            echo "::error::run_id must contain only digits."
+            exit 1
+          fi
+
+          if [[ "$CONFIRM_RERUN" != "true" ]]; then
+            echo "::error::Explicit rerun confirmation is required."
+            exit 1
+          fi
+
+      - name: Inspect target run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}" \
+            --jq '{
+              id: .id,
+              repository: .repository.full_name,
+              workflow: .name,
+              branch: .head_branch,
+              commit: .head_sha,
+              status: .status,
+              conclusion: .conclusion
+            }' > "$RUNNER_TEMP/run-summary.json"
+
+          cat "$RUNNER_TEMP/run-summary.json"
+
+          node -e '
+            const fs = require("node:fs");
+            const run = JSON.parse(
+              fs.readFileSync(process.argv[1], "utf8")
+            );
+
+            if (run.repository !== process.env.GITHUB_REPOSITORY) {
+              throw new Error("Repository mismatch.");
+            }
+
+            if (run.status !== "completed") {
+              throw new Error("Target run is not completed.");
+            }
+
+            if (run.conclusion === "success") {
+              throw new Error("Target run has no failed jobs to recover.");
+            }
+          ' "$RUNNER_TEMP/run-summary.json"
+
+      - name: Rerun failed jobs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          gh api \
+            --method POST \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/rerun-failed-jobs"
+
+          echo "Rerun request accepted by GitHub."
+```
+
+### Operational safeguards
+
+* Use this workflow only for failures that are safe to repeat.
+
+* Run it from a trusted branch and restrict who can initiate it through repository permissions and organization policy.
+
+* The workflow validates the target run and requires explicit confirmation, but confirmation does not prove that a deployment or migration is idempotent.
+
+* The API response confirms that GitHub accepted the rerun request; it does not confirm that the rerun succeeded.
+
+* This workflow does not poll for completion. Verify the target run separately in Actions.
+
+* A GitHub Actions rerun may reuse the original workflow context and commit. It does not automatically apply fixes committed after the original run.
+
+Official reference: [GitHub REST API — Rerun failed jobs](https://docs.github.com/en/rest/actions/workflow-runs#re-run-failed-jobs-from-a-workflow-run).
+
+### 3\. Recommended debugging architecture
+
+GitHub Actions Failure
+
+Run ID · Job ID · Failed step · Logs
+
+Failure Classifier
+
+Transient / Code defect / Permission / Infrastructure
+
+Safe transient
+
+Bounded retry
+
+Code defect
+
+Fix and validate
+
+Permission issue
+
+Authorized correction
+
+Production failure
+
+Stop and review
+
+Rerun → Verify → Audit
+
+Record outcome and preserve required CI gates
+
+### 4\. Implementation order
+
+* Update the organization-level Copilot instructions.
+
+* Add the manual rerun workflow to a test repository first.
+
+* Test invalid run IDs, successful runs, permission failures, and transient failures.
+
+* Confirm that only the intended failed jobs are rerun.
+
+* Add sanitized diagnostic summaries and Slack notifications.
+
+* Roll out to other repositories after maintainer review.
+
+ข้อควรระวัง: GitHub organization-level Copilot instructions and GitHub Actions permissions are separate controls. Instructions guide generated code and recommendations; they do not enforce authorization by themselves.
+
+Next recommended improvement: Add a `debug-failure.yml` workflow that gathers job and step metadata, classifies failures, and publishes a sanitized diagnostic report before a maintainer decides whether to rerun. This separates diagnosis from execution and makes recovery auditable across the organization.

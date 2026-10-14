@@ -1,0 +1,31 @@
+name: Test & Coverage
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d275971dd929545 # v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@0a5c6159c62f486d473e972c4d56b43f478c53c # v5.1.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Tests with Coverage
+        uses: actions/upload-artifact@654abc5e8a47359b95e0d2c36d0e409a84f482f # v4.4.0
+        if: always()
+        with:
+          name: coverage-report
+          path: htmlcov/

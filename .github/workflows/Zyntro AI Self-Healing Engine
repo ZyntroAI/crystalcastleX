@@ -1,0 +1,38 @@
+```yaml
+name: Zyntro AI Self-Healing Engine
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  healing-loop:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🧪 Run Tests & Detect Failure
+        id: run_tests
+        run: |
+          # จำลองการรันเทสต์หรือลินต์
+          ruff check . --fix || echo "lint_failed=true" >> $GITHUB_ENV
+
+      - name: 🤖 AI Self-Healing Intervention
+        if: env.lint_failed == 'true'
+        run: |
+          echo "Triggering AI Self-Healing protocols..."
+          # ส่วนสำหรับเรียกใช้งานสคริปต์ AI หรือเครื่องมือปรับแก้โค้ดอัตโนมัติ
+          python .github/scripts/self_healing/repair_engine.py
+
+      - name: 🔄 Re-test and Promote
+        run: |
+          echo "Re-running validation tests after healing..."
+          # รันเทสต์รอบที่สองเพื่อยืนยันความเสถียร
+          pytest
+```

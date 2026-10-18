@@ -1,11 +1,51 @@
-# เจ้าของไฟล์ทั้งหมดใน repo
-*       @crystalcastle-team
+# =============================================
+# CrystalCastle X — Code Owners Configuration
+# Location: .github/CODEOWNERS
+# GitHub uses THIS file, NOT the one at repo root
+# =============================================
 
-# เจ้าของไฟล์เฉพาะโฟลเดอร์ docs
-/docs/* @docs-team
+# ── Global Default ──
+*  @ZyntroAI/crystalcastle-maintainers
 
-# เจ้าของไฟล์ .js
-*.js    @agents-team
+# ── Documentation & Knowledge Base ──
+/docs/*               @ZyntroAI/docs-team
+/docs/**/*            @ZyntroAI/docs-team
+*.md                  @ZyntroAI/docs-team @ZyntroAI/crystalcastle-maintainers
 
-# เจ้าของไฟล์ .py
-*.py    @develop-team
+# ── Frontend Code ──
+Frontend/*            @ZyntroAI/frontend-team
+app/                  @ZyntroAI/frontend-team
+pages/                @ZyntroAI/frontend-team
+public/*              @ZyntroAI/frontend-team
+*.jsx                 @ZyntroAI/frontend-team
+*.tsx                 @ZyntroAI/frontend-team
+
+# ── Backend Code ──
+Backend/*             @ZyntroAI/backend-team
+api/                  @ZyntroAI/backend-team
+*.py                  @ZyntroAI/backend-team @ZyntroAI/python-reviewers
+
+# ── Shared / Library Code ──
+src/*                 @ZyntroAI/developers
+lib/*                 @ZyntroAI/developers
+Package/*             @ZyntroAI/developers
+
+# ── CI/CD & Workflows ──
+.github/workflows/*   @ZyntroAI/devops-team
+*.yml                 @ZyntroAI/devops-team
+*.yaml                @ZyntroAI/devops-team
+Dockerfile            @ZyntroAI/devops-team
+docker-compose.yml    @ZyntroAI/devops-team
+netlify.toml          @ZyntroAI/devops-team
+vercel.json           @ZyntroAI/devops-team
+
+# ── Security & Compliance ──
+SECURITY.md           @ZyntroAI/security-team
+.github/dependabot.yml @ZyntroAI/security-team
+CODE_OF_CONDUCT.md    @ZyntroAI/security-team @ZyntroAI/steering-group
+
+# ── Configuration ──
+package.json          @ZyntroAI/developers @ZyntroAI/devops-team
+package-lock.json     @ZyntroAI/developers
+tsconfig.json         @ZyntroAI/developers
+.env.example          @ZyntroAI/backend-team @ZyntroAI/security-team

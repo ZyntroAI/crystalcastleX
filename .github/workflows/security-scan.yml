@@ -1,0 +1,65 @@
+name: Security Scan Suite
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 4 * * 1'  # Weekly scan every Monday at 11:00 AM ICT
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  gitleaks:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@a5ac7e51b4161a53822589d0f3208c5b32d4238e # v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan Secrets
+        uses: gitleaks/gitleaks-action@809151d024e2f910c0c1034a60c6a408d345e229 # v2.10.0
+        with:
+          no-banner: true
+          redact: true
+
+  trivy:
+    name: Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@a5ac7e51b4161a53822589d0f3208c5b32d4238e # v4
+
+      - name: Run Trivy Repository Scan
+        uses: aquasecurity/trivy-action@18f1fe93efb18990a69c4e319d216243c549c580 # v0.28.0
+        with:
+          scan-type: 'repo'
+          scanners: 'vuln,secret'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy Results
+        uses: github/codeql-action/upload-sarif@1b1ada3607b4889a27c1e1cf92d2f7424e4c7073 # v3.27.0
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@a5ac7e51b4161a53822589d0f3208c5b32d4238e # v4
+
+      - name: Review Dependencies
+        uses: actions/dependency-review-action@72eb3ec98690805102a86b0a8e466541018099b # v4.5.0
+        with:
+          fail-on-severity: moderate
+          license-check: true

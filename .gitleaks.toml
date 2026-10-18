@@ -1,0 +1,44 @@
+title = "CrystalCastle X — Gitleaks Configuration"
+
+[allowlist]
+  description = "Global allow list"
+  paths = [
+    '''\.env\.example$''',
+    '''package-lock\.json$''',
+    '''yarn\.lock$''',
+    '''pnpm-lock\.yaml$''',
+    '''node_modules/''',
+    '''__pycache__/''',
+    '''\.git/''',
+    '''tests/''',
+    '''__tests__/''',
+    '''*.test.js''',
+    '''*.spec.js''',
+    '''vendor/''',
+    '''dist/''',
+    '''build/'''
+  ]
+  regexes = [
+    '''^sk_test_[A-Za-z0-9]+$''',       # Stripe test keys
+    '''^pk_test_[A-Za-z0-9]+$''',       # Stripe publishable test keys
+    '''^placeholder_''',                 # Placeholder values
+    '''^YOUR_''',                        # Template placeholders
+    '''example\.com''',                  # Example domains
+    '''test@''',                         # Test emails
+    '''0000000000000000''',              # Test credit cards
+    '''127\.0\.0\.1''',                  # Localhost
+    '''localhost'''                      # Localhost
+  ]
+
+[rule]
+  id = "custom-openai-key-validation"
+  description = "Prevent committing real OpenAI API keys"
+  regex = '''sk-[A-Za-z0-9]{48,}'''
+  tags = ["key", "openai", "ai"]
+  keywords = ["sk-"]
+
+[rule]
+  id = "gemini-api-key"
+  description = "Google Gemini API Key detected"
+  regex = '''AIzaSy[A-Za-z0-9_\-]{33}'''
+  tags = ["key", "google", "gemini", "api"]

@@ -1,0 +1,12 @@
+name: Lighthouse CI
+on: { pull_request: {} }
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install -g @lhci/cli@0.14.x
+      - run: lhci autorun --collect.url=https://pr-${{ github.event.pull_request.number }}.preview.yourdomain.com
+      - name: Comment scores
+        uses: marocchino/sticky-pull-request-comment@v2
+        with: { path: .lighthouseci/comment.md }

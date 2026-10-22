@@ -1,0 +1,22 @@
+name: Trivy Image Scan
+on: { push: { branches: [main] }, pull_request: {} }
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image (ไม่ push)
+        uses: docker/build-push-action@v6
+        with: { context: ., load: true, tags: local:scan }
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: local:scan
+          format: sarif
+          output: trivy.sarif
+          severity: CRITICAL,HIGH
+          exit-code: "1"   # fail build ถ้ามี CRITICAL ที่แก้ได้
+          ignore-unfixed: true
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with: { sarif_file: trivy.sarif }

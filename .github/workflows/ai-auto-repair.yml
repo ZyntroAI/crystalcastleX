@@ -1,0 +1,29 @@
+name: AI Auto-Repair
+on:
+  workflow_run:
+    workflows: ["CrystalCastle AI Pipeline", "ci"]
+    types: [completed]
+jobs:
+  repair:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    permissions: { contents: write, pull-requests: write, actions: read }
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: ${{ github.event.workflow_run.head_branch }} }
+      - name: Download failed-run logs + artifacts
+        env: { GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        run: |
+          mkdir -p diagnostics
+          gh run view ${{ github.event.workflow_run.id }} --log > diagnostics/workflow.log || true
+          gh run download ${{ github.event.workflow_run.id }} -D diagnostics/ || true
+      - name: Run AI repair agent
+        env: { OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} }
+        run: python3 scripts/ai_repair.py   # ไฟล์ที่เราเตรียมไว้
+      - name: Commit + PR + trigger rerun
+        if: success()
+        env: { GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        run: |
+          BRANCH="auto-repair/${{ github.event.workflow_run.id }}"
+          git checkout -b "$BRANCH" && git add -A && git commit -m "fix: auto-repair from failed run" && git push origin "$BRANCH"
+          gh pr create --base ${{ github.event.workflow_run.head_branch }} --head "$BRANCH" --title "fix: auto-repair" || true

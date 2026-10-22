@@ -11,118 +11,144 @@ permissions:
   issues: write
   pull-requests: write
 
+concurrency:
+  group: label-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: true
+
 jobs:
   label:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Apply labels from title
-        uses: actions/github-script@v7
+      - name: Apply smart labels
+        uses: actions/github-script@v7   # TODO: pin เป็น 40-char SHA ตาม SECURITY.md
         with:
           script: |
             const item = context.payload.pull_request || context.payload.issue;
             if (!item) return;
+            const isPR = !!context.payload.pull_request;
+            const text = `${item.title} ${item.body || ""}`.toLowerCase();
+            const desired = new Set();
 
-            const title = item.title.toLowerCase();
-            const labels = new Set();
+            // ── 1. TYPE (mutually exclusive, priority order) ──
+            const typeRules = [
+              [/(^|[^a-z])(fix|hotfix|bug)(\(|:|$|[^a-z])/, "type:bug"],
+              [/(^|[^a-z])(feat|feature)(\(|:|$|[^a-z])/, "type:feature"],
+              [/(^|[^a-z])(refactor)(\(|:|$|[^a-z])/, "type:refactor"],
+              [/(^|[^a-z])(perf|performance)(\(|:|$|[^a-z])/, "type:performance"],
+              [/(^|[^a-z])(test)(\(|:|$|[^a-z])/, "area:test"],
+              [/(^|[^a-z])(docs?|readme|changelog)(\(|:|$|[^a-z])/, "documentation"],
+              [/(^|[^a-z])(chore|cleanup|bump)(\(|:|$|[^a-z])/, "type:chore"],
+            ];
+            for (const [re, label] of typeRules) {
+              if (text.match(re)) { desired.add(label); break; }
+            }
 
-            // -------------------------
-            // 🧩 TYPE
-            // -------------------------
-            if (title.match(/\bfix\b|\bbug\b/)) labels.add("type:bug");
-            if (title.match(/\bfeat\b|\bfeature\b/)) labels.add("type:feature");
-            if (title.match(/\bchore\b|\bcleanup\b/)) labels.add("type:chore");
-            if (title.match(/\brefactor\b/)) labels.add("type:refactor");
+            // ── 2. AREA จาก title/body ──
+            const areaRules = [
+              [/\bai\b|\bllm\b|\bmodel\b|\bprompt\b|\bprovider\b|\bcopilot\b/, "area:ai"],
+              [/\bvideo\b|\brender\b|\bcaption\b|\btranscode\b/, "area:video"],
+              [/\bci\b|\bworkflow\b|github.?action|github-script/, "area:ci"],
+              [/\binfra\b|\bdeploy\b|\bdocker\b|\bk8s\b|\bsupabase\b|\bnginx\b|\bredis\b|\bpostgres\b/, "area:infra"],
+              [/\bfrontend\b|\bnext\.?js\b|\bui\b|\bcomponent\b|\btailwind\b/, "area:frontend"],
+              [/\bbackend\b|\bapi\b|\bfastapi\b|\bpython\b|\bc elery\b/, "area:backend"],
+              [/\bsecurity\b|\bvulnerab|\bcve\b|\bsecret\b|\btrivy\b|\bcodeql\b|\bgitleak/, "security"],
+              [/\btest\b|\be2e\b|\bplaywright\b|\bpytest\b/, "area:test"],
+            ];
+            for (const [re, label] of areaRules) {
+              if (text.match(re)) desired.add(label);
+            }
+            if (/!|breaking|break change/.test(text)) desired.add("breaking-change");
 
-            // -------------------------
-            // ⚙️ AREA
-            // -------------------------
-            if (title.match(/\bai\b|\bmodel\b|\bllm\b/)) labels.add("area:ai");
-            if (title.match(/\bvideo\b|\brender\b/)) labels.add("area:video");
-            if (title.match(/\bci\b|\bworkflow\b|\bgithub action\b/)) labels.add("area:ci");
-            if (title.match(/\binfra\b|\bsupabase\b|\bdeploy\b/)) labels.add("area:infra");
+            // ── 3. สำหรับ PR: ดูไฟล์ที่เปลี่ยน + คำนวณ size ──
+            if (isPR) {
+              let additions = 0, deletions = 0;
+              try {
+                const files = await github.paginate(github.rest.pulls.listFiles, {
+                  owner: context.repo.owner, repo: context.repo.repo,
+                  pull_number: item.number, per_page: 100,
+                });
+                for (const f of files) {
+                  additions += f.additions; deletions += f.deletions;
+                  const p = f.filename.toLowerCase();
+                  if (p.startsWith(".github/workflows/")) desired.add("area:ci");
+                  if (p.includes("src/ai/") || p.includes("app/ai/") || p.includes("providers") || p.includes("ai_repair")) desired.add("area:ai");
+                  if (p.includes("src/core/video") || p.includes("src/core/render") || p.includes("src/core/captions")) desired.add("area:video");
+                  if (p.includes("dockerfile") || p.includes("docker-compose") || p.includes("nginx") || p.includes(".env")) desired.add("area:infra");
+                  if (p.startsWith("docs/") || p.endsWith(".md") || p.includes("readme")) desired.add("documentation");
+                  if (p.includes("security") || p.includes("codeql") || p.includes("trivy") || p.includes("gitleak")) desired.add("security");
+                  if (p.includes("src/app/") || p.includes("src/components/") || p.includes("next.config")) desired.add("area:frontend");
+                  if (p.startsWith("app/") || p.endsWith(".py") || p.includes("fastapi")) desired.add("area:backend");
+                  if (p.includes("test") || p.includes("spec") || p.includes("playwright")) desired.add("area:test");
+                }
+              } catch (e) { core.warning(`ไม่สามารถดึง files ได้: ${e.message}`); }
 
-            // -------------------------
-            // 📚 DOC
-            // -------------------------
-            if (title.match(/\bdocs?\b|\breadme\b|\bchecklist\b/)) labels.add("documentation");
+              const total = additions + deletions;
+              desired.add(total < 10 ? "size:XS" : total < 100 ? "size:S" : total < 500 ? "size:M" : total < 1000 ? "size:L" : "size:XL");
+              if (item.draft) desired.add("draft");
+            }
 
-            // -------------------------
-            // 🔐 SECURITY
-            // -------------------------
-            if (title.match(/\bsecurity\b|\bvulnerability\b/)) labels.add("security");
-
-            // -------------------------
-            // 🏷️ ENSURE LABELS EXIST
-            // -------------------------
+            // ── 4. คำนิยาม label (auto-create ถ้ายังไม่มี) ──
             const labelDefs = {
-              "type:bug":       { color: "d73a4a", description: "Something isn't working" },
-              "type:feature":   { color: "0075ca", description: "New feature or request" },
-              "type:chore":     { color: "e4e669", description: "Maintenance task" },
-              "type:refactor":  { color: "f9d0c4", description: "Code refactoring" },
-              "area:ai":        { color: "7057ff", description: "AI / LLM related" },
-              "area:video":     { color: "008672", description: "Video generation" },
-              "area:ci":        { color: "0052cc", description: "CI/CD workflows" },
-              "area:infra":     { color: "e4e669", description: "Infrastructure / Supabase" },
-              "documentation":  { color: "0075ca", description: "Improvements or additions to docs" },
-              "security":       { color: "d73a4a", description: "Security related" },
+              "type:bug":          { color: "d73a4a", description: "Bug fix" },
+              "type:feature":      { color: "0075ca", description: "New feature" },
+              "type:refactor":     { color: "fbca04", description: "Code refactoring" },
+              "type:performance":  { color: "c5def5", description: "Performance improvement" },
+              "type:chore":        { color: "e4e669", description: "Maintenance" },
+              "documentation":     { color: "0e8a16", description: "Docs" },
+              "area:ai":           { color: "7057ff", description: "AI / LLM" },
+              "area:video":        { color: "008672", description: "Video/render/captions" },
+              "area:ci":           { color: "0052cc", description: "CI/CD workflows" },
+              "area:infra":        { color: "fb8c00", description: "Infra / deploy / docker" },
+              "area:frontend":     { color: "db61a2", description: "Next.js frontend" },
+              "area:backend":      { color: "1d76db", description: "FastAPI backend" },
+              "area:test":         { color: "cfd3d7", description: "Tests" },
+              "security":          { color: "b60205", description: "Security" },
+              "breaking-change":   { color: "b60205", description: "Breaking change" },
+              "draft":             { color: "cfd3d7", description: "Draft PR" },
+              "size:XS":           { color: "c5def5", description: "<10 lines" },
+              "size:S":            { color: "bfdadc", description: "10–100 lines" },
+              "size:M":            { color: "daefc8", description: "100–500 lines" },
+              "size:L":            { color: "f9d0c4", description: "500–1000 lines" },
+              "size:XL":           { color: "e99696", description: ">1000 lines" },
             };
-
-            const existingLabels = await github.rest.issues.listLabelsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: 100
-            });
-            const existingNames = existingLabels.data.map(l => l.name);
-
             for (const [name, meta] of Object.entries(labelDefs)) {
-              if (!existingNames.includes(name)) {
-                try {
-                  await github.rest.issues.createLabel({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    name,
-                    color: meta.color,
-                    description: meta.description
-                  });
-                } catch (e) {
-                  core.warning(`Could not create label: ${name}`);
-                }
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner, repo: context.repo.repo,
+                  name, color: meta.color, description: meta.description,
+                });
+              } catch (e) {
+                if (e.status !== 422) core.warning(`create label ${name} failed: ${e.message}`);
               }
             }
 
-            // -------------------------
-            // 🧹 CLEAN OLD LABELS
-            // -------------------------
-            const oldLabels = ["bug", "enhancement", "ci/cd", "video"];
+            // ── 5. Sync: ลบ managed label ที่ไม่ match แล้ว + ลบ legacy label ──
+            const managed = Object.keys(labelDefs);
+            const legacy = ["bug", "enhancement", "ci/cd", "video", "good first issue"];
+            let current = [];
             try {
-              const current = await github.rest.issues.listLabelsOnIssue({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: item.number
-              });
-              for (const l of current.data) {
-                if (oldLabels.includes(l.name)) {
-                  await github.rest.issues.removeLabel({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: item.number,
-                    name: l.name
-                  });
-                }
-              }
-            } catch (e) {
-              core.warning("Failed to clean old labels");
+              current = (await github.paginate(github.rest.issues.listLabelsOnIssue, {
+                owner: context.repo.owner, repo: context.repo.repo, issue_number: item.number,
+              })).map(l => l.name);
+            } catch (e) { core.warning(`list labels failed: ${e.message}`); }
+
+            const toRemove = current.filter(l =>
+              (managed.includes(l) && !desired.has(l)) || legacy.includes(l)
+            );
+            for (const l of toRemove) {
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner, repo: context.repo.repo,
+                  issue_number: item.number, name: l,
+                });
+              } catch (e) { /* already gone */ }
             }
 
-            // -------------------------
-            // 🚀 APPLY LABELS
-            // -------------------------
-            if (labels.size > 0) {
+            const toAdd = [...desired].filter(l => !current.includes(l));
+            if (toAdd.length) {
               await github.rest.issues.addLabels({
-                issue_number: item.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                labels: Array.from(labels)
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: item.number, labels: toAdd,
               });
             }
+            core.info(`Labels → add: [${toAdd}], remove: [${toRemove}]`);

@@ -2,37 +2,113 @@ name: Auto Update Docs on PR
 
 on:
   pull_request:
-    types: [opened, synchronize, closed]
+    types: [opened, synchronize, reopened, closed]
+
+concurrency:
+  group: docs-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
 
 jobs:
-  update-docs:
+  # ── Job 1: PR เปิด/อัปเดต → post preview comment (ไม่ push, ใช้กับ fork ได้) ──
+  pr-docs-preview:
+    if: github.event.action != 'closed'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: 💬 Post CHANGELOG preview (upsert)
+        uses: actions/github-script@v7   # TODO: pin เป็น 40-char SHA ตาม SECURITY.md
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_ACTION: ${{ github.event.action }}
         with:
-          node-version: 20
+          script: |
+            const { PR_NUMBER, PR_TITLE, PR_AUTHOR, PR_ACTION } = process.env;
+            const body = [
+              `### 📝 Proposed CHANGELOG entry (preview)`,
+              ``,
+              `## PR #${PR_NUMBER} — ${PR_TITLE}`,
+              `- Author: @${PR_AUTHOR}`,
+              `- Event: ${PR_ACTION}`,
+              `- เมื่อ merge จะถูกเพิ่มลงใน \`CHANGELOG.md\` อัตโนมัติ`,
+            ].join('\n');
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const bot = comments.find(c =>
+              c.user.login === 'github-actions[bot]' && c.body.includes('Proposed CHANGELOG entry'));
+            if (bot) {
+              await github.rest.issues.updateComment({ owner: context.repo.owner, repo: context.repo.repo,
+                comment_id: bot.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: context.issue.number, body });
+            }
 
-      - name: Generate Dynamic Docs
+  # ── Job 2: PR merge จริง → append ลง CHANGELOG.md + สร้าง PR ──
+  changelog-on-merge:
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout main
+        uses: actions/checkout@v4          # TODO: pin SHA
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: 📝 Append CHANGELOG entry (ไม่ overwrite)
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
-          echo "# 📖 CrystalCastle Docs" > README.md
-          echo "PR Number: ${{ github.event.pull_request.number }}" >> README.md
-          echo "Title: ${{ github.event.pull_request.title }}" >> README.md
-          echo "Author: ${{ github.event.pull_request.user.login }}" >> README.md
-          echo "Updated: $(date)" >> README.md
+          set -euo pipefail
+          DATE=$(date -u +"%Y-%m-%d")
+          TMP=$(mktemp)
 
-          # ตัวอย่างสำหรับ CHANGELOG.md
-          echo "## PR #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}" >> CHANGELOG.md
-          echo "- Status: ${{ github.event.action }}" >> CHANGELOG.md
-          echo "- Updated: $(date)" >> CHANGELOG.md
+          # ใส่ entry ใหม่ที่ด้านบน (หลัง H1 แรก) — ไม่ลบของเก่า
+          if [ -f CHANGELOG.md ] && head -1 CHANGELOG.md | grep -q '^#'; then
+            {
+              head -1 CHANGELOG.md
+              echo
+              echo "## ${DATE} — PR #${PR_NUMBER}: ${PR_TITLE} (@${PR_AUTHOR})"
+              echo "- Merge commit: \`${MERGE_SHA}\`"
+              echo
+              tail -n +2 CHANGELOG.md
+            } > "$TMP"
+          else
+            {
+              echo "# Changelog"
+              echo
+              echo "## ${DATE} — PR #${PR_NUMBER}: ${PR_TITLE} (@${PR_AUTHOR})"
+              echo "- Merge commit: \`${MERGE_SHA}\`"
+              echo
+              [ -f CHANGELOG.md ] && cat CHANGELOG.md || true
+            } > "$TMP"
+          fi
+          mv "$TMP" CHANGELOG.md
+          echo "✅ CHANGELOG updated (PR #${PR_NUMBER})"
 
-      - name: Commit changes
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add README.md CHANGELOG.md
-          git commit -m "docs: auto-update README & CHANGELOG from PR #${{ github.event.pull_request.number }}"
-          git push
+      - name: 🔀 Create docs PR (ปลอดภัยแม้ main มี branch protection)
+        uses: peter-evans/create-pull-request@v7   # TODO: pin SHA
+        with:
+          commit-message: "docs: add CHANGELOG entry for PR #${{ github.event.pull_request.number }} [skip ci]"
+          title: "📝 docs: CHANGELOG — PR #${{ github.event.pull_request.number }}"
+          body: |
+            Auto-generated เมื่อ PR #${{ github.event.pull_request.number }} merge สำเร็จ
+            Merge ได้เลยถ้าไม่มีอะไรผิดปกติ (หรือเปิด auto-merge)
+          branch: "bot/changelog-pr-${{ github.event.pull_request.number }}"
+          delete-branch: true
+          labels: documentation, auto-merge
+          add-paths: ["CHANGELOG.md"]
+
+      - name: 🔔 แจ้งเตือนเมื่อล้มเหลว
+        if: failure()
+        run: echo "::error::Docs update failed — ดู log ข้างบน"

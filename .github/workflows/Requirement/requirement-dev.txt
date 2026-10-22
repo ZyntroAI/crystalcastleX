@@ -1,5 +1,0 @@
-pytest==7.4.0
-requests ~> 2.33.0
-
-#for smoke test
-

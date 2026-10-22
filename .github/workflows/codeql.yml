@@ -1,54 +1,61 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-#
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
-#
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
-#
 name: "CodeQL Advanced"
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [main, develop]        # ← เพิ่ม develop (branch พัฒนาหลัก)
+  pull_request:                       # ← scan ทุก PR (เดิมเฉพาะ main → พลาด PR ที่เปิดไป develop)
+    # paths-ignore: ['**.md', 'docs/**']   # เปิดได้ถ้าอยากประหยัด minutes สำหรับ PR แค่เอกสาร
   schedule:
-    - cron: '18 5 * * 0'
+    - cron: '18 5 * * 0'              # weekly (อาทิตย์ 05:18 UTC — off-peak ดีอยู่แล้ว)
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write               # ← เหลือแค่นี้ (build-mode:none ไม่ต้อง packages/actions)
 
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
-    permissions:
-      security-events: write
-      packages: read
-      actions: read
-      contents: read
-
+    runs-on: ubuntu-latest             # ← ตัด swift condition ทิ้ง (ไม่มี swift ใน repo)
+    timeout-minutes: 30
     strategy:
-      fail-fast: false
+      fail-fast: false                 # ← เก็บไว้: ภาษาตัวหนึ่งล้ม ไม่กระทบอีกตัว
       matrix:
         include:
           - language: javascript-typescript
             build-mode: none
-        # CodeQL supports: 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
-        # Removed 'actions' - no longer supported by CodeQL
+          - language: python            # ← ⭐ เพิ่ม! backend FastAPI + scripts/ai_repair.py ยังไม่เคยถูก scan
+            build-mode: none
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v5       # TODO: pin เป็น 40-char SHA ตาม SECURITY.md
+        # fetch-depth default = 1 เพียงพอสำหรับ CodeQL แล้ว
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      - name: 🛡️ Initialize CodeQL
+        uses: github/codeql-action/init@v3   # TODO: pin SHA
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
+          queries: security-and-quality      # ← เพิ่ม: รวม quality queries ด้วย (ไม่ใช่แค่ security)
+          # config: .github/codeql/codeql-config.yml   # เปิดถ้าต้องการ custom queries/paths
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+      # build-mode: none → ไม่ต้อง step build/autobuild (JS/TS + Python เป็น interpreted)
+      # ถ้าเพิ่มภาษา compiled (Java/Go/C++) ตอนหลัง: เพิ่ม build-mode: autobuild + step Autobuild
+
+      - name: 🔍 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3   # TODO: pin SHA
         with:
-          category: "/language:${{matrix.language}}"
+          category: "/language:${{ matrix.language }}"
+          output: sarif-results/${{ matrix.language }}
+
+      - name: 📦 Upload SARIF as artifact (debug)
+        if: always()
+        uses: actions/upload-artifact@v4   # TODO: pin SHA
+        with:
+          name: codeql-sarif-${{ matrix.language }}
+          path: sarif-results/
+          retention-days: 14

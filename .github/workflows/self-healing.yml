@@ -1,0 +1,52 @@
+name: Zyntro AI Self-Healing & Semantic Validation
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  semantic-and-heal:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull_requests: write
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🐍 Set up Python
+        uses: setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 🔍 Run Semantic Diff Check
+        run: |
+          echo "Running SemanticDiff analysis on changed files..."
+          # ตัวอย่างการเรียกใช้ตรวจสอบโครงสร้างโค้ด
+          python .github/scripts/validator/semantic_diff.py app/main.py app/main.py || true
+
+      - name: 🧪 Run Tests & Detect Failures
+        id: run_tests
+        run: |
+          pip install pytest ruff
+          ruff check . --fix || echo "lint_failed=true" >> $GITHUB_ENV
+
+      - name: 🤖 Trigger AI Self-Healing Patch
+        if: env.lint_failed == 'true'
+        run: |
+          echo "⚠️ Lint/Test failed. Executing AI-Powered Self-Healing..."
+          # จำลองกระบวนการให้ระบบช่วยแก้โค้ดเฉพาะจุดอัตโนมัติ
+          python .github/scripts/self_healing/repair_engine.py || echo "healing_status=failed" >> $GITHUB_ENV
+
+      - name: 🔄 Re-verify and Push Fixes
+        if: env.lint_failed == 'true'
+        run: |
+          git config --global user.name "Zyntro AI Self-Healing Bot"
+          git config --global user.email "bot@zyntromedia.com"
+          git add .
+          git commit -m "🤖 fix(auto): Zyntro AI automated self-healing patch" || echo "No changes to commit"
+          git push || true

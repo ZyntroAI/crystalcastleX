@@ -1,48 +1,105 @@
-version: "3.8"
-services:
-  app:
-    build: .
-    container_name: crystalcastle_app
-    env_file: .env
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-      - redis
-    volumes:
-      - ./:/app
-    restart: unless-stopped
+version: '3.8'
 
-  db:
-    image: postgres:15-alpine
-    container_name: crystalcastle_db
+name: dev-auth-stack
+
+services:
+  # 🗄️ PostgreSQL — Database for Keycloak & App
+  postgres:
+    image: postgres:16-alpine
+    container_name: dev-postgres
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: crystal
-      POSTGRES_PASSWORD: crystalpass
-      POSTGRES_DB: crystalcastle
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: dev_auth_db
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U crystal"]
+      test: ["CMD-SHELL", "pg_isready -U dev_user -d dev_auth_db"]
       interval: 10s
+      timeout: 5s
       retries: 5
 
+  # 🐘 pgAdmin — Web UI for PostgreSQL
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: dev-pgadmin
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local.dev
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # 🔐 Keycloak — Identity & Access Management
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: dev-keycloak
+    restart: unless-stopped
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin123
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/dev_auth_db
+      KC_DB_USERNAME: dev_user
+      KC_DB_PASSWORD: dev_password
+      KC_HOSTNAME: localhost
+      KC_HTTP_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  # ⚡ Redis — Caching & Session Storage
   redis:
     image: redis:7-alpine
-    container_name: crystalcastle_redis
+    container_name: dev-redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
-      - redisdata:/data
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  mock_ai:
-    image: ghcr.io/pallets/helloworld:latest
-    container_name: crystalcastle_mock_ai
-    # Replace with a simple mock service or implement a local mock server
+  # 📧 Mailpit — Local Email Testing
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: dev-mailpit
     restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    volumes:
+      - mailpit_data:/data
+    environment:
+      MP_MAX_MESSAGES: "5000"
+      MP_DATABASE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
 
 volumes:
-  pgdata:
-  redisdata:
+  postgres_data:
+  pgadmin_data:
+  redis_data:
+  mailpit_data:

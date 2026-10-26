@@ -4,28 +4,84 @@ on:
   push:
     branches:
       - develop
-      - feature/**
       - main
+      - 'feature/**'
+  pull_request:
+    branches:
+      - develop
+      - main
+
+concurrency:
+  group: ai-summary-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   summarize:
     runs-on: ubuntu-latest
+    # Security: don't run AI on fork PRs with secrets
+    if: github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository)
+    
+    permissions:
+      contents: read
+      pull-requests: write  # to comment summary
+      actions: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # need 2 to diff
 
-      - name: Generate Diff
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install deps
+        run: pip install -r scripts/requirements.txt
+        # requirements.txt: openai or anthropic, pydantic
+
+      - name: Generate Diff Context
+        id: diff
         run: |
+          set -e
+          # Handle first commit / shallow history safely
+          if git rev-parse HEAD~1 >/dev/null 2>&1; then
+            BASE=HEAD~1
+          else
+            BASE=$(git hash-object -t tree /dev/null)
+          fi
+          
           git log -1 --pretty=%B > commit.txt
-          git diff HEAD~1 HEAD > diff.txt
+          git diff $BASE HEAD --unified=3 --stat > diff_stat.txt
+          git diff $BASE HEAD --unified=3 | head -c 15000 > diff.txt
+          
+          echo "commit_msg<<EOF" >> $GITHUB_OUTPUT
+          cat commit.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # For AI context limit check
+          echo "diff_size=$(wc -c < diff.txt)" >> $GITHUB_OUTPUT
 
       - name: AI Summary
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # or ANTHROPIC_API_KEY / ZYNTRO_OLLAMA_BASE
+          MODEL: gpt-4o-mini
         run: |
-          python scripts/generate_commit_context.py
+          mkdir -p output
+          python scripts/generate_commit_context.py \
+            --commit-file commit.txt \
+            --diff-file diff.txt \
+            --stat-file diff_stat.txt \
+            --output output/ai-summary.md
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Comment on PR (if PR)
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
         with:
-          name: ai-summary
-          path: output/
+          header: ai-commit-summary
+          path: output/ai-summary.md
+
+     

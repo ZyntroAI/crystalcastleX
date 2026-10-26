@@ -1,0 +1,248 @@
+yaml  
+---
+title: "License — Copyright & Licensing Manager"
+type: "reference"
+status: "active"
+created: "2026-10-26"
+updated: "2026-10-26"
+tags:
+  - license
+  - copyright
+  - legal
+  - open-source
+  - compliance
+related: []
+description: "สคริปต์และข้อมูลอ้างอิงเกี่ยวกับใบอนุญาต การคัดลอก และการจัดการลิขสิทธิ์ในโปรเจกต์"
+---
+ 
+ 
+⚖️ License — Copyright & Licensing Manager
+ 
+เข้าใจสิทธิ์ ใช้ถูกต้อง ปลอดภัยจากปัญหาลิขสิทธิ์ ✅
+ 
+ 
+ 
+📋 สารบัญ
+ 
+- 📜 ข้อความลิขสิทธิ์มาตรฐาน
+- 🐍 สคริปต์: เพิ่มหัวข้อลิขสิทธิ์อัตโนมัติ
+- 🔍 สคริปต์: ตรวจสอบไฟล์ที่ยังไม่มีลิขสิทธิ์
+- 📖 ประเภทใบอนุญาตยอดนิยม
+- ⚠️ ข้อควรทราบสำคัญ
+ 
+ 
+ 
+📜 ข้อความลิขสิทธิ์มาตรฐาน
+ 
+MIT License (ยอดนิยมที่สุด)
+ 
+plaintext  
+Copyright (c) [ปี] [ชื่อเจ้าของลิขสิทธิ์]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ 
+ 
+Header Template สำหรับใส่ในไฟล์โค้ด
+ 
+python  
+# Copyright (c) [ปี] [ชื่อเจ้าของ]
+# Licensed under the MIT License.
+# See LICENSE file in the project root for full license information.
+ 
+ 
+ 
+ 
+🐍 สคริปต์: เพิ่มหัวข้อลิขสิทธิ์อัตโนมัติ
+ 
+บันทึกเป็นไฟล์:  scripts/add_license_header.py 
+ 
+python  
+#!/usr/bin/env python3
+"""
+เพิ่มข้อความลิขสิทธิ์ที่ส่วนบนของไฟล์โค้ด
+ข้ามไฟล์ที่มีหัวข้อนี้อยู่แล้วโดยอัตโนมัติ
+"""
+from __future__ import annotations
+from pathlib import Path
+import sys
+
+# ========== CONFIGURATION ==========
+COPYRIGHT_TEXT = """Copyright (c) 2026 ZyntroAI
+Licensed under the MIT License.
+See LICENSE file in the project root for full license information.
+"""
+
+TARGET_EXTENSIONS = [".py", ".ts", ".tsx", ".js", ".jsx", ".md"]
+EXCLUDE_DIRS = {".git", "__pycache__", "node_modules", "venv", ".venv", "dist", "build"}
+# ===================================
+
+HEADER_LINES = COPYRIGHT_TEXT.strip().splitlines()
+
+def make_comment(line: str, ext: str) -> str:
+    """แปลงข้อความเป็นรูปแบบความคิดเห็นตามนามสกุลไฟล์"""
+    if ext in {".py", ".ts", ".tsx", ".js", ".jsx"}:
+        return f"# {line}"
+    if ext in {".md"}:
+        return f"<!-- {line} -->"
+    return f"# {line}"
+
+HEADER = "\n".join(make_comment(line, ext=".py") for line in HEADER_LINES) + "\n\n"
+
+def has_license_header(content: str) -> bool:
+    """ตรวจสอบว่าไฟล์มีหัวข้ออยู่แล้วหรือไม่"""
+    return "Copyright" in content[:1000] and "MIT License" in content[:1000]
+
+def add_header(file_path: Path, dry_run: bool = False) -> bool:
+    """เพิ่มหัวข้อลิขสิทธิ์ให้ไฟล์เดียว"""
+    content = file_path.read_text(encoding="utf-8")
+    
+    if has_license_header(content):
+        return False  # มีอยู่แล้ว ข้ามไป
+    
+    new_content = HEADER + content
+    
+    if not dry_run:
+        file_path.write_text(new_content, encoding="utf-8")
+    return True
+
+def process_directory(root: Path, dry_run: bool = False) -> int:
+    """ดำเนินการทุกไฟล์ในโฟลเดอร์"""
+    count = 0
+    for path in root.rglob("*"):
+        if not path.is_file():
+            continue
+        if any(d in path.parts for d in EXCLUDE_DIRS):
+            continue
+        if path.suffix in TARGET_EXTENSIONS:
+            if add_header(path, dry_run=dry_run):
+                print(f"✅ เพิ่มลิขสิทธิ์: {path.relative_to(root)}")
+                count += 1
+    return count
+
+if __name__ == "__main__":
+    root = Path(__file__).parent.parent
+    dry_run = "--dry-run" in sys.argv
+    
+    mode = "📋 [ทดสอบ] จะเพิ่ม" if dry_run else "⚡ เพิ่ม"
+    print(f"{mode} หัวข้อลิขสิทธิ์ให้ไฟล์ใน: {root.resolve()}\n")
+    
+    count = process_directory(root, dry_run=dry_run)
+    
+    print(f"\nเสร็จสิ้น: {count} ไฟล์ได้รับการอัปเดต")
+    if dry_run:
+        print("นี่เป็นการทดสอบ — ไม่มีการเปลี่ยนแปลงไฟล์จริง")
+        print("รันโดยไม่มี --dry-run เพื่อดำเนินการจริง")
+ 
+ 
+ 
+ 
+🔍 สคริปต์: ตรวจสอบไฟล์ที่ยังไม่มีลิขสิทธิ์
+ 
+บันทึกเป็นไฟล์:  scripts/check_license.py 
+ 
+python  
+#!/usr/bin/env python3
+"""
+ตรวจสอบไฟล์โค้ดที่ยังไม่มีหัวข้อลิขสิทธิ์
+ใช้ใน CI/CD เพื่อป้องกันไฟล์ใหม่ที่ลืมใส่ลิขสิทธิ์
+"""
+from __future__ import annotations
+from pathlib import Path
+import sys
+
+# ========== CONFIGURATION ==========
+TARGET_EXTENSIONS = [".py", ".ts", ".tsx", ".js", ".jsx"]
+EXCLUDE_DIRS = {".git", "__pycache__", "node_modules", "venv", ".venv", "dist", "build"}
+CHECK_KEYWORDS = ["Copyright", "License"]
+# ===================================
+
+def missing_license(file_path: Path) -> bool:
+    """ตรวจสอบว่าไฟล์ขาดหัวข้อลิขสิทธิ์หรือไม่"""
+    try:
+        content = file_path.read_text(encoding="utf-8")[:1500]
+        return not all(keyword in content for keyword in CHECK_KEYWORDS)
+    except (UnicodeDecodeError, PermissionError):
+        return False  # ข้ามไฟล์ที่อ่านไม่ได้
+
+def scan_directory(root: Path) -> list[Path]:
+    """สแกนทั้งโฟลเดอร์ คืนรายการไฟล์ที่ขาดลิขสิทธิ์"""
+    missing = []
+    for path in root.rglob("*"):
+        if not path.is_file():
+            continue
+        if any(d in path.parts for d in EXCLUDE_DIRS):
+            continue
+        if path.suffix in TARGET_EXTENSIONS and missing_license(path):
+            missing.append(path.relative_to(root))
+    return missing
+
+if __name__ == "__main__":
+    root = Path(__file__).parent.parent
+    missing_files = scan_directory(root)
+    
+    if missing_files:
+        print(f"⚠️ พบ {len(missing_files)} ไฟล์ที่ยังไม่มีหัวข้อลิขสิทธิ์:\n")
+        for f in missing_files:
+            print(f"  ❌ {f}")
+        print(f"\n💡 รัน 'python scripts/add_license_header.py' เพื่อเพิ่มให้อัตโนมัติ")
+        sys.exit(1)  # ไม่ผ่าน — สำหรับ CI/CD
+    else:
+        print("✅ ทุกไฟล์มีหัวข้อลิขสิทธิ์ครบถ้วน")
+        sys.exit(0)
+ 
+ 
+ 
+ 
+📖 ประเภทใบอนุญาตยอดนิยม
+ 
+ประเภท สั้นๆ คืออะไร? เหมาะกับ ต้องทำอะไร? 
+MIT ✅ ใช้/แก้ไข/แจกจ่ายได้อย่างอิสระ — ปลอดภัยที่สุด โอเพ่นซอร์สส่วนตัว, ไลบรารี ใส่ข้อความลิขสิทธิ์เดิมไว้ 
+Apache-2.0 เหมือน MIT แต่มีการรับประกันสิทธิบัตรชัดเจน โปรเจกต์องค์กรขนาดใหญ่ ใส่ลิขสิทธิ์ + แจ้งการเปลี่ยนแปลง 
+GPL v3 แก้ไข/แจกจ่ายต้องเป็นโอเพ่นซอร์สด้วย ซอฟต์แวร์สาธารณะ แจกจ่ายต้องให้โค้ดต้นฉบับด้วย 
+BSD 3-Clause เหมือน MIT แต่ห้ามใช้ชื่อเจ้าของรับรองผลิตภัณฑ์ งานวิจัย/มหาวิทยาลัย ใส่ลิขสิทธิ์เดิมไว้ 
+UNLICENSE ไม่มีข้อจำกัด — สมบูรณ์แบบ ข้อมูลสาธารณะ/ตัวอย่างเล็กๆ ไม่ต้องอ้างอิงอะไรเลย 
+ 
+📌 กฎง่ายๆ: ถ้าไม่แน่ใจ → เลือก MIT — ใช้งานง่าย เข้าใจง่าย ยืดหยุ่นที่สุด ✅
+ 
+ 
+ 
+⚠️ ข้อควรทราบสำคัญ
+ 
+ห้ามทำ ควรทำแทน เหตุผล 
+เขียน "สงวนลิขสิทธิ์" แล้วไม่แนบไฟล์ LICENSE สร้างไฟล์  LICENSE  ที่รากโปรเจกต์เลย คำเดียวไม่มีผลทางกฎหมายเท่าฉบับเต็ม 
+เอาลิขสิทธิ์ของคนอื่นออกเมื่อแก้ไข เก็บลิขสิทธิ์เดิมไว้ เพิ่มรายการของคุณต่อ ลิขสิทธิ์ยังคงเป็นของผู้สร้างเดิม 
+ใช้โค้ดจากที่ไหนก็ได้โดยไม่ดูเงื่อนไข ตรวจสอบลิขสิทธิ์ก่อนนำมาใช้ อาจละเมิดสัญญาโดยไม่รู้ตัว 
+บอกว่า "ฟรี" = "ใช้ได้ทุกอย่าง" อ่านเงื่อนไขเสมอ — ฟรี ≠ ไม่มีเงื่อนไข มีใบอนุญาตหลายแบบ แตกต่างกัน 
+ 
+ 
+ 
+🚀 คำสั่งที่ใช้บ่อย
+ 
+bash  
+# เพิ่มหัวข้อลิขสิทธิ์ (ทดสอบก่อน)
+python scripts/add_license_header.py --dry-run
+
+# เพิ่มจริง
+python scripts/add_license_header.py
+
+# ตรวจสอบ
+python scripts/check_license.py
+ 
+ 
+ต้องการปรับข้อความลิขสิทธิ์ หรือเพิ่มประเภทใบอนุญาตอื่นๆ ไหมครับ? 😊

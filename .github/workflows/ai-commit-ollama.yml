@@ -1,0 +1,77 @@
+name: AI Commit Extension - Ollama (No Credits)
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+
+concurrency:
+  group: ai-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Ollama
+        uses: ai-dock/ollama-action@v1
+        with:
+          models: |
+            llama3.1:8b
+            # or qwen2.5:3b if you want faster/cheaper
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate Diff Context
+        id: diff
+        run: |
+          if git rev-parse HEAD~1 >/dev/null 2>&1; then BASE=HEAD~1; else BASE=$(git hash-object -t tree /dev/null); fi
+          git log -1 --pretty=%B > commit.txt
+          git diff $BASE HEAD --stat > stat.txt
+          git diff $BASE HEAD --unified=3 | head -c 12000 > diff.txt
+          echo "size=$(wc -c < diff.txt)" >> $GITHUB_OUTPUT
+
+      - name: AI Summary with Ollama
+        run: |
+          mkdir -p output
+          python scripts/generate_commit_context_ollama.py \
+            --commit-file commit.txt \
+            --diff-file diff.txt \
+            --stat-file stat.txt \
+            --model llama3.1:8b \
+            --output output/ai-summary.md
+          cat output/ai-summary.md
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: ai-commit-summary
+          path: output/ai-summary.md
+
+      - name: Add to Job Summary
+        run: cat output/ai-summary.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-summary-${{ github.sha }}
+          path: output/
+          retention-days: 3

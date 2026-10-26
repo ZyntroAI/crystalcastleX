@@ -1,9 +1,267 @@
-Canonical workflows (consolidate duplicates into these):
-- ci.yml → CrystalCastleCopilot.yml (validate → ai-tests → build → security → deploy)
-- docker-publish.yml → build & push GHCR (SHA tag)
-- sandbox-preview.yml → PR preview deploy + cleanup (MISSING — should be added)
-- ai-auto-repair.yml → failure → LLM patch → PR → rerun (MISSING — should be added)
-- trivy-image-scan.yml, lighthouse-audit.yml, release-drafter.yml (recommended additions)
+yaml  
+---
+title: "Workflows — Team Processes & Development Lifecycle"
+type: "reference"
+status: "active"
+created: "2026-10-26"
+updated: "2026-10-26"
+tags:
+  - workflows
+  - development-process
+  - pull-request
+  - review
+  - deployment
+  - crystalcastlex
+related:
+  - "[[Architecture — System Overview]]"
+  - "[[Conventions — Coding Standards]]"
+  - "[[Repair Loop — Troubleshooting Guide]]"
+description: "กระบวนการทำงานมาตรฐานตั้งแต่เริ่มพัฒนา จนถึงส่งมอบและดูแลรักษาระบบ"
+---
+ 
+ 
+🔄 Workflows — Team Processes & Development Lifecycle
+ 
+ทำอย่างเดียวกันทุกครั้ง = ลดความผิดพลาด = มั่นใจทุกครั้งที่ส่งมอบ ✅
+ 
+ 
+ 
+🎯 วัตถุประสงค์เอกสารนี้
+ 
+- รู้ขั้นตอนที่แน่นอนตั้งแต่เริ่มจนเสร็จงาน
+- มีมาตรฐานเดียวกันทั้งทีม — ไม่ต้องถาม "ทำยังไง?"
+- ป้องกันข้อผิดพลาดก่อนถึงระบบจริง
+- ตรวจสอบและย้อนกลับได้ทุกการเปลี่ยนแปลง
+ 
+ 
+ 
+📖 สารบัญ
+ 
+- 🗺️ ภาพรวมวงจรการพัฒนา
+- 🌱 ขั้นที่ 1 — เริ่มงาน
+- 🔀 ขั้นที่ 2 — พัฒนา
+- 📝 ขั้นที่ 3 — สร้าง Pull Request
+- 👀 ขั้นที่ 4 — ตรวจสอบ & ทดสอบ
+- 🚀 ขั้นที่ 5 — Merge & Deploy
+- 📌 สถานะงาน — Status Lifecycle
+- ⚠️ กฎสำคัญที่ห้ามฝ่าฝืน
+ 
+ 
+ 
+🗺️ ภาพรวมวงจรการพัฒนา
+ 
+plaintext  
+📥 รับงาน → 🌱 สร้าง Branch → 💻 เขียนโค้ด → ✅ ทดสอบในเครื่อง
+    ↓
+📝 เปิด PR → 🤖 CI ตรวจสอบ → 👀 ตรวจสอบโดยเพื่อน → ✅ อนุมัติ
+    ↓
+🔗 Merge เข้า main → 🚀 Deploy อัตโนมัติ → ✅ ตรวจสอบระบบจริง
+    ↓
+📝 บันทึกปัญหา (ถ้ามี) → ✅ เสร็จสิ้น
+ 
+ 
+ 
+ 
+🌱 ขั้นที่ 1 — เริ่มงาน
+ 
+✅ ก่อนเริ่มเขียนโค้ด
+ 
+ตรวจสอบว่ามี Issue/Task ที่อ้างอิงหรือไม่ — สร้างถ้ายังไม่มี
+อ่านเอกสารที่เกี่ยวข้อง ( architecture.md ,  conventions.md )
+อัปเดต  main  ให้ตรงกับล่าสุดก่อนสร้าง branch ใหม่
+ 
+🌿 ตั้งค่าสภาพแวดล้อม
+ 
+bash  
+# 1. ไปที่ branch หลัก
+git checkout main
 
-DUPLICATES to merge: changelog×3, absolute-path×2, log-summary×2, ai-pipeline×3.
-Rules: SHA-pin all actions, permissions: least-privilege, concurrency group per ref.
+# 2. ดึงข้อมูลล่าสุด
+git pull origin main
+
+# 3. สร้าง branch ใหม่ — ตั้งชื่อตามประเภทงาน
+git checkout -b feature/short-description
+# หรือ: bugfix/issue-description
+# หรือ: docs/update-guide
+# หรือ: refactor/cleanup-code
+ 
+ 
+📌 รูปแบบชื่อ Branch:  ประเภท/คำอธิบายสั้นๆ 
+ 
+ประเภท ความหมาย ตัวอย่าง 
+ feature/  ฟีเจอร์ใหม่  feature/add-cost-dashboard  
+ bugfix/  แก้ไขข้อผิดพลาด  bugfix/fix-api-key-rotation  
+ docs/  ปรับปรุงเอกสาร  docs/update-providers-guide  
+ refactor/  ปรับโครงสร้างโค้ด ไม่เปลี่ยนพฤติกรรม  refactor/simplify-error-handling  
+ chore/  งานบำรุงรักษาทั่วไป  chore/update-dependencies  
+ 
+ 
+ 
+🔀 ขั้นที่ 2 — พัฒนา
+ 
+✅ ระหว่างพัฒนา
+ 
+เขียนตามมาตรฐานใน  conventions.md 
+รัน linter ก่อน commit:  ruff check src/ 
+รันทดสอบที่เกี่ยวข้อง:  pytest tests/path/to/module/ -v 
+Commit บ่อยๆ — ไม่รอจบงานทั้งหมดในคราวเดียว
+ 
+📝 ข้อความ Commit — รูปแบบมาตรฐาน
+ 
+ใช้ Conventional Commits:
+ 
+plaintext  
+<type>: <คำอธิบายสั้นๆ>
+
+[รายละเอียดเพิ่มเติมถ้าจำเป็น]
+ 
+ 
+Type ความหมาย 
+ feat  ฟีเจอร์ใหม่ 
+ fix  แก้ไขบั๊ก 
+ docs  เอกสารเท่านั้น 
+ refactor  ปรับโค้ด — ไม่แก้บั๊ก ไม่เพิ่มฟีเจอร์ 
+ test  เพิ่ม/แก้ไขทดสอบ 
+ chore  อัปเดตเครื่องมือ, build, dependencies ฯลฯ 
+ 
+ตัวอย่าง:
+ 
+plaintext  
+feat: add daily cost alert for LLM providers
+
+- Add threshold check before processing tasks
+- Send notification to Slack when approaching 80% of budget
+- Include unit tests for cost calculation logic
+
+Closes #142
+ 
+ 
+⏹ ก่อนส่งงาน — เช็คลิสต์
+ 
+รันทดสอบทั้งหมดแล้ว:  pytest tests/ -v 
+รัน linter แล้ว:  ruff check src/ 
+ไม่มีโค้ดคอมเมนต์ทิ้งไว้
+เอกสารที่เกี่ยวข้องได้รับการอัปเดต
+ตรวจสอบว่าไม่ได้เผลอแก้ไฟล์ที่ไม่เกี่ยวข้อง
+ 
+ 
+ 
+📝 ขั้นที่ 3 — สร้าง Pull Request
+ 
+📋 แม่แบบ Pull Request — คัดลอกใช้ได้เลย
+ 
+markdown  
+# 📝 Pull Request
+
+## ✅ สิ่งที่เปลี่ยนแปลง
+สรุปสั้นๆ ว่าทำอะไร
+
+## 📛 ประเภท
+- [ ] 🐛 Bug fix
+- [ ] ✨ New feature
+- [ ] 📝 Documentation update
+- [ ] 🔧 Refactor / cleanup
+- [ ] ⚡ Performance improvement
+
+## 🧪 การทดสอบ
+- [ ] ทดสอบในเครื่องแล้ว
+- [ ] เพิ่มกรณีทดสอบใหม่แล้ว
+- [ ] ตรวจสอบไม่มีผลกระทบส่วนอื่น
+
+## 🔗 ปัญหาที่เกี่ยวข้อง
+Closes #123
+
+## ⚠️ หมายเหตุ
+สิ่งที่ต้องระวังหรือต้องการให้ผู้ตรวจสอบเน้นเป็นพิเศษ
+ 
+ 
+📌 กฎสำคัญของ PR
+ 
+- ❌ อย่าเปิด PR ใหญ่เกินไป — แบ่งเป็นชุดเล็ก เข้าใจง่าย ตรวจสอบง่าย
+- 📏 แนะนำ: ไม่ควรเกิน 400 บรรทัด ยกเว้นเมื่อจำเป็น
+- 🔗 อ้างอิง Issue ที่เกี่ยวข้องเสมอ
+- 🤖 รอให้ CI ผ่านก่อนขอตรวจสอบจากคนอื่น
+ 
+ 
+ 
+👀 ขั้นที่ 4 — ตรวจสอบ & ทดสอบ
+ 
+✅ ผู้เขียน
+ 
+รอ CI ผ่าน ✅
+ตรวจสอบผลลัพธ์ — ไม่มีข้อผิดพลาดที่ไม่คาดคิด
+พร้อมรับคำแนะนำและปรับปรุง
+ 
+👁️ ผู้ตรวจสอบ — เช็คลิสต์
+ 
+ตรรกะถูกต้องไหม?
+ปฏิบัติตามมาตรฐานใน  conventions.md  ไหม?
+มีปัญหาด้านความปลอดภัยหรือประสิทธิภาพไหม?
+ทดสอบครอบคลุมพอไหม?
+เข้าใจง่ายไหม? — ถ้าไม่เข้าใจ = ให้ถาม ไม่ใช่เดา
+ 
+💡 การตอบกลับ
+ 
+- ✅ อนุมัติ: "ทำได้ดี — อนุมัติ ✅"
+- ⚠️ ขอแก้ไข: "ตรงนี้อาจมีปัญหา... ช่วยตรวจสอบหน่อยครับ"
+- ❌ ไม่อนุมัติ: "ยังไม่พร้อม มีปัญหาที่ต้องแก้ก่อน..." — อธิบายเหตุผลชัดเจนและสร้างสรรค์
+ 
+📌 กฎ: การตรวจสอบโค้ด = ตรวจสอบคุณภาพและความถูกต้อง — ไม่ใช่การวิพากษ์วิจารณ์บุคคล ✅
+ 
+ 
+ 
+🚀 ขั้นที่ 5 — Merge & Deploy
+ 
+✅ เงื่อนไขก่อน Merge
+ 
+CI ทุกงานผ่าน ✅
+ได้รับการอนุมัติจากอย่างน้อย 1 คน
+ไม่มีการเปลี่ยนแปลงที่รอการแก้ไข
+Branch ไม่มีความขัดแย้ง
+ 
+🔗 Merge — กฎ
+ 
+- ใช้ "Squash and Merge" สำหรับฟีเจอร์/บั๊กเล็กๆ — ประวัติสะอาด
+- ใช้ "Create a Merge Commit" สำหรับงานใหญ่ที่มีประวัติสำคัญ
+- ❌ ห้าม Merge เมื่อยังมีการสนทนาที่ยังไม่ได้ข้อยุติ
+ 
+🚀 หลัง Merge
+ 
+ตรวจสอบ Deploy ว่าทำงานถูกต้อง
+ตรวจสอบ Log ไม่มีข้อผิดพลาดใหม่
+แจ้งทีมถ้าเป็นฟีเจอร์ที่เกี่ยวข้องกับงานของคนอื่น
+ปิด Issue ที่เกี่ยวข้อง
+ 
+ 
+ 
+📌 สถานะงาน — Status Lifecycle
+ 
+ใช้ร่วมกับแท็ก  status/  ในระบบ:
+ 
+สถานะ ความหมาย ขั้นตอนถัดไป 
+ status/inbox  รอเริ่ม จัดลำดับความสำคัญ → มอบหมาย 
+ status/development  กำลังพัฒนา เปิด PR → รอ CI 
+ status/review  รอตรวจสอบ รอการอนุมัติจากทีม 
+ status/approved  ผ่านการตรวจสอบ พร้อม Merge 
+ status/published  เผยแพร่แล้ว ตรวจสอบระบบจริง → ปิดงาน 
+ status/blocked  ติดปัญหา ระบุสาเหตุ → แจ้งผู้เกี่ยวข้อง 
+ 
+🔒 กฎ: AI/Agent อาจย้ายจาก  inbox  →  review  เท่านั้น แต่ เฉพาะมนุษย์เท่านั้นที่ย้ายจาก  review  →  approved  ✅
+ 
+ 
+ 
+⚠️ กฎสำคัญที่ห้ามฝ่าฝืน
+ 
+❌ ห้ามทำ เหตุผล 
+Merge เข้า main โดยไม่ผ่าน PR ไม่มีการตรวจสอบ — อาจทำให้ระบบเสีย 
+Merge เมื่อ CI ไม่ผ่าน ทดสอบล้ม = มีปัญหา — อย่าฝืน 
+เขียนโค้ดแล้วไม่ทดสอบ คุณภาพไม่มีการันตี 
+เปลี่ยนสิ่งที่ไม่ได้ทดสอบ ไม่รู้ว่าทำงานถูกต้องหรือไม่ 
+บังคับ Merge โดยข้ามกฎ กฎมีไว้เพื่อป้องกันความผิดพลาด — ไม่ใช่ขัดขวาง 
+ลบ branch หลัง Merge ก่อนแน่ใจว่าไม่ได้ใช้แล้ว อาจต้องย้อนกลับมาเช็คประวัติ 
+ 
+ 
+ 
+✅ หลักการสำคัญ: "กระบวนการไม่ใช่สิ่งที่ทำให้ช้าลง แต่เป็นสิ่งที่ช่วยให้คุณทำได้เร็วขึ้นอย่างปลอดภัย"
+ 
+ต้องการปรับเพิ่มกระบวนการไหนไหมครับ เช่น ขั้นตอน Release, Hotfix, หรือกระบวนการตรวจสอบความปลอดภัยพิเศษ 😊

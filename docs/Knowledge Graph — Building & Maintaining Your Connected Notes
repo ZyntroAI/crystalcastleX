@@ -1,0 +1,387 @@
+yaml  
+---
+title: "Knowledge Graph — Building & Maintaining Your Connected Notes"
+type: "guide"
+status: "active"
+created: "2026-10-26"
+updated: "2026-10-26"
+tags:
+  - knowledge-graph
+  - obsidian
+  - linked-notes
+  - moc
+  - zettelkasten
+  - crystalcastlex
+related:
+  - "[[Architecture — System Overview]]"
+  - "[[Workflows — Team Processes]]"
+description: "คู่มือสร้างและดูแลแลกราฟความรู้ — เชื่อมโยงไอเดีย ค้นพบความสัมพันธ์ และสร้างความรู้ที่เติบโตได้"
+---
+ 
+ 
+🗺️ Knowledge Graph — Complete Guide
+ 
+Notes alone are just files. Linked together = a second brain. ✅
+ 
+ 
+ 
+🎯 What Is a Knowledge Graph?
+ 
+A Knowledge Graph is a network of your notes connected by links and tags. Instead of isolated folders → your ideas find each other.
+ 
+plaintext  
+Project Overview ──→ Architecture ──→ Conventions
+       ↓                  ↓              ↓
+    Workflows ────────→ Repair-Loop ←─── Providers
+       ↓
+  Related Topics ←── MOCs ←── Individual Notes
+ 
+ 
+ 
+ 
+📖 Table of Contents
+ 
+- 🧱 Core Concepts
+- 📁 Recommended Folder Structure
+- 🔗 How to Link Notes
+- 🗂️ MOCs — Map of Content
+- 🏷️ Tagging Strategy
+- 📐 Note Types Template
+- ✅ Maintenance Routine
+- 🔧 Obsidian Setup Guide
+- ⚠️ Common Mistakes to Avoid
+ 
+ 
+ 
+🧱 Core Concepts
+ 
+Concept What It Means 
+Atomic Notes One idea = one note. Keep notes focused & short 
+Wiki-Links  [[Note Name]]  — connect notes directly 
+Backlinks Which other notes link to this note (auto-generated) 
+MOC Map of Content — an index page linking to a group of related notes 
+Tags Categorize across topics:  #area/active ,  #project/xyz ,  #resource/book  
+Bidirectional Link When A links to B → B shows A in backlinks 
+ 
+ 
+ 
+📁 Recommended Folder Structure
+ 
+plaintext  
+docs/knowledge/
+├── 🏛️ Concepts/           # Permanent knowledge — timeless principles
+│   ├── knowledge-graph.md
+│   ├── atomic-notes.md
+│   └── moc-principles.md
+│
+├── 📚 Areas/               # Broad domains — e.g. Dev, Design, Business
+│   ├── software-architecture/
+│   ├── ai-engineering/
+│   └── team-workflows/
+│
+├── 🚀 Projects/            # Project-specific notes
+│   ├── crystalcastlex/
+│   │   ├── architecture.md
+│   │   ├── conventions.md
+│   │   └── workflows.md
+│   └── fastapi-boilerplate/
+│
+├── 📥 Resources/            # External references, articles, books
+│   ├── books/
+│   ├── articles/
+│   └── courses/
+│
+├── 🗛 MOCs/                # ⭐ Your entry points — Maps of Content
+│   ├── index.md            # ← HOME — Start here
+│   ├── all-projects.md
+│   ├── ai-references.md
+│   └── development-guide.md
+│
+└── 📔 Daily/               # Daily journal notes
+    ├── 2026-10-25.md
+    └── 2026-10-26.md
+ 
+ 
+ 
+ 
+🔗 How to Link Notes
+ 
+Basic Wiki-Link
+ 
+markdown  
+See also: [[Architecture — System Overview]]
+ 
+ 
+→ Shows as: See also: [[Architecture — System Overview]]
+ 
+Link + Custom Display Text
+ 
+markdown  
+Check the [[conventions.md|coding standards]] before writing code.
+ 
+ 
+Link to a Section
+ 
+markdown  
+Read about [[providers.md#-failover--circuit-breaker|Failover & Circuit Breaker]]
+ 
+ 
+Embed a Note
+ 
+markdown  
+![[note-name.md]]
+ 
+ 
+💡 Best Practice
+ 
+- ✅ Link when it makes sense — not every word
+- ✅ Every note should link out to at least 2–3 related notes
+- ✅ Every important topic should have a MOC pointing to all relevant notes
+- ❌ Don't over-link — one concept = one primary note
+ 
+ 
+ 
+🗂️ MOCs — Map of Content
+ 
+MOC = Your Table of Contents that grows with you. Start here to navigate your knowledge.
+ 
+📄 Template:  MOC-Template.md 
+ 
+markdown  
+---
+title: "MOC — [Topic Name]"
+type: "moc"
+tags: ["moc", "[topic]"]
+created: YYYY-MM-DD
+---
+
+# 🗺️ MOC — [Topic Name]
+
+> Brief description of what this area covers.
+
+## 📌 Core Concepts
+- [[Note Name]] — Short description
+- [[Note Name]] — Short description
+
+## 🛠️ Guides & How-To
+- [[Note Name]] — Short description
+- [[Note Name]] — Short description
+
+## 📋 Reference
+- [[Note Name]] — Short description
+- [[Note Name]] — Short description
+
+## 🔗 Related MOCs
+- [[Main Index]]
+- [[Related MOC]]
+
+---
+*Last updated: YYYY-MM-DD*
+ 
+ 
+📄 Example:  index.md  — Home MOC
+ 
+markdown  
+---
+title: "Knowledge Base — Index"
+type: "moc"
+tags: ["moc", "home"]
+---
+
+# 🗺️ Knowledge Base — Home
+
+> Welcome to your connected knowledge system. Start exploring below 👇
+
+## 🚀 Active Projects
+- [[CrystalCastle X — Overview]]
+- [[FastAPI Python Boilerplate]]
+
+## 🏛️ Core Areas
+- [[Software Architecture MOC]]
+- [[AI & LLM Integration MOC]]
+- [[Development Standards MOC]]
+
+## 📚 References
+- [[Vercel Speed Insights — Summary]]
+- [[CrewAI — Getting Started Guide]]
+
+## 📅 Recent Updates
+- [[2026-10-26]] — Added Workflows & Repair Loop docs
+- [[2026-10-25]] — Initial architecture & conventions
+
+---
+*Built with Obsidian • Updated daily*
+ 
+ 
+ 
+ 
+🏷️ Tagging Strategy
+ 
+Tags = categories. Use consistently across all notes.
+ 
+🏷️ Recommended Tag Schema
+ 
+Category Format Examples 
+Note Type  type/xxx   type/note ,  type/moc ,  type/reference ,  type/template  
+Project  project/name   project/crystalcastlex ,  project/fastapi  
+Area  area/domain   area/dev ,  area/ai ,  area/docs  
+Status  status/xxx   status/draft ,  status/active ,  status/archived  
+Priority  priority/level   priority/high ,  priority/later  
+ 
+✅ Example Frontmatter with Tags
+ 
+yaml  
+---
+title: "Workflows — Team Processes"
+type: "reference"
+tags:
+  - type/reference
+  - project/crystalcastlex
+  - area/dev
+  - status/active
+---
+ 
+ 
+💡 Pro Tip: In Obsidian → open the Tag Pane → click any tag → see all notes with that tag instantly ✅
+ 
+ 
+ 
+📐 Note Types Template
+ 
+📝 1. Permanent Note — Knowledge
+ 
+markdown  
+---
+title: "Clear Specific Title"
+type: "note"
+tags: ["type/note", "area/xxx"]
+created: YYYY-MM-DD
+---
+
+# Title
+
+## 🎯 Summary
+1-sentence explanation.
+
+## 📖 Content
+Main knowledge here...
+
+## 🔗 Related
+- [[Related Note 1]]
+- [[Related Note 2]]
+ 
+ 
+📋 2. Project Note
+ 
+markdown  
+---
+title: "Project Name — Component"
+type: "project-note"
+project: "project-name"
+tags: ["project/xxx", "status/active"]
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+---
+
+# Project Name — Component
+
+## 🎯 Purpose
+What is this for?
+
+## 📁 Files
+- `path/to/file.py` — description
+
+## 🔗 Links
+- [[Architecture — System Overview]]
+- [[Conventions — Coding Standards]]
+ 
+ 
+📥 3. Reference Note — External Source
+ 
+markdown  
+---
+title: "Source Title"
+type: "reference"
+source: "URL or Book Title"
+tags: ["type/reference", "area/xxx"]
+created: YYYY-MM-DD
+---
+
+# 📖 Title
+> Source: [Link](url)
+
+## ✅ Key Takeaways
+- Point 1
+- Point 2
+
+## 🔗 Apply To
+- [[Note where I'll use this knowledge]]
+ 
+ 
+ 
+ 
+✅ Maintenance Routine
+ 
+Frequency Task 
+Daily (5 min) Add 1–2 links in today's note → link back to 1 existing note 
+Weekly (30 min) Review 1 MOC → add missing links → remove dead links → update descriptions 
+Monthly (1 hr) Check Orphaned Notes (no incoming links) → connect them or move to archive Check Empty Files → complete or delete Update main [[Index]] MOC 
+ 
+🧹 Quick Health Checks
+ 
+plaintext  
+1. Search: -[[]]  → find notes with NO outgoing links → connect them!
+2. Search: file:"MOC" → review your entry points
+3. Search: tag:status/draft → finalize or archive drafts
+ 
+ 
+ 
+ 
+🔧 Obsidian Setup Guide
+ 
+📦 Recommended Plugins
+ 
+Plugin Purpose 
+Core: Backlinks See what links to current note — always visible 
+Core: Outgoing Links See what this note links to 
+Core: Graph View Visualize your entire network — zoom, color, filter by tag 
+Core: Tag Pane Browse all notes by tag 
+Dataview Auto-generate lists:  TABLE file.mtime, tags FROM "Projects"  
+Excalidraw Draw diagrams directly in your vault — link them to notes 
+Canvas Drag notes onto a board — visualize connections visually 
+ 
+🎨 Graph View Tips
+ 
+- Color by tag → see clusters instantly
+- Group by folder → separate projects
+- Hide tags you don't need → reduce noise
+- Click a node → highlight connections
+ 
+ 
+ 
+⚠️ Common Mistakes to Avoid
+ 
+❌ Mistake ✅ Fix 
+Creating folders only → no links Folders organize files. Links organize ideas. Use both! 
+Too many notes → no connections Spend 5 min/week adding links. Unlinked notes = invisible knowledge 
+Duplicating the same topic in 5 notes One concept = One Note. Link to it instead of copying 
+No MOCs → lost in notes Create 1 MOC per major area. Use it as your homepage 
+Over-linking every word Link only when you want to reference that concept later 
+No maintenance → messy vault Follow the weekly/monthly routine 
+ 
+ 
+ 
+🚀 Quick Start Checklist
+ 
+Create the folder structure above
+Create your Home MOC →  MOC — Index.md 
+Pick 3 most important topics → create 1 MOC for each
+Link every existing note to at least one MOC
+Set aside 5 min daily for linking new notes
+Turn on Backlinks plugin in Obsidian
+ 
+ 
+ 
+💡 Final Principle: A knowledge graph isn't built in a day — it grows one link at a time. Every connection you add today makes your future work faster. Start small, link consistently, watch your knowledge grow ✅
+ 
+Would you like me to generate the actual files (Index MOC, folder structure, templates) as markdown files you can copy directly? 😊

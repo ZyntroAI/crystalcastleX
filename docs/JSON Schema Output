@@ -1,0 +1,47 @@
+
+JSON Schema Output
+JSON Schema Output
+
+JSON Schema Output
+JSON Schema Output คือการบังคับให้ LLM ตอบเป็น JSON ที่ตรงตาม schema ที่กำหนด ผ่าน structured outputs / function calling แทนการใช้ JSON mode ธรรมดา ซึ่งรับประกันได้เพียงว่า parse เป็น JSON ได้ แต่ไม่การันตีว่าตรง schema [1767][1768][1773]
+
+JSON Mode vs Structured Outputs
+ประเด็น	JSON Mode	Structured Outputs
+Output	Valid JSON [1768]	Valid JSON + ตรง schema [1767][1768]
+Schema	ไม่การันตี [1768]	การันตี [1767][1768]
+ใช้เมื่อ	ต้องการ JSON แบบยืดหยุ่น [1768]	ต้องการ structure ชัดเจน [1767][1768]
+การตั้งค่า	json_object [1767][1768]	json_schema + strict: true [1767][1768]
+Structured Outputs การันตี schema adherence ขณะที่ JSON mode การันตีเพียง valid JSON [1767][1768][1773]
+
+Schema Design
+{
+  "type": "object",
+  "properties": {
+    "answer": {
+      "type": "string",
+      "description": "คำตอบสั้นกระชับ"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "url": { "type": "string", "format": "uri" }
+        },
+        "required": ["title", "url"]
+      }
+    },
+    "needs_human_review": {
+      "type": "boolean"
+    }
+  },
+  "required": ["answer", "confidence", "sources", "needs_human_review"],
+  "additionalProperties": false
+}
+ใช้ type, required, enum, format, minimum/maximum, additionalProperties: false เพื่อคุม output ให้แน่น [1767][1772][1777]

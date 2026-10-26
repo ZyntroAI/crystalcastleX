@@ -1,0 +1,289 @@
+🛠️ Full Setup — Python CLI Project + AI Agent Integration
+Complete working template: Host project + Typer CLI + AI Agent Skills ready for CrewAI/LangGraph agents ✅
+
+---
+📁 Project Structure
+my_cli_project/
+├── .claude/skills/          # AI Agent skills (auto-installed)
+├── .venv/                    # Virtual environment
+├── pyproject.toml
+├── uv.lock
+├── src/
+│   └── my_cli/
+│       ├── __init__.py
+│       ├── main.py           # Your Typer CLI entrypoint
+│       └── services.py       # Business logic for agents to import
+└── README.md
+
+---
+📄 1. pyproject.toml
+[project]
+name = "my-cli"
+version = "0.1.0"
+description = "CLI tool with AI Agent integration"
+authors = [
+  { name="Your Name", email="you@example.com" }
+]
+dependencies = [
+  "typer>=0.12.0",
+  "rich>=13.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+python-version = "3.12"
+
+---
+📄 2. src/my_cli/init.py
+"""
+My CLI Project — Services available for AI Agents to import
+"""
+
+__version__ = "0.1.0"
+
+# Expose services at package level for easy import by agents
+from .services import DataProcessor, FileManager, SystemService
+
+__all__ = [
+    "DataProcessor",
+    "FileManager",
+    "SystemService",
+]
+
+---
+📄 3. src/my_cli/[services.py](services.py)
+"""
+Core business logic — Agents import these classes directly
+No CLI decorators here — pure Python, reusable anywhere
+"""
+import os
+import json
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+
+class DataProcessor:
+    """Process and transform data — available to AI Agents"""
+    
+    @staticmethod
+    def summarize_text(text: str, max_length: int = 100) -> Dict[str, Any]:
+        """Summarize text data"""
+        return {
+            "original_length": len(text),
+            "summary": text[:max_length] + ("..." if len(text) > max_length else ""),
+            "timestamp": datetime.now().isoformat(),
+        }
+
+    @staticmethod
+    def analyze_data(data: List[Dict]) -> Dict[str, Any]:
+        """Basic data analysis"""
+        if not data:
+            return {"count": 0, "message": "No data provided"}
+        return {
+            "count": len(data),
+            "keys": list(data[0].keys()) if isinstance(data, list) and data else [],
+            "sample": data[0] if data else None,
+        }
+
+
+class FileManager:
+    """File operations — AI Agents can read/write through here"""
+    
+    @staticmethod
+    def read_json(path: str) -> Optional[Dict]:
+        """Read JSON file safely"""
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return None
+        except json.JSONDecodeError:
+            return {"error": "Invalid JSON format"}
+
+    @staticmethod
+    def write_json(path: str, data: Any) -> bool:
+        """Write data to JSON file"""
+        try:
+            Path(path).parent.mkdir(parents=True, exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            return True
+        except Exception as e:
+            print(f"Error writing file: {e}")
+            return False
+
+    @staticmethod
+    def list_files(directory: str, pattern: str = "*") -> List[str]:
+        """List files matching pattern"""
+        return [str(f) for f in Path(directory).glob(pattern) if f.is_file()]
+
+
+class SystemService:
+    """System utilities — AI Agents can query environment info"""
+    
+    @staticmethod
+    def get_info() -> Dict[str, Any]:
+        """Get system and project info"""
+        return {
+            "project_root": str(Path(__file__).parent.parent.parent),
+            "cwd": os.getcwd(),
+            "python_version": os.sys.version,
+            "timestamp": datetime.now().isoformat(),
+        }
+
+---
+📄 4. src/my_cli/[main.py](main.py)
+"""
+Typer CLI Entrypoint — Host machine commands
+Agents import from services.py, NOT this file
+"""
+import typer
+from rich.console import Console
+from rich.table import Table
+from my_cli.services import DataProcessor, FileManager, SystemService
+
+app = typer.Typer(
+    name="mycli",
+    help="Project CLI — AI Agent services available in my_cli.services",
+    add_completion=True,
+)
+console = Console()
+
+
+@app.command()
+def info():
+    """Show project & system info"""
+    info = SystemService.get_info()
+    table = Table("Key", "Value")
+    for k, v in info.items():
+        table.add_row(k, str(v))
+    console.print(table)
+
+
+@app.command()
+def summarize(text: str, max_len: int = 100):
+    """Summarize input text"""
+    result = DataProcessor.summarize_text(text, max_len)
+    console.print(f"📝 Summary: {result['summary']}")
+    console.print(f"📊 Original length: {result['original_length']} chars")
+
+
+@app.command()
+def read_json(path: str):
+    """Read and display JSON file"""
+    data = FileManager.read_json(path)
+    if data is None:
+        console.print("[red]❌ File not found[/red]")
+        raise typer.Exit(1)
+    console.print_json(data=data)
+
+
+@app.command()
+def write_json(path: str, key: str, value: str):
+    """Write a key-value pair to JSON file"""
+    data = FileManager.read_json(path) or {}
+    data[key] = value
+    if FileManager.write_json(path, data):
+        console.print("[green]✅ File saved[/green]")
+    else:
+        console.print("[red]❌ Failed to save[/red]")
+
+
+@app.command()
+def list_files(directory: str = ".", pattern: str = "*"):
+    """List files in directory"""
+    files = FileManager.list_files(directory, pattern)
+    console.print(f"📂 Found {len(files)} file(s):")
+    for f in files:
+        console.print(f"  • {f}")
+
+
+if __name__ == "__main__":
+    app()
+
+---
+📄 5. Example — How AI Agents Import & Use Your Services
+Save this as agent_usage_example.py — this is what your CrewAI agents will run
+"""
+EXAMPLE: How AI Agents import and use your project services
+Copy this logic into your CrewAI Agent's code
+"""
+from my_cli.services import DataProcessor, FileManager, SystemService
+
+# ── Agent Task: Get system info ──
+def agent_get_system_info():
+    info = SystemService.get_info()
+    return f"""
+System Information:
+- Project Root: {info['project_root']}
+- Working Dir: {info['cwd']}
+- Time: {info['timestamp']}
+"""
+
+# ── Agent Task: Process data ──
+def agent_process_data(input_text: str):
+    processor = DataProcessor()
+    result = processor.summarize_text(input_text, max_length=150)
+    return f"""
+📋 Summary Result:
+{result['summary']}
+(Original: {result['original_length']} chars)
+"""
+
+# ── Agent Task: Save findings ──
+def agent_save_report(report_data: dict, output_path: str = "output/agent_report.json"):
+    success = FileManager.write_json(output_path, report_data)
+    if success:
+        return f"✅ Report saved to {output_path}"
+    return "❌ Failed to save report"
+
+
+if __name__ == "__main__":
+    # Quick test run
+    print(agent_get_system_info())
+    print(agent_process_data("This is a sample text that an AI Agent might process..."))
+
+---
+🚀 Quick Start — Setup Commands
+# 1. Create & enter project folder
+mkdir my_cli_project && cd my_cli_project
+
+# 2. Create the files above in the structure shown
+# 3. Create virtual environment & install dependencies
+uv init --bare
+uv add typer rich hatchling
+
+# 4. Install your own project in editable mode (so agents can import it)
+pip install -e .
+
+# 5. Activate environment
+source .venv/bin/activate   # Linux/macOS
+# .venv\Scripts\Activate.ps1  # Windows PowerShell
+
+# 6. Install AI Agent Skills
+uvx library-skills
+
+# 7. Test the CLI
+python -m my_cli.main --help
+# Or:
+mycli --help
+
+---
+✅ How It Works — Host vs Agents
+Role
+What they use
+How they access
+🖥️ Host Machine (You)
+main.py → Typer CLI commands
+Run mycli in terminal
+🤖 AI Agents (CrewAI)
+services.py → Pure Python classes
+from my_cli.services import X
+💡 Key Principle: Keep business logic in services.py ONLY. Never put logic in main.py — that's for CLI interface only. Agents import what they need from services.py directly, no CLI overhead! ✅
+
+---
+Want me to create a full CrewAI agent script that actually uses these services end-to-end? 😊

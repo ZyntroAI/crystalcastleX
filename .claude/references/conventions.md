@@ -1,84 +1,324 @@
-# Conventions Reference — CrystalCastle X
+yaml  
+---
+title: "Conventions — Coding Standards & Team Guidelines"
+type: "reference"
+status: "active"
+created: "2026-10-26"
+updated: "2026-10-26"
+tags:
+  - conventions
+  - coding-standards
+  - best-practices
+  - team-guidelines
+  - crystalcastlex
+related:
+  - "[[Architecture — System Overview]]"
+  - "[[Workflows — Team Processes]]"
+description: "มาตรฐานการเขียนโค้ด กฎการตั้งชื่อ รูปแบบไฟล์ และมารยาททีมงาน CrystalCastle X"
+---
+ 
+ 
+📏 Conventions — Coding Standards & Team Guidelines
+ 
+โค้ดที่อ่านง่าย = โค้ดที่ดีที่สุด — กฎเหล็กของทีม ✅
+ 
+ 
+ 
+🎯 วัตถุประสงค์เอกสารนี้
+ 
+- ให้ทุกคนเขียนโค้ดใน ภาษาเดียวกัน
+- ลดเวลาที่ใช้ถาม "ทำไมเขียนแบบนี้?"
+- ให้การตรวจสอบโค้ดเน้นที่ ตรรกะและคุณภาพ ไม่ใช่รูปแบบ
+- AI ทุกคน (Copilot, Claude, Cursor) ปฏิบัติตามกฎเดียวกัน
+ 
+ 
+ 
+📖 สารบัญ
+ 
+- 🐍 Python Style Guide
+- 📁 การตั้งชื่อไฟล์และโฟลเดอร์
+- 🔤 กฎการตั้งชื่อ
+- 📝 รูปแบบโค้ด
+- 📦 การนำเข้าโมดูล
+- ✅ การเขียนทดสอบ
+- 📄 เอกสารและความคิดเห็น
+- 🛠️ เครื่องมือที่ใช้ตรวจสอบ
+- ⚠️ สิ่งที่ห้ามทำอย่างเด็ดขาด
+ 
+ 
+ 
+🐍 Python Style Guide
+ 
+พื้นฐาน
+ 
+- ปฏิบัติตาม PEP 8 เป็นหลัก
+- ใช้ Ruff เป็น linter + formatter
+- ความยาวบรรทัดสูงสุด: 100 ตัวอักษร
+- ใช้ 4 ช่องว่าง ย่อหน้า — ห้ามใช้ Tab
+- ไฟล์ทุกไฟล์ต้องมี UTF-8 encoding
+ 
+เวอร์ชัน Python
+ 
+- พัฒนาด้วย Python 3.12+
+- เขียนให้เข้ากับ 3.12 ขึ้นไป — ไม่ต้องรองรับเวอร์ชันเก่า
+ 
+ 
+ 
+📁 การตั้งชื่อไฟล์และโฟลเดอร์
+ 
+สิ่งที่ตั้งชื่อ รูปแบบ ตัวอย่าง 
+ไฟล์ Python  snake_case.py   api_client.py  ✅ /  ApiClient.py  ❌ 
+โฟลเดอร์  snake_case/   utils/  ✅ /  Utils/  ❌ 
+ไฟล์ทดสอบ  test_<module>.py   test_auth.py  ✅ 
+คอนฟิก/สคริปต์  snake_case   ci-config.yml  ✅ 
+Markdown เอกสาร  kebab-case.md   api-design.md  ✅ 
+ 
+❌ ห้ามใช้ชื่อภาษาไทยหรืออักขระพิเศษในชื่อไฟล์
+ 
+ 
+ 
+🔤 กฎการตั้งชื่อ
+ 
+ประเภท รูปแบบ ตัวอย่าง 
+ตัวแปร / ฟังก์ชัน  snake_case   user_name ,  calculate_cost()  
+คลาส  PascalCase   LLMProvider ,  TaskService  
+ค่าคงที่  UPPER_CASE   MAX_RETRIES = 5  
+ตัวแปรส่วนตัว  _leading_underscore   _internal_state ,  validate_token()  
+ตัวแปรที่ไม่ได้ใช้  _   for _ in range(3):  
+ 
+ความชัดเจน > ความสั้น
+ 
+python  
+# ✅ ดี
+number_of_tokens = 1024
+is_payment_successful = True
+calculate_total_cost()
 
-> โหลดไฟล์นี้เมื่อ: สร้าง branch/commit/PR, ตั้งชื่อ env var/secret, หรือถามเกี่ยวกับ code style / label
+# ❌ ไม่ดี
+cnt = 1024
+ok = True
+calc()
+ 
+ 
+คำย่อที่ยอมรับได้
+ 
+-  api ,  id ,  url ,  db ,  ctx  — ใช้ได้
+- คำย่ออื่นๆ ต้องอธิบาย หรือใช้ชื่อเต็ม
+ 
+ 
+ 
+📝 รูปแบบโค้ด
+ 
+ไฟล์เริ่มต้น — ทุกไฟล์ .py ควรมี
+ 
+python  
+"""สั้นๆ อธิบายว่าไฟล์นี้ทำอะไร"""
+from __future__ import annotations
 
-## Branch Naming
+# Standard library imports
+import os
+from typing import Optional
 
-| Pattern | ใช้สำหรับ | ตัวอย่าง |
-|---|---|---|
-| `feature/<scope>-<slug>` | feature ใหม่ | `feature/captions-style-presets` |
-| `fix/<scope>-<slug>` | bug fix | `fix/provider-timeout` |
-| `chore/<slug>` | maintenance | `chore/bump-deps` |
-| `ci/<slug>` | workflow/CI | `ci/consolidate-changelog` |
-| `repair/<run-id>` | **auto-generated** โดย ai-auto-repair | `repair/35399662325` |
-| `dependabot/*` | dependency update (auto) | — |
+# Third-party imports
+from pydantic import BaseModel
 
-ห้าม push direct ไป `main` / `develop` — ต้องผ่าน PR + required review.
+# Local imports
+from .config import settings
+ 
+ 
+Import Order — เสมอ
+ 
+1. 📦 Standard library →  import os ,  from typing import... 
+2. 📦 Third-party packages →  from fastapi import... 
+3. 📁 โมดูลภายในโปรเจกต์ →  from .utils import... 
+4. เว้นบรรทัดระหว่างกลุ่ม
+ 
+Type Hints — บังคับใช้
+ 
+python  
+# ✅ ดี
+def calculate_cost(tokens: int, rate: float) -> float:
+    return tokens * rate
 
-## Commits — Conventional Commits (commit-lint.yml บังคับ)
+# ❌ ไม่ดี — ไม่ระบุประเภท
+def calculate_cost(tokens, rate):
+    return tokens * rate
+ 
+ 
+Docstrings
+ 
+ใช้สไตล์ Google style:
+ 
+python  
+def calculate_cost(tokens: int, rate: float) -> float:
+    """คำนวณค่าใช้จ่ายจากจำนวน token
 
-```
-<type>(<scope>): <subject>
+    Args:
+        tokens: จำนวน token ที่ใช้
+        rate: อัตราค่าต่อ 1,000 token
 
-[optional body]
-[optional footer]
-```
+    Returns:
+        ค่าใช้จ่ายเป็นหน่วยดอลลาร์
 
-| type | ใช้ |
-|---|---|
-| `feat` | feature ใหม่ (user-facing) |
-| `fix` | แก้ bug |
-| `ci` | แก้ workflow/CI/CD |
-| `chore` | maintenance, deps, config ไม่กระทบ runtime |
-| `docs` | เอกสาร |
-| `refactor` | refactor ไม่เปลี่ยน behavior |
-| `perf` | performance |
-| `test` | เพิ่ม/แก้ test |
-| `revert` | revert commit |
+    Raises:
+        ValueError: ถ้า tokens หรือ rate เป็นค่าลบ
+    """
+    if tokens < 0 or rate < 0:
+        raise ValueError("Tokens และ rate ต้องเป็นค่าบวก")
+    return (tokens / 1000) * rate
+ 
+ 
+ความคิดเห็น
+ 
+- ความคิดเห็นอธิบาย ทำไม ไม่ใช่ ทำอะไร
+- ความคิดเห็นภาษาไทยได้ แต่ต้องชัดเจน
+- ลบความคิดเห็นที่ไม่ได้ใช้แล้ว — อย่าปล่อยทิ้งไว้
+ 
+ 
+ 
+📦 การนำเข้าโมดูล
+ 
+Absolute Import (แนะนำ)
+ 
+python  
+# ✅ จากรากโปรเจกต์
+from src.ai.providers.router import get_provider
 
-scope ที่ใช้บ่อย: `ai`, `providers`, `video`, `render`, `captions`, `api`, `frontend`, `workflows`, `docker`, `security`
+# ✅ สัมพัทธ์ภายในแพ็กเกจ
+from .base import BaseProvider
+ 
+ 
+❌ ห้ามทำ
+ 
+python  
+# ❌ นำเข้าทุกอย่างแบบนี้
+from utils import *
 
-ตัวอย่าง: `fix(providers): add circuit breaker for gemini timeout`, `ci(workflows): consolidate 3 changelog workflows into 1`
+# ❌ ใช้ฟังก์ชันโดยตรงจากภายนอก
+import openai
+client = openai.OpenAI()  # ❌ ห้าม — ต้องผ่าน providers.router
+ 
+ 
+วงเล็บยาวเกินไป → ขึ้นบรรทัดใหม่
+ 
+python  
+# ✅ ดี
+provider = get_provider(
+    task="document_summary",
+    priority=["openai", "gemini"],
+    max_tokens=1024,
+)
+ 
+ 
+ 
+ 
+✅ การเขียนทดสอบ
+ 
+ชื่อฟังก์ชันทดสอบ
+ 
+python  
+def test_calculate_cost_with_valid_input():
+    pass
 
-## Pull Requests
+def test_calculate_cost_raises_for_negative_tokens():
+    pass
+ 
+ 
+จัดเรียงเนื้อหา
+ 
+python  
+# Arrange — เตรียมข้อมูล
+tokens = 1000
+rate = 0.015
 
-- Title: format เดียวกับ commit (conventional)
-- Body: ใช้ template (มีใน repo) — อธิบาย what/why, test ที่ทำ, screenshot ถ้า UI เปลี่ยน
-- Label: ต้องมีอย่างน้อย 1 จาก `bug`/`enhancement`/`documentation`/`ai`/`ci`/`security`
-- Merge: **squash merge** เท่านั้น (commit message ต้อง conventional)
-- ต้อง pass ทุก check: lint, tsc, unit test, gitleaks, pnpm audit, CodeQL, Trivy, preview health, e2e (ถ้าแตะ frontend)
+# Act — ทำการทดสอบ
+result = calculate_cost(tokens, rate)
 
-## Labels (canonical)
+# Assert — ตรวจสอบผลลัพธ์
+assert result == 0.015
+ 
+ 
+สิ่งที่ควรทดสอบ
+ 
+- ✅ กรณีปกติ
+- ✅ ค่าขอบเขต (ค่าต่ำสุด/สูงสุด)
+- ✅ ข้อมูลไม่ถูกต้อง / ข้อมูลว่าง
+- ❌ ไม่ต้องทดสอบไลบรารีภายนอก — ทดสอบแค่ตรรกะของเรา
+ 
+ 
+ 
+📄 เอกสารและความคิดเห็น
+ 
+- ทุกไฟล์หลักควรมี docstring บอกว่าไฟล์นี้ทำอะไร
+- เมื่อแก้ไขสิ่งที่สำคัญ → อัปเดตเอกสารด้วย
+- ใช้ภาษาไทยหรืออังกฤษให้สอดคล้องกับส่วนที่เหลือของไฟล์
+- เอกสารใน  .claude/references/  เป็นแหล่งความจริงสุดท้าย — โค้ดต้องสอดคล้องกับเอกสาร
+ 
+ 
+ 
+🛠️ เครื่องมือที่ใช้ตรวจสอบ
+ 
+pyproject.toml — ตัวอย่างคอนฟิก
+ 
+toml  
+[tool.ruff]
+line-length = 100
+indent-width = 4
+src = ["src"]
 
-`bug`, `enhancement`, `documentation`, `ai`, `ci`, `security`, `performance`, `needs-review`, `stale-pr`, `auto-repair`, `dependencies`
+[tool.ruff.lint]
+select = [
+  "E",      # pycodestyle errors
+  "W",      # pycodestyle warnings
+  "F",      # pyflakes
+  "I",      # isort
+  "UP",     # pyupgrade
+  "B",      # flake8-bugbear
+  "C4",     # flake8-comprehensions
+  "SIM",    # flake8-simplify
+]
+ignore = ["E501"]  # Handled by formatter
 
-## Env Vars & Secrets
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
-- **ชื่อ**: `UPPER_SNAKE_CASE` (`DB_PASSWORD`, `REDIS_URL`, `OPENAI_API_KEY`)
-- **`.env.example`**: ต้องมีครบทุกตัวแปร พร้อม placeholder (ห้ามใส่ค่าจริง)
-- **Secrets**: เก็บใน GitHub **Environment** (`sandbox` / `production`) — ไม่ใช่ repo-wide secret
-- **Cloud deploy**: ใช้ OIDC (ไม่ใช่ long-lived token/PAT)
-- **Frontend**: ตัวแปรที่ฝั่ง browser เห็นต้องขึ้นต้น `NEXT_PUBLIC_` — ห้ามใส่ secret ลงตรงนี้
-- **AI keys**: แต่ละ key มี scope จำกัด + budget alert + rotate ทุก 90 วัน
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+ 
+ 
+คำสั่งตรวจสอบก่อนส่ง PR
+ 
+bash  
+# จัดรูปแบบโค้ด
+ruff format src/
 
-## Code Style
+# ตรวจสอบกฎ
+ruff check src/
 
-| Layer | Tool | คำสั่ง |
-|---|---|---|
-| Frontend (TS/JS) | ESLint + Prettier | `pnpm lint`, `pnpm format` |
-| Backend (Python) | ruff + black + mypy | `ruff check .`, `black .`, `mypy app/` |
-| YAML | prettier + actionlint | `actionlint .github/workflows/` |
-| Commit | commitlint | (auto ใน CI) |
+# ตรวจสอบและแก้ไขอัตโนมัติ
+ruff check src/ --fix
 
-## File/Path Rules
-
-- ห้ามใช้ absolute path ในโค้ด/config (`check-absolute-paths.yml` บังคับ)
-- `.gitignore` ครอบคลุม: `.env*`, `node_modules/`, `__pycache__/`, `.next/`, `uploads/`, `diagnostics/`, `*.log`
-- `gitignore-check.yml` + `IgnoreFileCheck.yml` บังคับ — ถ้าเพิ่มไฟล์ build output ต้องเพิ่มใน .gitignore ด้วย
-- ห้าม commit `diagnostics/`, `repair.patch`, `failure_context.json` (เป็น artifact ของ auto-repair)
-
-## Testing Standards
-
-- Unit test: ความช่วยเหลือใหม่ต้องมี test; `pnpm test --runInBand` (frontend), `pytest` (backend)
-- e2e: Playwright ต่อ preview URL — flow สำคัญ (login, upload, generate, download) ต้องมี
-- Prompt change: ต้องผ่าน `test:prompts` (golden output) ก่อน merge
+# รันทดสอบ
+pytest tests/ -v
+ 
+ 
+💡 ตั้งค่า VS Code: บันทึกไฟล์แล้วจัดรูปแบบอัตโนมัติ — ไม่ต้องทำด้วยตัวเองอีกต่อไป ✅
+ 
+ 
+ 
+⚠️ สิ่งที่ห้ามทำอย่างเด็ดขาด
+ 
+❌ ห้ามทำ เหตุผล 
+Hard-code API key หรือความลับในโค้ด ความปลอดภัย — ใช้ Environment Variable แทน 
+เรียก LLM SDK โดยตรงใน business logic ต้องผ่าน  providers.router  เพื่อจัดการ failover + cost 
+Commit ไฟล์ที่มีข้อมูลส่วนตัว ตรวจสอบ  .gitignore  ก่อน commit เสมอ 
+ปิดการทำงานของ linter โดยไม่มีเหตุผลอันควร รักษาคุณภาพโค้ด 
+เขียนโค้ดที่อ่านไม่ออกเพื่อ "ทำให้สั้น" โค้ดอ่านซ้ำบ่อยกว่าเขียนครั้งเดียว 
+ปรับแก้เอกสารอ้างอิงโดยไม่แจ้งทีม เอกสารกลางต้องตรงกับความจริงเสมอ 
+ 
+ 
+ 
+✅ กฎทอง: "ถ้าโค้ดของคุณทำให้คนอื่นต้องถามว่า 'ทำไมถึงเขียนแบบนี้?' แสดงว่าคุณเขียนผิดแบบแล้ว"
+ 
+ต้องการสร้างเนื้อหาฉบับเต็มของไฟล์ถัดไปไหมครับ? 😊

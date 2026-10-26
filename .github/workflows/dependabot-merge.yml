@@ -4,24 +4,74 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
+concurrency:
+  group: dependabot-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   dependabot-automerge:
     runs-on: ubuntu-latest
-    # Only run for Dependabot PRs that are not drafts
     if: github.actor == 'dependabot[bot]' && github.event.pull_request.draft == false
+    
     permissions:
       contents: write
       pull-requests: write
-    
+      checks: read
+
     steps:
       - name: Dependabot metadata
-        id: dependabot-metadata
+        id: metadata
         uses: dependabot/fetch-metadata@v2
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Enable Auto-Merge for Dependabot PRs
-        run: gh pr merge --auto --merge "$PR_URL"
+      # Performance: skip heavy jobs if not eligible
+      - name: Check auto-merge eligibility
+        id: check
+        run: |
+          # Only auto-merge patch + minor, never major
+          if [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-major" ]]; then
+            echo "eligible=false" >> $GITHUB_OUTPUT
+            echo "⛔ Major update — needs manual review"
+            exit 0
+          fi
+          
+          # Optional: blocklist for critical packages
+          # if [[ "${{ steps.metadata.outputs.dependency-names }}" == *"next"* ]]; then
+          #   echo "eligible=false" >> $GITHUB_OUTPUT
+          #   exit 0
+          # fi
+          
+          echo "eligible=true" >> $GITHUB_OUTPUT
+
+      - name: Wait for checks + Auto-approve
+        if: steps.check.outputs.eligible == 'true'
+        run: |
+          # Auto-approve first (required if branch protection needs approval)
+          gh pr review --approve "$PR_URL"
+          
+          # Wait for required checks max 5min (faster than --auto hanging)
+          gh pr checks "$PR_URL" --watch --fail-fast --interval 10 || {
+            echo "Checks failed, not merging"
+            exit 1
+          }
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable Auto-Merge (Squash)
+        if: steps.check.outputs.eligible == 'true'
+        run: |
+          # Use squash to keep history clean, merge only if green
+          gh pr merge --squash --auto "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment why not auto-merged
+        if: steps.check.outputs.eligible == 'false'
+        run: |
+          gh pr comment "$PR_URL" --body "⚠️ Dependabot **major** update detected (\`${{ steps.metadata.outputs.dependency-names }}\` ${{ steps.metadata.outputs.update-type }}). Manual review required. Check breaking changes."
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

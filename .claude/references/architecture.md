@@ -1,111 +1,188 @@
-# Architecture Reference — CrystalCastle X
-
-> โหลดไฟล์นี้เมื่อ: แก้ code ใน `src/`, `app/`, หรือถามเกี่ยวกับโครงสร้าง repo / วิธีรัน local
-
-## Stack สรุป
-
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js (App Router), TypeScript, Tailwind, pnpm, Node 22 |
-| Backend | Python 3.12, FastAPI, Uvicorn (4 workers) |
-| AI Providers | OpenAI, Gemini, Mistral (ผ่าน abstraction `src/ai/providers/`) |
-| DB / Cache | PostgreSQL 16, Redis 7 (AOF) |
-| Queue | Celery + Redis (broker db=1, result db=2) |
-| Infra | Docker → GHCR → sandbox host (preview) / Vercel (production) |
-| Reverse proxy | NGINX + Let's Encrypt (certbot auto-renew) |
-
-## Directory Layout
-
-```
-.
-├── src/                          # Next.js frontend
+yaml  
+---
+title: "Architecture — CrystalCastle X System Overview"
+type: "reference"
+status: "active"
+created: "2026-10-26"
+updated: "2026-10-26"
+tags:
+  - architecture
+  - overview
+  - project-structure
+  - tech-stack
+  - crystalcastlex
+related:
+  - "[[Conventions — Coding Standards]]"
+  - "[[AI Providers Reference — CrystalCastle X]]"
+description: "แผนภาพรวมระบบ โครงสร้างโฟลเดอร์ และเทคสแต็กหลักของ CrystalCastle X"
+---
+ 
+ 
+🏗️ Architecture — CrystalCastle X
+ 
+ภาพรวมระบบสำหรับสมาชิกใหม่ การออกแบบ และการตัดสินใจเกี่ยวกับโครงสร้าง ✅
+ 
+ 
+ 
+🎯 วัตถุประสงค์เอกสารนี้
+ 
+- เข้าใจภาพรวมระบบได้ใน 5 นาที
+- รู้ว่าโค้ดส่วนไหนอยู่ที่ไหน
+- ทราบเหตุผลที่เลือกแต่ละเทคโนโลยี
+- อ้างอิงเมื่อตัดสินใจเปลี่ยนแปลงโครงสร้าง
+ 
+ 
+ 
+📖 สารบัญ
+ 
+- 📋 ภาพรวมระบบ
+- 📁 โครงสร้างโฟลเดอร์
+- 🛠️ เทคสแต็กหลัก
+- 🔄 ขั้นตอนการทำงานหลัก
+- 📐 หลักการออกแบบ
+- ⚠️ ข้อผิดพลาดที่ควรหลีกเลี่ยง
+ 
+ 
+ 
+📋 ภาพรวมระบบ
+ 
+CrystalCastle X เป็นแพลตฟอร์มประมวลผลเนื้อหาและสร้างเนื้อหาด้วย AI ที่ออกแบบมาเพื่อ:
+ 
+- 📥 รับไฟล์/เนื้อหาจากหลายแหล่ง
+- 🤖 ประมวลผลด้วย LLM หลายผู้ให้บริการ (พร้อม failover อัตโนมัติ)
+- 📤 ส่งผลลัพธ์กลับไปยังผู้ใช้หรือระบบอื่น
+- 💰 ติดตามและควบคุมค่าใช้จ่ายการใช้ AI
+ 
+plaintext  
+┌─────────────────┐     ┌──────────────────────┐     ┌──────────────────┐
+│  ผู้ใช้ / ระบบ   │────▶│  API Gateway / Layer  │────▶│  Task Router     │
+│  ภายนอก         │     │  การตรวจสอบสิทธิ์     │     │  คิวงาน + กฎ   │
+└─────────────────┘     └──────────────────────┘     └────────┬───────┘
+                                                              │
+                     ┌──────────────────┬─────────────────────┼──────────────────┐
+                     ▼                  ▼                     ▼                  ▼
+          ┌──────────────────┐ ┌──────────────┐  ┌──────────────────┐ ┌───────────────┐
+          │  OpenAI Provider │ │ Gemini Prov. │  │  Mistral Prov.   │ │  Cache Layer   │
+          │  (gpt-4o-mini)   │ │ (gemini-1.5) │  │  (mistral-large) │ │  Redis / DB    │
+          └──────────────────┘ └──────────────┘  └──────────────────┘ └───────────────┘
+ 
+ 
+ 
+ 
+📁 โครงสร้างโฟลเดอร์
+ 
+plaintext  
+crystalcastlex/
+├── .claude/                     # 🤖 AI Assistant Skills
+│   └── references/              #   → ไฟล์อ้างอิงทั้งหมด (ที่คุณกำลังอ่าน)
+│
+├── src/
 │   ├── ai/
-│   │   ├── prompts/               # prompt templates (versioned, .md/.txt)
-│   │   ├── pipelines/             # orchestration: video → render → captions
-│   │   └── providers/             # ⚠️ LLM abstraction — ห้ามเรียก SDK โดยตรง
-│   ├── core/
-│   │   ├── video/                 # upload, transcode, thumbnail
-│   │   ├── render/                # render engine (FFmpeg / WebGL)
-│   │   └── captions/              # caption generation + styling
-│   ├── app/                       # Next.js App Router pages
-│   └── components/
-├── app/                           # Python FastAPI backend
-│   ├── main.py                    # uvicorn entry, GET /health
-│   ├── api/                       # routers
-│   ├── core/                      # config, security, deps
-│   ├── models/                    # SQLAlchemy / Pydantic
-│   ├── services/                  # business logic
-│   └── worker.py                  # Celery app instance
-├── scripts/
-│   └── ai_repair.py               # AI auto-repair agent (เรียกจาก workflow)
-├── docker-compose.yml             # production stack (api+db+redis+nginx)
-├── docker-compose.sandbox.yml     # preview per-PR stack
-├── Dockerfile                     # multi-stage, non-root (appuser UID 1000)
-├── .github/workflows/             # 40+ workflows (ดู workflows.md ก่อนเพิ่ม)
-└── .claude/skills/crystalcastle-dev/
-```
+│   │   ├── providers/           # ⚡ LLM Provider Abstraction Layer
+│   │   │   ├── base.py         #    — Interface มาตรฐาน
+│   │   │   ├── openai_provider.py
+│   │   │   ├── gemini_provider.py
+│   │   │   ├── mistral_provider.py
+│   │   │   └── router.py       #    — เลือก provider + failover + circuit breaker
+│   │   ├── prompts/             # 📝 Prompt Templates (.md, versioned)
+│   │   └── tasks/               # 📋 Task Definitions & Business Logic
+│   │
+│   ├── api/                     # 🌐 REST API Layer
+│   │   ├── routes/             #    — Endpoints
+│   │   ├── middleware/         #    — Auth, Logging, Rate Limit
+│   │   └── main.py             #    — App Entry Point
+│   │
+│   ├── core/                    # ⚙️ Core Utilities
+│   │   ├── config.py           #    — Settings & Environment Variables
+│   │   ├── logging.py          #    — Structured Logging
+│   │   └── exceptions.py       #    — Custom Exceptions
+│   │
+│   ├── db/                      # 🗄️ Database Layer
+│   │   ├── redis.py            #    — Cache & Queue
+│   │   └── postgres.py         #    — Persistent Storage
+│   │
+│   └── utils/                   # 🔧 Shared Helpers
+│       ├── cost_tracker.py     #    — คำนวณค่าใช้จ่าย AI
+│       └── validators.py       #    — Input Validation
+│
+├── tests/                       # 🧪 Tests
+│   ├── unit/
+│   └── integration/
+│
+├── .github/workflows/           # 🔄 CI/CD
+│   ├── ci.yml
+│   └── ai-cost-monitor.yml
+│
+├── .env.example                # 🔑 Environment Variables Template
+├── pyproject.toml              # 📦 Dependencies & Metadata
+└── README.md                   # 👋 Project Introduction
+ 
+ 
+📌 กฎสำคัญเกี่ยวกับโครงสร้าง
+ 
+- Business Logic → อยู่ใน  src/ai/tasks/  เท่านั้น — ไม่ปะปนกับ API layer
+- LLM Calls → ผ่าน  src/ai/providers/router.py  เท่านั้น — ห้ามเรียก SDK โดยตรง
+- Prompts → แยกไฟล์ที่  src/ai/prompts/  — ไม่ hardcode ในโค้ด
+- Config → อ่านผ่าน  src/core/config.py  — ไม่อ่าน  os.environ  โดยตรง
+ 
+ 
+ 
+🛠️ เทคสแต็กหลัก
+ 
+ชั้น/ส่วน เทคโนโลยี เหตุผลที่เลือก ทางเลือกที่พิจารณา 
+ภาษา Python 3.12+ ยืดหยุ่น, ชุมชน AI ใหญ่, ecosystem ครบถ้วน — 
+API Framework FastAPI Async รองรับ, ประเภทชัดเจน, docs อัตโนมัติ Flask, Starlette 
+LLM Providers OpenAI, Gemini, Mistral ครอบคลุม, หลากหลาย, failover ได้ Anthropic, Groq 
+Cache / Queue Redis คิวงาน, แคช, ตัวนับ — ที่เดียวครบ RabbitMQ, Memcached 
+Database PostgreSQL คงที่, เชื่อมโยงข้อมูลได้ดี, มีมาตรฐาน SQLite (dev-only) 
+Configuration Pydantic Settings ตรวจสอบประเภท, env auto-load python-dotenv 
+Testing pytest ยืดหยุ่น, plugin เยอะ unittest 
+CI/CD GitHub Actions รวมอยู่ในแพลตฟอร์ม, ไม่ต้องเซิร์ฟเวอร์เพิ่ม GitLab CI 
+ 
+ 
+ 
+🔄 ขั้นตอนการทำงานหลัก
+ 
+plaintext  
+1. รับคำขอ → POST /api/v1/task
+   ├── ตรวจสอบสิทธิ์ + Validate Input
+   └── บันทึกลงคิว
 
-## Data Flow (หลัก)
+2. ประมวลผล
+   ├── Router เลือก Provider ที่เหมาะสม + พร้อมใช้งาน
+   ├── โหลด Prompt Template + ใส่ค่า
+   ├── เรียก LLM (มี retry + timeout + fallback)
+   ├── บันทึกการใช้งาน (token, cost, latency)
 
-```
-User upload video
-   │
-   ▼
-Next.js → POST /api/v1/jobs  (FastAPI)
-   │
-   ▼
-Celery task (broker=Redis db1)
-   │
-   ├─ core/video: transcode → thumbnail
-   ├─ ai/pipelines: เอา prompt จาก ai/prompts → เรียกผ่าน ai/providers (failover)
-   ├─ core/captions: generate + style
-   └─ core/render: compose final video
-   │
-   ▼
-บันทึกลง PostgreSQL + storage (uploads volume) → notify frontend (SSE/poll)
-```
-
-## รัน Local
-
-```bash
-# 1. infra
-docker compose up -d db redis      # postgres:5432, redis:6379
-
-# 2. backend
-cd app && python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env               # ใส่ DB_*, REDIS_*, *_API_KEY
-uvicorn app.main:app --reload --port 8000
-# health: http://localhost:8000/health
-
-# 3. frontend
-pnpm install --frozen-lockfile
-cp .env.local.example .env.local   # NEXT_PUBLIC_API_URL=http://localhost:8000
-pnpm dev                           # http://localhost:3000
-
-# 4. celery worker (ถ้ามี background task)
-celery -A app.worker worker --loglevel=info
-```
-
-## Ports & Endpoints
-
-| Service | Port | Note |
-|---|---|---|
-| Frontend (Next.js) | 3000 | `NEXT_PUBLIC_*` เท่านั้นที่เห็นฝั่ง browser |
-| API (FastAPI) | 8000 | `GET /health` — ใช้โดยทุก health check |
-| PostgreSQL | 5432 | internal only (ไม่เปิดออก) |
-| Redis | 6379 | มี requirepass; db0=cache, db1=celery broker, db2=result |
-| NGINX (prod) | 80/443 | จุดเข้าเดียว; `/api/*` → api, `/` → frontend |
-
-## Build & Deploy Targets
-
-- **PR** → preview sandbox (`pr-<n>.preview.yourdomain.com`) + Lighthouse + Playwright e2e
-- **push develop** → build image `:sha-<short>` → GHCR → sandbox deploy → health check → (fail → auto-repair)
-- **push main** → production deploy (Vercel frontend + docker deploy backend) + release drafter
-
-## กฎสำคัญ
-
-- ห้าม hardcode LLM model/key ใน code — อ่านจาก env + ผ่าน `src/ai/providers/`
-- Prompt templates อยู่ใน `src/ai/prompts/` เป็นไฟล์ (versioned) — ไม่เขียนในโค้ด
-- ทุก async job ต้องผ่าน Celery — ห้าม block request ด้วยการเรียก LLM โดยตรง
-- ทุก service ต้องมี `GET /health` และ healthcheck ใน compose/workflow
+3. ส่งคืน
+   ├── จัดรูปแบบผลลัพธ์
+   └── ส่งกลับ + สถานะ
+ 
+ 
+ 
+ 
+📐 หลักการออกแบบ
+ 
+หลักการ ความหมาย 
+🧱 Separation of Concerns API, Business Logic, LLM Integration — แยกกันอย่างชัดเจน เปลี่ยนส่วนหนึ่งไม่กระทบส่วนอื่น 
+🛡️ Abstraction First ไม่ผูกติดกับผู้ให้บริการรายใดรายหนึ่ง — สลับได้ทันทีถ้ามีปัญหา 
+💰 Cost Visibility รู้ต้นทุนทุกคำขอ — ป้องกันความประหลาดใจเมื่อใบเสร็จมาถึง 
+🔁 Resilience by Design ระบบไม่ล้มเมื่อ service ภายนอกล้ม — มีทางเลือกเสมอ 
+📝 Explicit over Implicit โค้ดอ่านง่าย กฎชัดเจน ไม่มี "เวทมนตร์" ที่ซ่อนอยู่ 
+ 
+ 
+ 
+⚠️ ข้อผิดพลาดที่ควรหลีกเลี่ยง
+ 
+❌ อย่าทำ ✅ ให้ทำแทน เหตุผล 
+เรียก OpenAI SDK โดยตรงใน route ผ่าน  providers.router  เสมอ จัดการ failover + cost tracking ที่จุดเดียว 
+เขียน prompt ยาวๆ ในโค้ด เก็บที่  src/ai/prompts/  เป็นไฟล์ .md Version control + review ได้ 
+อ่าน  os.environ  โดยตรง ใช้  src/core/config.py  ตรวจสอบค่าที่ขาดหายไปตอนเริ่มระบบ 
+สร้างการเชื่อมต่อ DB ในแต่ละไฟล์ ใช้ singleton จาก  db/postgres.py  จัดการ connection pool อย่างถูกต้อง 
+บันทึก API key ใน log ใช้ filter — เซนซิทีฟข้อมูลต้องถูกซ่อน ความปลอดภัยและกฎหมาย 
+ 
+ 
+ 
+💡 อัปเดตล่าสุด: หากคุณเปลี่ยนแปลงโครงสร้างสำคัญในโค้ด — อัปเดตไฟล์นี้ทันที เพื่อให้ทีมทุกคนเห็นภาพเดียวกัน ✅
+ 
+ต้องการสร้างเนื้อหาฉบับเต็มของไฟล์ถัดไปไหมครับ? 😊

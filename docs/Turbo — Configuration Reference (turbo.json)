@@ -1,0 +1,225 @@
+yaml  
+---
+title: "Turbo — Configuration Reference (turbo.json)"
+type: "reference"
+status: "active"
+created: "2026-10-26"
+updated: "2026-10-26"
+tags:
+  - turbo
+  - monorepo
+  - build-system
+  - ci-cd
+  - configuration
+related: []
+description: "คู่มือฉบับสมบูรณ์ไฟล์ turbo.json — การตั้งค่า Turborepo สำหรับโปรเจกต์หลายแพ็กเกจ"
+---
+ 
+ 
+⚡ turbo.json — Turborepo Configuration Reference
+ 
+การบิลด์เร็วขึ้น แคชอัตโนมัติ และรันงานข้ามโปรเจกต์ได้อย่างถูกต้อง ✅
+ 
+ 
+ 
+📖 สารบัญ
+ 
+- 🎯 ภาพรวม
+- 📝 โครงสร้างพื้นฐานไฟล์
+- ⚙️ คำอธิบายคีย์หลัก
+- 📋 ตัวอย่างที่ใช้งานได้จริง
+- 🔧 Tasks — คอนฟิกงานแต่ละขั้นตอน
+- 💡 แคช — วิธีทำงานและการตั้งค่า
+- ⚠️ ข้อผิดพลาดที่พบบ่อย](#️-ข้อผิดพลาดที่พบบ่อย)
+ 
+ 
+ 
+🎯 ภาพรวม
+ 
+ turbo.json  คือไฟล์คอนฟิกหลักของ Turborepo — ระบบบิลด์สำหรับ Monorepo ที่ช่วยให้:
+ 
+- ✅ รันคำสั่งข้ามหลายแพ็กเกจได้ขนานกัน
+- ✅ แคชผลลัพธ์บิลด์อัตโนมัติ — ไม่ต้องทำซ้ำ
+- ✅ จัดลำดับความพึ่งพา → บิลด์ตามลำดับที่ถูกต้อง
+- ✅ กำหนดกฎการดำเนินงานทั้งทีมได้มาตรฐาน
+ 
+ 
+ 
+📝 โครงสร้างพื้นฐานไฟล์
+ 
+json  
+{
+  "$schema": "https://turbo.build/schema.json",
+  "version": 2,
+  "globalDependencies": ["**/.env.*local"],
+  "globalEnv": ["NODE_ENV", "CI"],
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "inputs": ["src/**/*", "tests/**/*"]
+    },
+    "lint": {
+      "outputs": []
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}
+ 
+ 
+ 
+ 
+⚙️ คำอธิบายคีย์หลัก
+ 
+ระดับบนสุด
+ 
+คีย์ ความหมาย ค่าที่แนะนำ 
+ $schema  ลิงก์สคีมาสำหรับตรวจสอบความถูกต้องใน IDE  "https://turbo.build/schema.json"  
+ version  เวอร์ชันรูปแบบไฟล์ — ปัจจุบันใช้  2   2  
+ globalDependencies  ไฟล์ที่เมื่อเปลี่ยน → ทุกงานจะรันใหม่ทั้งหมด  ["**/.env*"]  
+ globalEnv  ตัวแปรสภาพแวดล้อมที่ส่งผลต่อแคช  ["NODE_ENV"]  
+ pipeline  สำคัญที่สุด — ประกาศงานและกฎการทำงาน ด้านล่าง ↓ 
+ 
+ 
+ 
+🔧 Tasks — คอนฟิกงานแต่ละขั้นตอน
+ 
+ภายใน  pipeline  แต่ละงานสามารถตั้งค่าเหล่านี้ได้:
+ 
+คีย์ ความหมาย ตัวอย่าง 
+ dependsOn  ต้องรันอะไรเสร็จก่อน?  ^  = แพ็กเกจที่อ้างอิง  ["^build"]  
+ outputs  ไฟล์ผลลัพธ์ เพื่อแคช — รูปแบบ Glob  ["dist/**"]  
+ inputs  ไฟล์ที่ส่งผลต่อการรันงานนี้ ถ้าไม่ระบุ = ทุกไฟล์  ["src/**"]  
+ outputMode  วิธีจัดการเอาต์พุตในเทอร์มินัล  "new-only"  
+ cache  เปิด/ปิดแคชสำหรับงานนี้  true  /  false  
+ persistent  เป็นเซิร์ฟเวอร์ที่รันค้างไว้หรือไม่ (เช่น dev server)  true  /  false  
+ env  ตัวแปรที่ส่งผลต่อแคชของงานนี้โดยเฉพาะ  ["API_URL"]  
+ 
+สัญลักษณ์พิเศษใน  dependsOn 
+ 
+-  ^build  → รัน  build  ของทุกแพ็กเกจที่อ้างอิงก่อน
+-  #build  → รัน  build  ในแพ็กเกจเดียวกันก่อน
+-  build  → รัน  build  ก่อน (ทุกแพ็กเกจตามลำดับ)
+ 
+ 
+ 
+📋 ตัวอย่างที่ใช้งานได้จริง
+ 
+ตัวอย่างสมบูรณ์สำหรับ Monorepo ทั่วไป
+ 
+json  
+{
+  "$schema": "https://turbo.build/schema.json",
+  "version": 2,
+  "globalDependencies": ["**/.env", "**/.env.local"],
+  "globalEnv": ["NODE_ENV", "NEXT_PUBLIC_*"],
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**",
+        "build/**"
+      ],
+      "cache": true
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": []
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "inputs": ["src/**/*", "tests/**/*", "**/*.test.ts"],
+      "outputs": [],
+      "cache": true
+    },
+    "test:unit": {
+      "dependsOn": [],
+      "inputs": ["src/**/*", "**/*.spec.ts"],
+      "outputs": [],
+      "cache": true
+    },
+    "lint": {
+      "inputs": ["src/**/*", ".eslintrc*"],
+      "outputs": [],
+      "cache": true
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "inputs": ["src/**/*", "tsconfig.json"],
+      "outputs": ["tsconfig.tsbuildinfo"],
+      "cache": true
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}
+ 
+ 
+ 
+ 
+💡 แคช — วิธีทำงานและการตั้งค่า
+ 
+Turbo ตัดสินใจว่าต้องรันใหม่หรือใช้แคชจาก:
+ 
+1. เนื้อหาไฟล์ ใน  inputs  เปลี่ยนหรือไม่
+2. ตัวแปรสภาพแวดล้อม ใน  env  /  globalEnv  เปลี่ยนหรือไม่
+3. ผลลัพธ์ของงานที่ขึ้นต้น ( dependsOn ) เปลี่ยนหรือไม่
+ 
+❌ ปิดแคชเมื่อไหร่?
+ 
+-  dev  — เซิร์ฟเวอร์พัฒนา
+-  clean  — ลบไฟล์
+-  deploy  — ส่งมอบงานจริง
+- งานที่ดึงข้อมูลภายนอกตลอดเวลา
+ 
+🧹 ล้างแคช
+ 
+bash  
+# ล้างแคชทั้งหมด
+turbo prune
+
+# รันใหม่โดยข้ามแคช
+turbo run build --force
+ 
+ 
+ 
+ 
+⚠️ ข้อผิดพลาดที่พบบ่อย
+ 
+ปัญหา สาเหตุที่เป็นไปได้ วิธีแก้ไข 
+แคชไม่ทำงาน  outputs  ผิดพาธ หรือ  inputs  กว้างเกินไป ตรวจสอบพาธและรูปแบบ Glob 
+บิลด์ทำงานผิดลำดับ ขาด  ^  นำหน้าใน  dependsOn  ใช้  "^build"  เพื่ออ้างอิงแพ็กเกจอื่นก่อน 
+ตัวแปรสภาพแวดล้อมทำให้แคชพัง ลืมประกาศใน  env  /  globalEnv  ประกาศตัวแปรที่ส่งผลต่อผลลัพธ์ 
+Dev ค้างไม่จบ ตั้ง  persistent: true  แล้ว Turbo จะรอเอง ปกติ — ไม่ต้องแก้ไข 
+ไฟล์ผลลัพธ์หาย รูปแบบ  outputs  ไม่ถูกต้อง ทดสอบ Glob pattern ก่อนบันทึก 
+ 
+ 
+ 
+🚀 คำสั่งที่ใช้บ่อย
+ 
+bash  
+# รันบิลด์ทุกแพ็กเกจ
+turbo run build
+
+# รันเฉพาะบางแพ็กเกจ
+turbo run build --filter=@my-org/app
+
+# ดูแผนภาพการพึ่งพา
+turbo build --graph
+ 
+ 
+ต้องการตัวอย่างสำหรับสภาพแวดล้อมเฉพาะไหมครับ เช่น Next.js + Packages, React Native + Web, หรือ Monorepo แบบ Python/Node ผสมกัน 😊

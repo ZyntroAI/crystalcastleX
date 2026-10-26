@@ -1,0 +1,143 @@
+yaml  
+---
+title: "Typer — Installation & AI Agent Skills Guide"
+type: "guide"
+status: "active"
+created: "2026-10-26"
+updated: "2026-10-26"
+tags:
+  - typer
+  - python
+  - cli
+  - uv
+  - installation
+  - ai-agent-skills
+related: []
+description: "Step-by-step guide to installing Typer CLI framework and setting up AI Agent Skills"
+---
+ 
+ 
+🚀 Typer — Installation & AI Agent Skills Guide
+ 
+Build beautiful CLI interfaces with Python — fast, intuitive, and auto-generated ✅
+ 
+ 
+ 
+📦 Step 1 — Install Typer with  uv 
+ 
+Create a new project
+ 
+bash  
+uv init awesome-project --bare
+cd awesome-project
+uv add typer
+ 
+ 
+What these commands do:
+ 
+-  uv init awesome-project --bare  → Creates a new folder with only  pyproject.toml 
+-  uv add typer  → Installs Typer, updates  pyproject.toml , and creates  uv.lock 
+-  uv.lock  → Locks exact versions — reproducible installs on any machine ✅
+ 
+Dependencies included:  typer  comes with  rich  (beautiful output) and  shellingham  (auto-detect shell)
+ 
+ 
+ 
+🔧 Step 2 — Activate the Virtual Environment
+ 
+Linux / macOS
+ 
+bash  
+source .venv/bin/activate
+ 
+ 
+Windows PowerShell
+ 
+powershell  
+.venv\Scripts\Activate.ps1
+ 
+ 
+Windows Bash / WSL
+ 
+bash  
+source .venv/Scripts/activate
+ 
+ 
+Enable Shell Completion
+ 
+bash  
+typer --install-completion
+ 
+ 
+⚠️ Restart your terminal for completion to take effect ✅
+ 
+💡 You can also run commands without activating the venv by using:  uv run typer --help 
+ 
+ 
+ 
+🤖 Step 3 — Install AI Agent Skills
+ 
+Typer includes official AI coding agent skills bundled right with the package — guidance always matches your exact installed version and updates automatically when you update Typer! 🎯
+ 
+Install Library Skills
+ 
+bash  
+uvx library-skills
+ 
+ 
+💡 What  uvx  does: Alias for  uv tool run  — runs temporarily in isolation while scanning your project dependencies. No permanent installation needed! ✅
+ 
+🧩 Supported AI Agents
+ 
+- ✅ Codex
+- ✅ Claude Code → Select  .claude/skills  when prompted
+- ✅ Cursor
+- ✅ GitHub Copilot
+- ✅ Gemini CLI
+- ✅ Pi
+- ✅ OpenCode
+- ✅ Most other coding agents
+ 
+ 
+ 
+📝 Quick Recap — Full Workflow
+ 
+bash  
+# 1️⃣ Create project
+uv init my-cli-app --bare
+cd my-cli-app
+
+# 2️⃣ Install Typer
+uv add typer
+
+# 3️⃣ Activate venv
+source .venv/bin/activate   # Linux/macOS
+# or .venv\Scripts\Activate.ps1  # Windows
+
+# 4️⃣ Enable completion
+typer --install-completion
+
+# 5️⃣ Install AI Agent Skills
+uvx library-skills
+ 
+ 
+ 
+ 
+💡 Alternative: Using  pip  instead of  uv 
+ 
+bash  
+# Create and activate venv first
+python -m venv .venv
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+
+# Install Typer
+pip install typer
+ 
+ 
+ 
+ 
+🗺️ Next Steps
+ 
+Ready to build your first CLI app? → Continue to First Steps tutorial at typer.tiangolo.com 🎉
+ 
+Need help with anything specific? 😊

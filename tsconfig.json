@@ -1,63 +1,37 @@
+
 {
   "compilerOptions": {
-    // ── Strictness ─────────────────────────────────────────
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "es2022"],
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,          // `x?: T` is no longer assignable to `T | undefined`
-    "noImplicitOverride": true,                  // class method overrides must say `override`
-    "noImplicitReturns": true,                   // every code path in a value-returning fn must return
-    "noPropertyAccessFromIndexSignature": true,  // force `obj[key]` for index-signature keys
-    "noUncheckedSideEffectImports": true,        // TS 5.5+: side-effect-only imports must be `import "x"`
-
-    // ── Modules / ESM hygiene ──────────────────────────────
-    "verbatimModuleSyntax": true,                // enforces `import type`; supersedes isolatedModules
-    "moduleDetection": "force",                  // treat every file as a module (no "script" files)
-    "isolatedModules": true,                     // implied by verbatimModuleSyntax; kept for tooling
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-
-    // ── Output (your bundler emits, tsc only typechecks) ──
-    "target": "ES2023",                          // bumped ES2022 → ES2023 (ESNext is also fine w/ bundler)
-    "module": "ESNext",
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
-    "moduleResolution": "bundler",
     "noEmit": true,
-    "jsx": "react-jsx",
-    "useDefineForClassFields": true,
-
-    // ── Interop / correctness ──────────────────────────────
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,                        // large speedup; almost never worth disabling
-    "assumeChangesOnlyAffectDirectDependencies": true, // faster --watch / incremental rebuilds
-
-    // ── DX ────────────────────────────────────────────────
-    "incremental": true,                         // caches typecheck graph; speeds re-runs
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
-    "noErrorTruncation": true,                   // full, untruncated error messages in CI/editor
-
-    // ── Path aliases (unchanged) ───────────────────────────
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      { "name": "next" }
+    ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@components/*": ["./src/components/*"],
-      "@hooks/*": ["./src/hooks/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@types/*": ["./src/types/*"]
+      "@/*": ["./*"],
+      "@/core/*": ["./app/core/*"],
+      "@/data/*": ["./app/data/*"],
+      "@/features/*": ["./app/feature/*"],
+      "@/dashboard/*": ["./app/dashboard/*"],
+      "@/studio/*": ["./app/studio/*"],
+      "@/components/*": ["./app/components/*"]
     }
   },
-  "include": ["src"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    ".next",
-    "out",
-    "coverage",
-    "src/api/flask_pdf2htmlEX_drive",
-    "src/pages",
-    "src/UiLogPanel.jsx"
-  ]
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": ["node_modules"]
 }

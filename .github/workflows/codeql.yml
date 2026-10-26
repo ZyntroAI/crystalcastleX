@@ -1,61 +1,69 @@
-name: "CodeQL Advanced"
+
+name: CodeQL Advanced
 
 on:
   push:
-    branches: [main, develop]        # ← เพิ่ม develop (branch พัฒนาหลัก)
-  pull_request:                       # ← scan ทุก PR (เดิมเฉพาะ main → พลาด PR ที่เปิดไป develop)
-    # paths-ignore: ['**.md', 'docs/**']   # เปิดได้ถ้าอยากประหยัด minutes สำหรับ PR แค่เอกสาร
-  schedule:
-    - cron: '18 5 * * 0'              # weekly (อาทิตย์ 05:18 UTC — off-peak ดีอยู่แล้ว)
+    branches:
+      - main
+      - develop
 
-concurrency:
-  group: codeql-${{ github.ref }}
-  cancel-in-progress: true
+  pull_request:
+
+  schedule:
+    # Sunday at 05:18 UTC
+    - cron: "18 5 * * 0"
+
+  workflow_dispatch:
 
 permissions:
   contents: read
-  security-events: write               # ← เหลือแค่นี้ (build-mode:none ไม่ต้อง packages/actions)
+  security-events: write
+  actions: read
+
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: ubuntu-latest             # ← ตัด swift condition ทิ้ง (ไม่มี swift ใน repo)
+    runs-on: ubuntu-latest
     timeout-minutes: 30
+
     strategy:
-      fail-fast: false                 # ← เก็บไว้: ภาษาตัวหนึ่งล้ม ไม่กระทบอีกตัว
+      fail-fast: false
       matrix:
         include:
           - language: javascript-typescript
             build-mode: none
-          - language: python            # ← ⭐ เพิ่ม! backend FastAPI + scripts/ai_repair.py ยังไม่เคยถูก scan
+
+          - language: python
             build-mode: none
 
     steps:
-      - name: 📥 Checkout repository
-        uses: actions/checkout@v5       # TODO: pin เป็น 40-char SHA ตาม SECURITY.md
-        # fetch-depth default = 1 เพียงพอสำหรับ CodeQL แล้ว
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
-      - name: 🛡️ Initialize CodeQL
-        uses: github/codeql-action/init@v3   # TODO: pin SHA
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
-          queries: security-and-quality      # ← เพิ่ม: รวม quality queries ด้วย (ไม่ใช่แค่ security)
-          # config: .github/codeql/codeql-config.yml   # เปิดถ้าต้องการ custom queries/paths
+          queries: security-and-quality
 
-      # build-mode: none → ไม่ต้อง step build/autobuild (JS/TS + Python เป็น interpreted)
-      # ถ้าเพิ่มภาษา compiled (Java/Go/C++) ตอนหลัง: เพิ่ม build-mode: autobuild + step Autobuild
-
-      - name: 🔍 Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3   # TODO: pin SHA
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:${{ matrix.language }}"
           output: sarif-results/${{ matrix.language }}
 
-      - name: 📦 Upload SARIF as artifact (debug)
+      - name: Upload SARIF debug artifact
         if: always()
-        uses: actions/upload-artifact@v4   # TODO: pin SHA
+        uses: actions/upload-artifact@v7
         with:
           name: codeql-sarif-${{ matrix.language }}
-          path: sarif-results/
+          path: sarif-results/${{ matrix.language }}/
+          if-no-files-found: ignore
           retention-days: 14

@@ -1,107 +1,91 @@
-ยินดีครับ! เพื่อให้ระบบ **SemanticDiff** และ **AI-Powered Self-Healing** ในโปรเจกต์ `crystalcastleX` ของคุณทำงานร่วมกันได้อย่างสมบูรณ์แบบตามสถาปัตยกรรม Zyntro AI เราจะแบ่งการลงมือทำออกเป็นโครงสร้างสคริปต์ที่ใช้งานได้จริงครับ
+#!/usr/bin/env python3
+"""
+Zyntro Semantic Diff — 0 credits, Ollama powered
+Classifies changes semantically, not just line diff
+"""
+import re, json, sys
+from pathlib import Path
+from dataclasses import dataclass
+from typing import List
 
----
+@dataclass
+class SemanticChange:
+    file: str
+    type: str  # feat|fix|refactor|affiliate|docs|style|test|chore|security|breaking
+    risk: str  # Low|Medium|High
+    summary: str
+    lines: int
 
-### 1. โครงสร้างสคริปต์สำหรับ SemanticDiff (Python Script)
-เราสามารถสร้างสคริปต์วิเคราะห์ความเปลี่ยนแปลงเชิงโครงสร้างโค้ด (AST Comparison) ไว้ในโฟลเดอร์ `.github/scripts/validator/semantic_diff.py` เพื่อให้ GitHub Actions เรียกใช้งานตอนตรวจ Pull Request
+FILE_PATTERNS = {
+    'affiliate': re.compile(r'(affiliate|shopee|lazada|product|link)', re.I),
+    'security': re.compile(r'(secret|password|token|auth|api_key|credential)', re.I),
+    'test': re.compile(r'(__tests__|test_|\.test\.|\.spec\.)', re.I),
+    'docs': re.compile(r'(\.md$|docs/|README)', re.I),
+    'ci': re.compile(r'(\.github/|Dockerfile|docker-compose)', re.I),
+}
 
-```python
-# .github/scripts/validator/semantic_diff.py
-import ast
-import sys
+BREAKING_PATTERNS = re.compile(r'(BREAKING CHANGE|remove|delete|rename.*function|change.*signature)', re.I)
 
-def parse_code_to_ast(file_path):
-    """แปลงไฟล์โค้ด Python เป็น Abstract Syntax Tree เพื่อวิเคราะห์เชิงความหมาย"""
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            return ast.parse(f.read(), filename=file_path)
-    except SyntaxError as e:
-        print(f"❌ Syntax Error in {file_path}: {e}")
-        return None
-
-def compare_functions(old_file, new_file):
-    """เปรียบเทียบโครงสร้างฟังก์ชันและคลาสระหว่างเวอร์ชันเก่าและใหม่"""
-    old_ast = parse_code_to_ast(old_file)
-    new_ast = parse_code_to_ast(new_file)
+def classify_file(path: str, diff_chunk: str) -> SemanticChange:
+    path_lower = path.lower()
+    lines = diff_chunk.count('\n')
     
-    if not old_ast or not new_ast:
-        return "Parsing Failed"
+    # Detect type
+    ftype = 'chore'
+    for key, pattern in FILE_PATTERNS.items():
+        if pattern.search(path) or pattern.search(diff_chunk[:2000]):
+            ftype = key
+            break
+    
+    # Detect feat/fix from content
+    if re.search(r'\bdef \w+|class \w+|export (function|const)', diff_chunk):
+        if 'fix' in diff_chunk.lower() or 'bug' in diff_chunk.lower():
+            ftype = 'fix'
+        else:
+            ftype = 'feat' if ftype == 'chore' else ftype
 
-    old_funcs = {node.name for node in ast.walk(old_ast) if isinstance(node, ast.FunctionDef)}
-    new_funcs = {node.name for node in ast.walk(new_ast) if isinstance(node, ast.FunctionDef)}
+    risk = 'Low'
+    if ftype == 'security':
+        risk = 'High'
+    elif BREAKING_PATTERNS.search(diff_chunk):
+        ftype = 'breaking'
+        risk = 'High'
+    elif lines > 200 or ftype in ('feat', 'refactor'):
+        risk = 'Medium'
+    elif ftype == 'affiliate' and lines > 50:
+        risk = 'Medium'
 
-    added = new_funcs - old_funcs
-    removed = old_funcs - new_funcs
+    summary = diff_chunk.split('\n')[0][:120] if diff_chunk else "No changes"
 
-    print(f"🔍 Semantic Analysis Results:")
-    print(f"  - Added Functions: {list(added)}")
-    print(f"  - Removed Functions: {list(removed)}")
+    return SemanticChange(
+        file=path,
+        type=ftype,
+        risk=risk,
+        summary=summary,
+        lines=lines
+    )
 
-if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: python semantic_diff.py <old_file> <new_file>")
-        sys.exit(1)
-    compare_functions(sys.argv[1], sys.argv[2])
-```
+def parse_git_diff(diff_text: str) -> List[SemanticChange]:
+    changes = []
+    current_file = ""
+    current_chunk = []
 
----
+    for line in diff_text.split('\n'):
+        if line.startswith('diff --git'):
+            if current_file:
+                changes.append(classify_file(current_file, '\n'.join(current_chunk)))
+            # extract b/file
+            m = re.search(r'b/(.+)$', line)
+            current_file = m.group(1) if m else "unknown"
+            current_chunk = []
+        else:
+            current_chunk.append(line)
+    
+    if current_file:
+        changes.append(classify_file(current_file, '\n'.join(current_chunk)))
+    
+    return changes
 
-### 2. ปรับแต่งสคริปต์ Self-Healing ให้เชื่อมโยงกัน (`.github/workflows/self-healing.yml`)
-นำสคริปต์การทำ Self-Healing มาปรับแต่งเพิ่ม เพื่อให้ระบบตรวจสอบความผิดพลาด รัน SemanticDiff และให้ AI (หรือชุดคำสั่งซ่อมแซม) ทำงานต่อโดยอัตโนมัติ
-
-```yaml
-name: Zyntro AI Self-Healing & Semantic Validation
-
-on:
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-
-jobs:
-  semantic-and-heal:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull_requests: write
-
-    steps:
-      - name: 📥 Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: 🐍 Set up Python
-        uses: setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: 🔍 Run Semantic Diff Check
-        run: |
-          echo "Running SemanticDiff analysis on changed files..."
-          # ตัวอย่างการเรียกใช้ตรวจสอบโครงสร้างโค้ด
-          python .github/scripts/validator/semantic_diff.py app/main.py app/main.py || true
-
-      - name: 🧪 Run Tests & Detect Failures
-        id: run_tests
-        run: |
-          pip install pytest ruff
-          ruff check . --fix || echo "lint_failed=true" >> $GITHUB_ENV
-
-      - name: 🤖 Trigger AI Self-Healing Patch
-        if: env.lint_failed == 'true'
-        run: |
-          echo "⚠️ Lint/Test failed. Executing AI-Powered Self-Healing..."
-          # จำลองกระบวนการให้ระบบช่วยแก้โค้ดเฉพาะจุดอัตโนมัติ
-          python .github/scripts/self_healing/repair_engine.py || echo "healing_status=failed" >> $GITHUB_ENV
-
-      - name: 🔄 Re-verify and Push Fixes
-        if: env.lint_failed == 'true'
-        run: |
-          git config --global user.name "Zyntro AI Self-Healing Bot"
-          git config --global user.email "bot@zyntromedia.com"
-          git add .
-          git commit -m "🤖 fix(auto): Zyntro AI automated self-healing patch" || echo "No changes to commit"
-          git push || true
-```
-
-คุณต้องการให้ผมเจาะลึกเพิ่มในส่วนของการเขียนโมดูล `repair_engine.py` (ระบบจำแนกข้อผิดพลาดและสั่งแก้โค้ดอัตโนมัติ) หรือต้องการปรับแต่งไฟล์ส่วนไหนเพิ่มเติมก่อนนำไปใส่ใน Repository ครับ?
+def main():
+    diff_file = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("diff.txt")
+    output_file = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("output/semantic.json")

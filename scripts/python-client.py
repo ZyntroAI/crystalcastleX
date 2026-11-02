@@ -3,6 +3,7 @@
 """ ASF OAuth example in Python 3"""
 import cgi
 import os
+import re
 import requests
 import urllib
 import uuid
@@ -47,11 +48,16 @@ def callback():
     # Validate state ID and code if need be
     validate_parameters_somehow(state_id, code)
 
+    # Basic input hardening for OAuth authorization code (RFC6749 token-like charset)
+    if not isinstance(code, str) or not re.fullmatch(r"[A-Za-z0-9\-._~+/]+=*", code):
+        bork("Invalid OAuth code")
+        return
+
     # Fetch our state object from wherever we stored it (pseudo-call!)
     state_object = load_state(state_id)
 
-    # Call up OAuth system and get results!
-    rv = requests.get("https://oauth.apache.org/token-oidc?code=%s" % code).json()
+    # Call up OAuth system and get results safely (no URL string interpolation)
+    rv = requests.get("https://oauth.apache.org/token-oidc", params={"code": code})
 
     # Check that the token is valid and login worked
     if rv.status_code != 200:

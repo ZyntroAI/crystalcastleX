@@ -155,3 +155,6 @@ blob-report/
 
 # Never commit real env files
 .env.local
+
+
+.github*

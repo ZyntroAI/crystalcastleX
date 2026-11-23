@@ -1,4 +1,5 @@
 name: Security Scan Suite
+run-name: 🔒 Security Scan — ${{ github.event_name }} @ ${{ github.ref_name }}
 
 on:
   push:
@@ -6,60 +7,84 @@ on:
   pull_request:
     branches: [main, develop]
   schedule:
-    - cron: '0 4 * * 1'  # Weekly scan every Monday at 11:00 AM ICT
+    - cron: '0 4 * * 1'  # Weekly scan every Monday 11:00 ICT
+  workflow_dispatch:     # Allow manual on-demand runs
 
 permissions:
   contents: read
   security-events: write
+  pull-requests: write   # For Dependency Review PR comments
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true   # Skip duplicate scans on same branch
 
 jobs:
   gitleaks:
-    name: Secret Scan
+    name: 🕵️ Secret Scan (Git History)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@a5ac7e51b4161a53822589d0f3208c5b32d4238e # v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.2.0
         with:
-          fetch-depth: 0
+          fetch-depth: 0   # Scan full history
 
-      - name: Scan Secrets
+      - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@809151d024e2f910c0c1034a60c6a408d345e229 # v2.10.0
         with:
           no-banner: true
           redact: true
+          # exit-code: '1'  # Uncomment → FAIL build on leaks found
 
   trivy:
-    name: Vulnerability Scan
+    name: 🛡️ Vulnerability & Secret Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@a5ac7e51b4161a53822589d0f3208c5b32d4238e # v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.2.0
 
-      - name: Run Trivy Repository Scan
+      - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@18f1fe93efb18990a69c4e319d216243c549c580 # v0.28.0
         with:
           scan-type: 'repo'
-          scanners: 'vuln,secret'
+          scanners: 'vuln,secret,config'   # Added config misconfig scan
           severity: 'CRITICAL,HIGH,MEDIUM'
           format: 'sarif'
           output: 'trivy-results.sarif'
+          hide-progress: true
 
-      - name: Upload Trivy Results
-        uses: github/codeql-action/upload-sarif@1b1ada3607b4889a27c1e1cf92d2f7424e4c7073 # v3.27.0
+      - name: Upload to GitHub Security
+        uses: github/codeql-action/upload-sarif@4dd16135b69832d1efb7b37e36f1e0c5f9f01a84 # v3.28.0
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+          category: 'trivy-repo'
 
   dependency-review:
-    name: Dependency Review
+    name: 📦 Dependency Review
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
       - name: Checkout
-        uses: actions/checkout@a5ac7e51b4161a53822589d0f3208c5b32d4238e # v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.2.0
 
-      - name: Review Dependencies
+      - name: Review Dependency Changes
         uses: actions/dependency-review-action@72eb3ec98690805102a86b0a8e466541018099b # v4.5.0
         with:
           fail-on-severity: moderate
           license-check: true
+          verbose: true
+          comment-summary-in-pr: always   # Post results directly in PR
+
+  summary:
+    name: 📊 Security Scan Summary
+    runs-on: ubuntu-latest
+    needs: [gitleaks, trivy, dependency-review]
+    if: always()
+    steps:
+      - name: Final Status
+        run: |
+          echo "🔒 All security scans completed!"
+          echo "Gitleaks:   ${{ needs.gitleaks.result == 'success' && '✅ PASS' || '⚠️  Check details' }}"
+          echo "Trivy:      ${{ needs.trivy.result == 'success' && '✅ PASS' || '⚠️  Check details' }}"
+          echo "Dep Review: ${{ needs.dependency-review.result == 'success' && '✅ PASS' || needs.dependency-review.result == 'skipped' && '⏭️  Skipped (not PR)' || '⚠️  Check details' }}"

@@ -4,25 +4,33 @@ on:
   pull_request:
     types: [opened, synchronize, closed]
 
+permissions:
+  contents: write
+
 jobs:
   log-essential:
+    name: 📝 Log Essential PR Data
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Log Essential PR Data
+      - name: Update CHANGELOG.md
         run: |
           echo "## PR #${{ github.event.pull_request.number }}" >> CHANGELOG.md
           echo "- Title: ${{ github.event.pull_request.title }}" >> CHANGELOG.md
           echo "- Author: ${{ github.event.pull_request.user.login }}" >> CHANGELOG.md
           echo "- Status: ${{ github.event.action }}" >> CHANGELOG.md
           echo "- Updated: $(date)" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
 
-      - name: Commit logs
+      - name: Commit & Push Changes
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add CHANGELOG.md
-          git commit -m "log: essential PR data (#${{ github.event.pull_request.number }})"
+          git commit -m "log: Essential PR data (#${{ github.event.pull_request.number }})"
           git push

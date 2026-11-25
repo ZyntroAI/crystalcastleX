@@ -1,29 +1,24 @@
-# ✅ Reviewer Checklist (CrystalCastle Governance)
+# 🧐 Reviewer Checklist
 
-## 📜 License
-- [ ] Root LICENSE present
-- [ ] No LICENSE inside frontend/
-- [ ] Docs/license optional
-- [ ] Archived LICENSE in notuse/ only
+## 📄 License
+- [ ] Root LICENSE file present
+- [ ] No LICENSE file inside frontend/ directory
+- [ ] Docs/license/ — optional license documentation
+- [ ] Archived LICENSE in notuse/ — retained only
 
-## 🔑 Token
-- [ ] token-status.json exists
-- [ ] Token expiry date valid
-- [ ] Status = active
+## 🔑 AI Keys
+- [ ] DevKey rotated within last 30 days
+- [ ] FallbackKey rotated within last 60 days
+- [ ] PrdKey rotated within last 90 days
+- [ ] No critical or expired key status
 
-## 🗝️ AI Keys
-- [ ] DevKey rotated < 30 days
-- [ ] FallbackKey rotated < 60 days
-- [ ] PrdKey rotated < 90 days
-- [ ] No critical status
+## 📋 Pull Requests & Issues
+- [ ] No open critical PRs or unresolved critical issues
+- [ ] Pending PRs have an assigned reviewer
+- [ ] Reviewed PRs are marked ready to merge
 
-## 🔍 PRs & Issues
-- [ ] Critical PRs/Issues resolved
-- [ ] Pending PRs assigned reviewer
-- [ ] Reviewed PRs ready to merge
-
-## 🚀 Deploy & Cache
-- [ ] deploy-status.json exists
-- [ ] Cache size reasonable
-- [ ] Cache last_used < 30 days
-- [ ] Status = healthy
+## 🚀 Deployment & Cache
+- [ ] deploy-status.json exists and up to date
+- [ ] Cache size within reasonable limits
+- [ ] Cache last used within last 30 days
+- [ ] Overall deployment status = healthy

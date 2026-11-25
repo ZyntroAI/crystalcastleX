@@ -5,19 +5,29 @@
     const artifacts = JSON.parse(localStorage.getItem("artifacts")) || [];
     const listDiv = document.getElementById("artifactList");
 
+    listDiv.textContent = "";
+
     if (artifacts.length === 0) {
-      listDiv.innerHTML = "<p>ยังไม่มีผลงานที่บันทึกไว้</p>";
+      const emptyMessage = document.createElement("p");
+      emptyMessage.textContent = "ยังไม่มีผลงานที่บันทึกไว้";
+      listDiv.appendChild(emptyMessage);
       return;
     }
 
     // สร้างรายการแสดงผล
-    let html = "<ul>";
+    const ul = document.createElement("ul");
     artifacts.forEach(item => {
-      html += `<li>${item.name} <small>(สร้างเมื่อ: ${item.createdAt})</small></li>`;
-    });
-    html += "</ul>";
+      const li = document.createElement("li");
+      li.appendChild(document.createTextNode(`${item.name} `));
 
-    listDiv.innerHTML = html;
+      const small = document.createElement("small");
+      small.textContent = `(สร้างเมื่อ: ${item.createdAt})`;
+      li.appendChild(small);
+
+      ul.appendChild(li);
+    });
+
+    listDiv.appendChild(ul);
   }
 
   // โหลดทันทีเมื่อเปิดหน้า

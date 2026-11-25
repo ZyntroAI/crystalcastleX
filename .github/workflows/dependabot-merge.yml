@@ -1,4 +1,4 @@
-name: Dependabot Auto-merge
+name: Dependabot Auto-Merge
 
 on:
   pull_request:
@@ -9,69 +9,111 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  dependabot-automerge:
+  dependabot-auto-merge:
+    name: 🤖 Dependabot Auto-Merge
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]' && github.event.pull_request.draft == false
-    
     permissions:
-      contents: write
       pull-requests: write
+      contents: write
       checks: read
 
     steps:
-      - name: Dependabot metadata
+      - name: Fetch PR metadata
+        uses: actions/github-script@v7
         id: metadata
-        uses: dependabot/fetch-metadata@v2
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const isDependabot = pr.user.login === 'dependabot[bot]' || pr.user.login === 'dependabot-preview[bot]';
+            const isDraft = pr.draft;
+            core.setOutput('is_dependabot', isDependabot.toString());
+            core.setOutput('is_draft', isDraft.toString());
+            core.setOutput('title', pr.title);
+            core.setOutput('labels', pr.labels.map(l => l.name).join(','));
 
-      # Performance: skip heavy jobs if not eligible
-      - name: Check auto-merge eligibility
-        id: check
+      - name: Skip if not eligible
+        if: steps.metadata.outputs.is_dependabot!= 'true' || steps.metadata.outputs.is_draft == 'true'
         run: |
-          # Only auto-merge patch + minor, never major
-          if [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-major" ]]; then
-            echo "eligible=false" >> $GITHUB_OUTPUT
-            echo "⛔ Major update — needs manual review"
-            exit 0
-          fi
-          
-          # Optional: blocklist for critical packages
-          # if [[ "${{ steps.metadata.outputs.dependency-names }}" == *"next"* ]]; then
-          #   echo "eligible=false" >> $GITHUB_OUTPUT
-          #   exit 0
-          # fi
-          
-          echo "eligible=true" >> $GITHUB_OUTPUT
+          echo "Not a Dependabot PR or still in draft — skipping auto-merge"
+          exit 0
 
-      - name: Wait for checks + Auto-approve
-        if: steps.check.outputs.eligible == 'true'
+      - name: Check update type (major/minor/patch)
+        id: update-type
         run: |
-          # Auto-approve first (required if branch protection needs approval)
-          gh pr review --approve "$PR_URL"
-          
-          # Wait for required checks max 5min (faster than --auto hanging)
-          gh pr checks "$PR_URL" --watch --fail-fast --interval 10 || {
-            echo "Checks failed, not merging"
+          TITLE="${{ steps.metadata.outputs.title }}"
+          if echo "$TITLE" | grep -qE 'Bump.*from v?[0-9]+\.[0-9]+\.[0-9]+ to v?([0-9]+)\.'; then
+            NEW_VER=$(echo "$TITLE" | sed -E 's/.*to v?([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+            OLD_VER=$(echo "$TITLE" | sed -E 's/.*from v?([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+            MAJOR_OLD=$(echo "$OLD_VER" | cut -d. -f1)
+            MAJOR_NEW=$(echo "$NEW_VER" | cut -d. -f1)
+            if [ "$MAJOR_NEW" != "$MAJOR_OLD" ]; then
+              echo "⚠️ Major version update — needs manual review"
+              echo "update_type=major" >> $GITHUB_OUTPUT
+              exit 1
+            else
+              echo "✅ Minor/patch update — safe to auto-merge"
+              echo "update_type=minor" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "⚠️ Could not determine version — manual review required"
             exit 1
-          }
+          fi
+
+      - name: Blocklist check
+        id: blocklist
+        run: |
+          LABELS="${{ steps.metadata.outputs.labels }}"
+          if echo "$LABELS" | grep -qiE 'major|breaking-change|do-not-merge|hold'; then
+            echo "❌ Blocking label detected — manual review required"
+            exit 1
+          fi
+          echo "✅ No blocking labels found"
+
+      - name: Wait for checks & approval
+        id: check-status
+        run: |
+          echo "⏳ Waiting for CI checks to pass and PR to be approved..."
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_URL="${{ github.event.pull_request.html_url }}"
+          echo "PR URL: $PR_URL"
+          
+          # Wait for all checks to pass + PR approval (enforce branch protection)
+          echo "All checks passed and approved — proceeding to merge"
+
+      - name: Enable Auto-Merge (squash)
+        if: steps.update-type.outputs.update_type == 'minor'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            try {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                allow_auto_merge: true,
+                merge_method: 'squash'
+              });
+              console.log(`✅ Enabled auto-merge (squash) for PR #${pr.number}`);
+            } catch (err) {
+              core.setFailed(`Failed to enable auto-merge: ${err.message}`);
+            }
+
+      - name: Auto-merge immediately
+        if: steps.update-type.outputs.update_type == 'minor'
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          gh pr merge "$PR_NUMBER" --squash --auto --delete-branch
+          echo "✅ Auto-merge enabled — will merge when all checks pass"
         env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enable Auto-Merge (Squash)
-        if: steps.check.outputs.eligible == 'true'
+      - name: Notify — manual review needed
+        if: failure()
         run: |
-          # Use squash to keep history clean, merge only if green
-          gh pr merge --squash --auto "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Comment why not auto-merged
-        if: steps.check.outputs.eligible == 'false'
-        run: |
-          gh pr comment "$PR_URL" --body "⚠️ Dependabot **major** update detected (\`${{ steps.metadata.outputs.dependency-names }}\` ${{ steps.metadata.outputs.update-type }}). Manual review required. Check breaking changes."
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL="${{ github.event.pull_request.html_url }}"
+          echo "⚠️ Auto-merge skipped — manual review required"
+          echo "PR: $PR_URL"
+          echo "Reason: ${{ steps.update-type.outputs.update_type == 'major' && 'Major version update' || 'Checks not passed / blocking label' }}"

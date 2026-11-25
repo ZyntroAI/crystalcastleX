@@ -6,13 +6,16 @@ on:
 
 jobs:
   check-commit:
+    name: 📝 Check Commit Messages
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Check commit messages
+      - name: Run commitlint
         uses: wagoid/commitlint-github-action@v6
         with:
           configFile: |
@@ -20,8 +23,8 @@ jobs:
               extends: ['@commitlint/config-conventional'],
               rules: {
                 'type-enum': [2, 'always', [
-                  'feat', 'fix', 'docs', 'style', 'refactor', 
-                  'perf', 'test', 'build', 'ci', 'chore', 
+                  'feat', 'fix', 'docs', 'style', 'refactor',
+                  'perf', 'test', 'build', 'ci', 'chore',
                   'revert', 'affiliate'
                 ]],
                 'type-case': [2, 'always', 'lower-case'],
@@ -29,5 +32,8 @@ jobs:
                 'subject-empty': [2, 'never'],
                 'subject-full-stop': [2, 'never', '.'],
                 'header-max-length': [2, 'always', 100],
+                'body-max-line-length': [2, 'always', 100]
               }
             }
+          failOnWarnings: true
+          helpUrl: 'https://github.com/ZyntroAI/crystalcastleX/blob/main/CONTRIBUTING.md#commit-style-guide'
